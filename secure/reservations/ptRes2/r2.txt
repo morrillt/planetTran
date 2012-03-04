@@ -1,0 +1,6 @@
+<div id="main-content">
+	<h2 class="page-header"><img border="0" alt="Reservations" src="images/header_reservations.gif" width="578" height="47" /></h2>
+
+
+
+	<div class="article full_">

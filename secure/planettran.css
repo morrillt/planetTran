@@ -1,0 +1,629 @@
+
+/* VSA (4/07/09) ------- */
+
+#mailing-form input.textbox,
+#login-form input.textbox {
+	border: 0;
+	vertical-align: middle;
+	font-size: 9px;
+	padding: 2px;
+}
+
+/* HEADER */
+#header h1 a:focus { outline: solid 1px white; }
+#planettran-logo { display: block; margin-top: 8px; }
+
+/* LOGIN and PHONE INFO */
+#reservation-info {
+	background-color: #939598;
+	font-size: 9px;
+	margin-top: 3px;
+	margin-bottom: 5px;	
+	padding: 0 15px;
+}
+#reservation-info #phone-number {
+	float: right;
+	margin-top: 9px;
+}
+#login-form { display: block; padding: 6px 0; margin-bottom: 0; }
+#login-form * { vertical-align: middle; }
+#login-form label {
+	color: white;
+	margin-right: 5px;
+}
+#login-form input.textbox {
+	margin-right: 5px;
+	width: 80px;
+}
+
+/* MAILING LIST SIGNUP and COPYRIGHT */
+#footer { margin-top: 5px; }
+#mailing-form {
+	display: block;
+	background:  #cacbce url(images/bkgd-footer.gif) no-repeat 0 100% ;
+	font-size: 9px;
+	height: 130px;
+	padding: 0 15px;
+	margin-bottom: 10px;
+}
+#mailing-form .inputs, #mailing-form .submit { padding-top: 20px; }
+#mailing-form .inputs {
+	float: left;
+	position: relative;
+}
+#mailing-form input.image {
+	vertical-align: middle;
+	margin-left: 10px;
+	margin-top: 2px;
+}
+/* for IE 6 */
+* html body #mailing-form input.image {
+	margin-top: 0;
+	vertical-align: top;
+}
+#mailing-form p {
+	margin-bottom: 0px;
+	font-size: 9px;
+}
+#mailing-form label {
+	color: white;
+	margin-left: 10px;
+	margin-right: 5px;	
+}
+#mailing-form input.textbox {
+	border: 0;
+	width: 235px;
+	vertical-align: middle;
+	font-size: 9px;
+	padding: 2px;
+}
+#mailing-form #powered-by {
+	position: absolute;
+	right: 0;
+	color: #818386;
+	text-decoration: none;
+	font-size: 9px;
+	margin-top: 5px;
+}
+#footer .copyright-info {
+	font-size: 9px;
+}
+
+#main-content {
+	border: solid 1px #e9f2cc;
+	padding: 15px 10px;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+}
+
+/* clear floats */
+#main-content:after { content: '.'; display: block; height: 0; clear: both; visibility: hidden; }
+* html body #main-content {	zoom: 1; }
+p.signature {
+	color: #84c05a;
+}
+#main-content a {
+	color: #73b843;
+	text-decoration: none;
+}
+#main-content a:hover {
+	color: #999;
+	text-decoration: none;
+}
+h2.page-header {
+	margin: 0;
+	margin-bottom: 20px;
+}
+#main-content h3.page-subheader {
+	color: #00652e;
+	font-size: 12px;
+	margin-left: 9px;
+	margin-bottom: 20px;
+}
+#main-content .article {
+	width: 365px;
+	float: left;
+	margin-left: 9px;
+	line-height: 1.5;
+	color: #939598;
+	display: inline;
+}
+
+.article h4 {
+	margin-bottom: 20px;
+	margin-top: 0;
+	font-size: 12px;
+}
+.article p {
+	margin-top: 0;
+	margin-bottom: 20px;
+	font-size: 12px;
+}
+.article dl {
+	margin-top: 0;
+	margin-left: 0;
+}
+.article dt {
+	margin-top: 0;
+	font-weight: bold;
+	font-size: 12px;
+}
+.article dd {
+	margin-left: 0;	font-size: 12px;
+	margin-bottom: 10px;
+}
+#main-content .related {
+	float: left;
+	width: 165px;
+	margin-left: 35px;
+	border: solid 2px #c5dd66;
+	border-style: solid none;
+	padding: 10px 0 5px;
+}
+.related p {
+	margin-bottom: 10px;
+}
+.related a {
+	line-height: 1.4;
+	font-size: 12px;
+	display: block;
+}
+.related a.leadin  {
+	line-height: 1.4;
+	color: #999 !important;
+}
+.related a.leadin:hover strong {
+	color: #999 !important;
+}
+.related .leadin strong  {
+	font-weight: bold;
+	font-size: 13px;
+	color: #73b843;
+}
+
+/* HOME PAGE styles ______ */
+img#home-welcome {
+	margin-top: 15px;
+	margin-left: 5px;
+}
+#main-content h2.image-head {
+	margin-bottom: 25px;
+}
+#quickquote {
+	display: block;
+	font-size: 9px;
+	color: #818386;
+	margin-left: 5px;
+}
+#quickquote div.inputs {
+	margin-bottom: 10px;
+}
+#quickquote label { margin-right: 5px; }
+
+#feedback label { 
+	position: absolute;
+	width: 100px;
+	margin-right: 20px;
+}
+
+#quickquote label.first_ {
+	display: block; float: left; width: 63px;
+}
+#quickquote input.textbox {
+	border: solid 1px #c0c1c2;
+	vertical-align: middle;
+	font-size: 9px;
+	padding: 2px;
+	margin-right: 4px;
+	width: 115px;
+}
+#feedback input, select {
+	border: solid 1px #c0c1c2;
+	font-size: 11px;
+	margin-left: 120px;
+	width: 140px;
+}
+#feedback textarea {
+	border: solid 1px #c0c1c2;
+	font-size: 11px;
+	margin-left: 120px;
+	width: 200px;
+}
+/* for IE only */
+* html body #quickquote label {
+	margin-right: 2px;
+}
+* html body #quickquote input.textbox {
+	width: 110px;
+	margin-right: 2px;
+}
+#quickquote select {
+	vertical-align: middle;
+	font-size: 9px;
+	padding: 0;
+	margin-right: 5px;
+	width: 284px;
+}
+* html body #quickquote select {
+	width: 273px;
+}
+
+#quickquote input#quote-zip { width: 55px; }
+#quickquote input#quote-zip2 { width: 55px; }
+#quickquote input.image { vertical-align: middle; }
+#quickquote a {
+	color: #818386;
+	text-decoration: none;
+	font-size: 9px;
+}
+
+
+/* RESERVATIONS styles ______ */
+#main-content .full_ {
+	width: 550px;
+}
+#res-form p {
+	font-size: 9px;
+	margin-bottom: 10px;
+}
+#res-form input.textbox {
+	border: solid 1px #c0c1c2;
+	vertical-align: middle;
+	font-size: 9px;
+	padding: 2px;
+	width: 199px;
+	margin-right: 5px;
+}
+#res-form { display: block; padding: 6px 0; margin-bottom: 0; }
+#res-form * { vertical-align: middle; }
+#res-form label {
+	margin-right: 5px;
+	float: left;
+	width: 65px;
+	margin-top: 2px;
+}
+#res-form input.image {
+	margin-right: 5px;
+}
+
+
+/* END VSA --------- */
+
+
+
+.bodytext {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-style: normal;
+	line-height: 15pt;
+	font-weight: normal;
+	color: #333333;
+	text-decoration: none;
+}
+.bodyheader {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 15px;
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+}
+/*
+a:link {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-style: normal;
+	line-height: 15px;
+	color: #2B5F16;
+	text-decoration: underline;
+}
+a:visited {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-style: normal;
+	line-height: 15px;
+	font-weight: normal;
+	color: #004097;
+	text-decoration: underline;
+}
+a:hover {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 15px;
+	font-weight: normal;
+	color: #004097;
+	text-decoration: none;
+}
+a:active {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 15px;
+	font-weight: normal;
+	color: #000000;
+	text-decoration: none;
+}
+*/
+
+
+/* Last modified 04-07-09 */
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    background-color: white;    			
+	padding-top: 10px;
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    color: #333333;
+	font-size: 11px;
+}
+a {
+    color: #104E8B;
+    text-decoration: none;
+}
+a:hover {
+    color: #474747;
+    text-decoration: underline;
+}
+/*
+Common text settings
+*/
+p {
+    font-size: 11px;
+    margin-bottom: 2px;
+    margin-top: 2px;
+    margin-right: 2px;
+    margin-left: 2px;
+}
+h5 {
+    margin-bottom: 0px;
+	margin-top: 0px;
+    font-size: 12px;
+}
+h1 {
+	font-size: 13px;
+}
+h4 {
+	font-size: 13px;
+}
+h3 {
+	font-size: 18px;
+	margin-top: 0px;
+}
+/*
+Error box settings
+*/
+.alert {
+    color: #CC0000;
+	background-color: #FFFFFF;
+    text-align: center;
+	width: 60%;
+	border: solid #8B0000 2px;
+	padding: 5px;
+	margin-bottom: 5px;
+	font-size: 11px;
+}
+/*
+Form text box settings
+*/
+.textbox {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 11px;  
+    color: #36648B;
+    background-color: #FCFCFC;
+}
+/*
+Form button settings
+*/
+.button {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+	border: solid 1px #7C7A7A;
+	color: #36648B;
+	background-color: #E7E7E7;
+}
+
+/*
+Data table head row settings
+*/
+.tableTitle {
+    font-size: 11px;
+    font-weight: bold;
+    color: #FFFFFF;
+    padding-left: 10px; padding-top: 1px; padding-bottom: 1px; padding-right: 5px;
+	background-color: #36648B;
+}
+
+.tableTitle a, .tableTitle a:hover {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+/*
+Welcome message settings
+*/
+.welcomeBack {
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    color: #708090;
+	font-size: 12px;
+}
+/*
+Table border color
+*/
+.tableBorder {
+    background-color: #36648B;
+}
+
+/*
+Common data cell settings
+*/
+td.cellColor, .cellColor td {
+    padding: 2px;
+    background-color: #FFFFFF;
+    font-size: 11px;
+}
+/*
+Alternating row colors
+*/
+td.cellColor0, .cellColor0 td {
+    padding: 2px;
+    background-color: #FFFFFF;
+    font-size: 11px;
+}
+td.cellColor1, .cellColor1 td {
+    padding: 2px;
+	background-color: #F8FAEA;
+    font-size: 11px;
+}
+/*
+Table data row heading settings
+*/
+td.rowHeaders, .rowHeaders td {
+    color: #333333;
+    background-color: #EDEDED;
+    font-weight: bold;
+    text-align: center;
+    font-size: 11px;
+}
+/*
+Individal time cells for the scheduler
+*/
+td.scheduleTimes, .scheduleTimes td {
+    font-size: 11px;
+    color: #333333;
+    text-align: left;
+    background-color: #EDEDED;
+    padding-left: 2px;
+}
+/*
+Date cell for the scheduler
+*/
+td.scheduleDate, .scheduleDate td {
+    font-size: 11px;
+    color: #FFFFFF;
+    background-color: #A2B5CD;
+    text-align: center;
+    padding: 2px;
+}
+/*
+Resource name cell for the scheduler
+*/
+td.resourceName {
+    color: #333333;
+    font-size: 11px;
+    background-color: #EDEDED;
+    padding-left: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-right: 5px;
+}
+/*
+Edit form cell settings
+*/
+td.formNames {
+    font-size: 11px;
+    background-color: #EDEDED;
+    padding-left: 5px;
+}
+/*
+Reserved cell settings for the scheduler
+*/
+td.reservedCell {
+    font-size: 10px;
+    background-color: #B0C4DE;
+}
+/*
+Inactive resource text color
+*/
+.inact {
+    color: #BDBDBD;
+}
+/*
+Color of the outermost border on every page
+*/
+.mainBorder {
+    border: solid 1px #CCCCCC;
+}
+/*
+Background color of main section on every page
+*/
+.mainBkgrdClr {
+    background-color: #FAFAFA;
+}
+/*
+Alert message settings
+*/
+.message {
+	background-color: #FEFEFE;
+	text-align: center;
+	width: 60%;
+	border: solid #E0E0E0 1px;
+	padding: 5px;
+	margin-bottom: 5px;
+	font-size: 11px;
+}
+
+/*
+Summary popup box
+*/
+.summary_div {
+	position: absolute;
+	visibility: hidden;
+	border: solid #686767 1px;
+	padding: 3px;
+	background-color: #E1E1E1;
+	overflow: visible;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 11px;
+}
+
+/*
+Recurring reservation box
+*/
+.recur_box {
+	background-color: #D0D4E4;
+	color: #282D42;
+	border: solid 1px #8B94B1;
+}
+
+/*
+Calendar settings
+*/
+.monthNameStyle {
+	font-size: 11px;
+	text-align: center;
+}
+.dayBoxStyle {
+	font-size: 10px;
+	background-color: #F0F0F0;
+	text-align: center;
+	width: 25px;
+	height: 25px;
+}
+.currentDayBoxStyle {
+	width: 25px;
+	height: 25px;
+	font-size: 10px;
+	background-color: #FFFFFF;
+	text-align: center;
+}
+.emptyDayStyle {
+	background-color: #D5D8D3;
+}
+.dayNamesStyle {
+	font-size: 11px;
+	text-align: center;
+	height: 25px;
+	background-color: #DDCAF6;
+}
+.navMonthStyle {
+	font-size: 11px;
+	color: #000000;
+}
+.selectBoxStyle {
+	font-size: 11px;
+	font-family: Arial, Helvetica, sans-serif;
+}

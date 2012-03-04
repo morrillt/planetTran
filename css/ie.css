@@ -1,0 +1,24 @@
+/*
+
+Title: IE patches 
+Author: Amitabh Handa, www.ahandadesign.com
+
+-------------------------------------------------------------------*/
+
+
+/* self-clear floats */
+
+* html .group { /* IE6 */
+	height: 1%;
+	}
+
+*:first-child+html .group { /* IE7 */
+	min-height: 1px;
+	}
+
+*+html button { border: 0px; }
+
+*+html .imagetext {
+	cursor: default; /* IE7 */
+	}
+

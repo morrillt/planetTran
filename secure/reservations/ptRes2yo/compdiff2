@@ -1,0 +1,125 @@
+function get_company($userdata) {
+	//$query = "select l.memberid, l.lname, s.scheduleid
+	//	  from login l join schedules s on l.email=s.scheduleTitle
+	//	  where l.fname='Saturn'";
+	//$qresult = mysql_query($query);
+
+	//$transponet = 'glb462e73465eb6b';
+	//$memberid = $transponet;
+	$return = array();
+	
+	//get the "company id" from the Transponet Transaction request
+	$cid = $_POST['Accounting_CorporateID'];
+	
+	//get the PNR from the Transponet Transaction request
+	$pid = $_POST['Passenger_PNR'];
+
+	//map the "company id" to a billing group and default user
+	//TODO:  this should move to a database table
+	if ($cid == 'BIOGEN' || $cid == '22') {
+		$return['memberid'] = 'glb46e7fa6552ba5';
+		$return['scheduleid'] = 'glb46b88119123fe'; //'Biogen'
+		$return['groupid'] = 22;
+	} else if ($cid == 'GENZYME') {
+		$return['memberid'] = 'glb44bb8fd76444c';
+		$return['scheduleid'] = 'glb44bb8fd76dde4';//'Genzyme'
+		$return['groupid'] = 1;
+	 } else if ($cid == 'BAIN38') {
+		$return['memberid'] = 'glb4637557a7cc1e';	
+		$return['scheduleid'] = 'glb4637557a7d7d2';//'Bain'
+		$return['groupid'] = 38;
+	} else if ($cid == 'PACKARD1049') {
+		$return['memberid'] = 'glb463755e1ce602';
+		$return['scheduleid'] = 'glb463755e1d247f';//'Packard'
+		$return['groupid'] = 45;
+	} else if ($cid == '61') {
+		$return['memberid'] = 'glb469e26423555a';
+		$return['scheduleid'] = 'glb469e26423804f';//'Novartis'
+		$return['groupid'] = 30;
+	} else if ($cid == '63') {
+		$return['memberid'] = 'glb469fd584260f3';
+		$return['scheduleid'] = 'glb469fd58426caa';//'Millipore'
+		$return['groupid'] = 63;
+	} else if ($cid == '1108') {
+		$return['memberid'] = 'glb469fdb660c8b5';
+		$return['scheduleid'] = 'glb469fdb660f793';//'Navigant'
+		$return['groupid'] = 1108;
+	} else if ($cid == '2') {
+		$return['memberid'] = 'glb46b325ee3b311';
+		$return['scheduleid'] = 'glb46b325ee4532e';//'Vertex'
+		$return['groupid'] = 2;
+	} else if ($cid == '34') {
+		$return['memberid'] = 'glb46e7fae87a0ea';
+		$return['scheduleid'] = 'glb46e7fae88354f';//'Gap'
+		$return['groupid'] = 34;
+	} else if ($cid == 'REARDENSMB') {
+		$return['memberid'] = 'glb47b606e6ae165';
+		$return['scheduleid'] = 'glb47b606e6b3b37';//'Rearden'
+		$return['groupid'] = 1293;
+	} else if ($cid == '1379') {
+		$return['memberid'] = 'glb490a66bbdad2d'; //CRAI
+		$return['scheduleid'] = 'glb490a66bbe12b6';
+		$return['groupid'] = 1379;
+	} else if ($cid == 'Roche Palo Alto') {
+		$return['memberid'] = 'glb49371087ecc4e';//Roche
+		$return['scheduleid'] = 'glb49371088016a4';
+		$return['groupid'] = 1010;
+	} else if ($cid == '1073') {
+		$return['memberid'] = 'glb4941d0b948d42';//Adobe 1073
+		$return['scheduleid'] = 'glb4941d0b95064f';
+		$return['groupid'] = 1073;
+	} else if ($cid == '1397') {
+		$return['memberid'] = 'glb4941d5f095f67';// Cubist
+		$return['scheduleid'] = 'glb4941d5f09b935';
+		$return['groupid'] = 1397;
+	} else if ($cid == '1374') {
+		$return['memberid'] = 'glb4941d31d2fe8b';//Millenium
+		$return['scheduleid'] = 'glb4941d31d36029';
+		$return['groupid'] = 1374;
+	} else if ($cid == '1000') {
+		$return['memberid'] = 'glb4970ded44ea88';  //Biomed
+		$return['scheduleid'] = 'glb4970ded463e43';
+		$return['groupid'] = 1000;
+	} else if ($cid == '1427') {
+		$return['memberid'] = 'glb4993448c75d2a'; // Carlson
+		$return['scheduleid'] = 'glb4993448c7c692';
+		$return['groupid'] = 1427;
+	} else if ($cid == '1531') {
+		$return['memberid'] = 'glb4a958c54d87ed'; // Golden gate
+		$return['scheduleid'] = 'glb4a958c54d9b71';
+		$return['groupid'] = 1531;
+	} else if ($cid == '1428') {
+		$return['memberid'] = 'glb4aea037f1f9dc'; // MIT
+		$return['scheduleid'] = 'glb4aea037f28290';
+		$return['groupid'] = 1428;
+	} else if ($cid == '1606') {
+		$return['memberid'] = 'glb4bbe03ff66bad'; //polycom
+		$return['scheduleid'] = 'glb4bbe03ff6fc2c';
+		$return['groupid'] = 1606;
+	} else if ($cid == '1396') {
+		$return['memberid'] = 'glb4bc60437b1493'; //Mckinsey
+		$return['scheduleid'] = 'glb4bc60437b5ae0';
+		$return['groupid'] = 1396;
+	} else if ($cid == '1631') {
+		$return['memberid'] = 'glb4c769ef14714b'; //Autodesk
+		$return['scheduleid'] = 'glb4c769ef14f235';
+		$return['groupid'] = 1631;
+	} else {
+		// Default to Transponet user
+		// live
+		$return['memberid'] = 'glb46f43f55381db';
+		$return['scheduleid'] = 'glb46f43f555fa81';
+		$return['groupid'] = 0;
+	}
+
+	//if the PNR was set, fine the appropriate memberid and scheduleid
+	if(isset($pid)) {
+		$return = $this->get_individual_user($pid, $return['groupid'], $userdata);
+	}
+	
+		// venus
+		//$return['memberid'] = 'glb462e73465eb6b';
+		//$return['scheduleid'] = 'glb462e734663950';
+		return $return;
+
+}

@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+MIDlet-Version: 1.0.0
+MIDlet-Jar-Size: 15073
+MicroEdition-Configuration: CLDC-1.1
+MIDlet-Jar-URL: PT Webicon.jar
+RIM-MIDlet-Icon-1-1: pt_icon_RolloverTest.png,focused
+RIM-COD-Module-Dependencies: net_rim_cldc,net_rim_os,net_rim_bbapi_browser
+RIM-MIDlet-Flags-1: 0
+RIM-COD-Module-Name: PT_Webicon
+MIDlet-Name: PT Webicon
+RIM-COD-Size: 6844
+RIM-COD-Creation-Time: 1274643401
+MIDlet-1: PlanetTran,pt_icon.png,
+RIM-COD-URL: PT_Webicon.cod
+RIM-COD-SHA1: f6 0d 8d bc d0 d7 4d d3 ce 24 b8 7b 6f 76 00 4f 72 bc b5 12
+MicroEdition-Profile: MIDP-2.0
+MIDlet-Vendor: PlanetTran
+RIM-MIDlet-Icon-Count-1: 1

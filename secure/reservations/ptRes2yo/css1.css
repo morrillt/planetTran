@@ -1,0 +1,181 @@
+
+
+
+#reservation-info {
+	background-color: #939598;
+	font-size: 9px;
+	margin-top: 3px;
+	margin-bottom: 5px;	
+	padding: 0 15px;
+}
+#reservation-info #phone-number {
+	float: right;
+	margin-top: 9px;
+}
+
+
+.basicText {
+	padding: 10px;
+	border: solid 1px #eee;
+	margin-top: 10px;
+}
+.titlebar {
+    font-size: 11px;
+    font-weight: bold;
+    color: #FFFFFF;
+    padding-left: 12px; padding-top: 4px; padding-bottom: 5px; padding-right: 5px;
+	margin-bottom: 20px;
+}
+
+
+
+body {
+background-color:white;
+margin-top: 15px;
+}
+
+p {
+font-family: Verdana, Tahoma, sans-serif;
+font-size:10px;
+color: #000;
+}
+
+tr {
+background-color: white;
+}
+
+/*
+a {
+color:#3E6F99;
+text-decoration:none;
+}
+a:hover {
+text-decoration:underline;
+}
+
+
+
+#line
+{
+height: 1px;
+width:100%;
+background-color:#000000;
+}
+*/
+
+#main {
+width:90%;
+height:100%;
+background-color:#E7E7E7;
+/*
+border-left:1px solid black;
+border-right:1px solid black;
+
+border-top:0;
+border-bottom:1px solid black;
+*/
+}
+
+
+
+#nav, #subnav {
+	font-family:Verdana, Helvetica, sans-serif;
+	padding:0;
+	margin:0 0 0 0;
+	background-image: url(images/navline.gif);
+}
+#nav {
+	margin-top: 10px;
+	overflow: hidden;
+}
+
+/* clear floats */
+#nav:after { content: '.'; display: block; height: 0; clear: both; visibility: hidden; }
+* html body #nav {	zoom: 1; }
+
+
+#subnav {
+	height:26px;
+	font-family:Verdana, Helvetica, sans-serif;
+	padding:0;
+	margin:0 0 0 0;
+	background-image: url(images/subnavline.gif) ;
+	}
+
+#subnav a:link,
+#subnav a:active,
+#subnav a:visited,
+#subnav a.active,
+#subnav a:link.left,
+#subnav a:active.left,
+#subnav a:visited.left,
+#subnav a:link.right,
+#subnav a:active.right,
+#subnav a:visited.right
+{
+display:block;
+float:left;
+width:123px;
+padding-top:5px;
+height:22px;
+background-position:0 0;
+color:#000;
+text-decoration:none;
+text-align:center;
+background: url(images/subbg.gif) no-repeat;
+font-weight:normal;
+font-size:11px;
+
+}
+
+#nav a:link,
+#nav a:active,
+#nav a:visited,
+#nav a.active,
+#nav a:link.left,
+#nav a:active.left,
+#nav a:visited.left,
+#nav a:link.right,
+#nav a:active.right,
+#nav a:visited.right
+{
+display:block;
+float:left;
+width:123px;
+padding-top:5px;
+height:22px;
+background-position:0 0;
+color:#00652e;
+text-decoration:none;
+text-align:center;
+background: url(images/bg123.gif) no-repeat;
+font-weight:bold;
+font-size:11px;
+
+
+
+}
+
+#nav a:hover,
+#nav a:link.active,
+#nav a:hover.active
+{
+background-position:0 -26px;
+}
+
+#nav a:visited.active
+{
+background-position:0 -52px;
+}
+
+#subnav a:hover,
+#subnav a:link.active,
+#subnav a:hover.active
+{
+background-position:0 -26px;
+}
+
+#subnav a:visited.active
+{
+background-position:0 -52px;
+}

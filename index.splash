@@ -1,0 +1,16 @@
+<head>
+<title>Planettran - Welcome</title>
+<meta name="description" content="Green Transportation where you need it.  Operating out of Boston and San Francisco, PlanetTran is the Nation's first Car Service to implement Green Transportation pactices by using a fleet of Hybrid Electric Cars to provide ground transportation to individuals and organizations.">
+<meta name="keywords" content="Green Transportation, Boston Green Transportation, Green Transportation Boston, San Francisco Green Transportation, Green Transportation San Francisco, Boston  Car Service, San Francisco Car Service, Hybrid Electric Cars">
+</head>
+<body bgcolor="#efeee9">
+<table width="100%" height="100%">
+<tr>
+	<td width="100%" height="100%" align="center" valign="middle">
+		<a href="Green-Transportation.php">
+		<img border=0 src="splash.jpeg">
+		</a>
+	</td>
+</tr>
+</table>
+</body>

@@ -1,0 +1,19 @@
+	<tr>
+      	<td width="600" colspan="3">
+      	
+	
+<div id="footer">
+	<form method="post" id="mailing-form" action="http://oi.vresp.com?fid=7a06db36ae" target="vr_optin_popup" onsubmit="window.open( 'http://www.verticalresponse.com', 'vr_optin_popup', 'scrollbars=yes,width=600,height=450' ); return true;" >
+		<div class="inputs">
+			<p>Join our mailing list. <label for="mailing-email">Email</label> <input name="email_address" id="mailing-email" class="textbox" /></p>
+			<a href="http://www.verticalresponse.com/?ref=oif" title="Email Marketing by VerticalResponse"  id="powered-by">Powered by VerticalResponse</a>
+		</div>
+		<div class="submit">
+			<input type="image" src="images/button-joinnow.gif" class="image" value="Join Now" />
+		</div>
+	</form>
+	<p class="copyright-info">Copyright 2010, PlanetTran. All Rights Reserved.</p>
+</div>
+
+		</td>
+	</tr>	

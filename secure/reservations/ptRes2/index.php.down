@@ -1,0 +1,36 @@
+<?php
+/**
+* This file is the login page for the system
+* It provides a login form and will automatically
+* forward any users who have cookies set to ctrlpnl.php
+* @author Nick Korbel <lqqkout13@users.sourceforge.net>
+* @version 06-25-04
+* @package phpScheduleIt
+*
+* Copyright (C) 2003 - 2004 phpScheduleIt
+* License: GPL, see LICENSE
+*/
+/**
+* Include Template class
+*/
+$biz = (isset($_GET['biz']) ? $_GET['biz'] : 'www') ;
+$prefix = (isset($_GET['prefix']) ? $_GET['prefix'] : $biz);
+set_include_path("../:lib/pear/:/usr/local/php5");
+
+include_once('lib/Template.class.php');
+
+$t = new Template();
+$t->printHTMLHeader();
+
+// Print out logoImage if it exists
+echo (!empty($conf['ui']['logoImage']))
+		? '<div align="center"><img src="img/reservations_masthead.jpg" alt="reservations" vspace="5"/></div>'
+		: '';
+
+$t->startMain();
+?>
+Hold on!  The reservations database is down for routine maintenance.  Call 1-888-PLNT-TRN (888-756-8876) for reservations before 10am July 31, 2006.  We'll be back online by 8am on that day.  Thanks for you business!.
+<?
+$t->endMain();
+$t->printHTMLFooter();
+?>

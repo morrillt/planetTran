@@ -1,0 +1,8 @@
+function get_groups() {
+	$query = "select * from billing_groups order by group_name";
+	$qresult = mysql_query($query);
+	$return = array();
+	while ($row = mysql_fetch_assoc($qresult))
+		$return[] = $row;
+	return $return;
+}
