@@ -440,8 +440,8 @@ function print_resource_edit($rs = null){
         <label for="address">Address</label>
         <input name="type" value="air" <?php if('air' == $rs['type']) echo 'checked="checked"' ?> type="radio" id="airport" class="type_toggle" />
         <label for="airport">Airport</label>
-        <input value="2" name="type" <?php if(2 == $rs['type']) echo 'checked="checked"' ?> type="radio" id="poi" class="type_toggle" />
-        <label for="poi">Point of Interest</label>
+        <!--input value="2" name="type" <?php if(2 == $rs['type']) echo 'checked="checked"' ?> type="radio" id="poi" class="type_toggle" />
+        <label for="poi">Point of Interest</label-->
       </div>
 
       <div class="location_option hidden">

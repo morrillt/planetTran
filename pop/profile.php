@@ -13,10 +13,10 @@ echo " <span></span> ";
 // ini_set('display_errors', true);
 // error_reporting(E_ALL);
 
-include '../secure/reservations/ptRes2/lib/DBEngine.class.php';
-include '../secure/reservations/ptRes2/lib/Account.class.php';
-include '../secure/reservations/ptRes2/lib/Template.class.php';
-include '../secure/reservations/ptRes2/templates/cpanel.template.php';
+include dirname(__FILE__).'/../secure/reservations/ptRes2/lib/DBEngine.class.php';
+include dirname(__FILE__).'/../secure/reservations/ptRes2/lib/Account.class.php';
+include dirname(__FILE__).'/../secure/reservations/ptRes2/lib/Template.class.php';
+include dirname(__FILE__).'/../secure/reservations/ptRes2/templates/cpanel.template.php';
 ob_end_clean();
 
 mysql_connect('localhost','planet_schedul','schedule');

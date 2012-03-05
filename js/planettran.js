@@ -51,56 +51,57 @@ $(document).ready(function() {
   $('a.popover-edit, a.popover-add').live("click", function(event){
     $link = $(this);
 //	$('a.popover-edit, a.popover-add').each(function(){
-		var $dialog = $('<div></div>')
-			.append($loading.clone());
 //		var $link = $(this).click(function(event){
-      event.preventDefault();
-			$dialog
-//				.load($link.attr('href') + ' .popover_content') /* When launching a popover, only show content within the external file's div.popover_content */
-				.load($link.attr('href')) /* NO! because we won't be able execute any js in that file!!! */
-				.dialog({
-					resizable: false,
-					modal: false,
-					title: $link.attr('title'), /* Use link's title tag for popover title */
-					width: 400,
-					height: 425,
-					buttons: {
-						"Save": function(){
-              $dialog.find(".popover_content form").submit(function(event){
-                event.preventDefault();
-                $.ajax({
-                  type: "post",
-//                  dataType: "json",
-                  url: this.action,
-                  data: $(this).serialize(),
-                  success: function(data){
-                    data = $.trim(data);
-                    if(data == "success"){
-                      alert("Saved successfully!");
-                      document.location = document.location; // refresh
-                      $dialog.dialog("close"); // and close the dialog
-                    } else { // refresh the form on failure
-                      $dialog.html(data);
-                    }
-                  },
-                  error: function(){
-                    alert("Unexpected error!");
-                  },
-                  beforeSend: function(){
-                    $dialog.find(".popover_content").hide().end() // hide content
-                      .append($loading.clone()); // show loading
-                  }
-                });
-              }).submit();
-              // do nothing when there is no form
-						},
-						Cancel: function() {
-							$(this).dialog("close");
-						}
-					}
-				}).dialog("open");
+
+    var $dialog = $('<div></div>').append($loading.clone());
+    event.preventDefault();
+    $dialog
+       //.load($link.attr('href') + ' .popover_content') /* When launching a popover, only show content within the external file's div.popover_content */
+      .load($link.attr('href')) /* NO! because we won't be able execute any js in that file!!! */
+      .dialog({
+	  resizable: false,
+	  modal: false,
+	  title: $link.attr('title'), /* Use link's title tag for popover title */
+	  width: 400,
+	  height: 425,
+	  buttons: {
+	  "Save": function(){
+	    $dialog.find(".popover_content form").submit(function(event){
+	      event.preventDefault();
+	      $.ajax({
+		type: "post",
+  //                  dataType: "json",
+		url: this.action,
+		data: $(this).serialize(),
+		success: function(data){
+		  data = $.trim(data);
+		  if(data == "success"){
+		    alert("Saved successfully!");
+		    document.location = document.location; // refresh
+		    $dialog.dialog("close"); // and close the dialog
+		  } else { // refresh the form on failure
+		    $dialog.html(data);
+		  }
+		},
+		error: function(){
+		  alert("Unexpected error!");
+		},
+		beforeSend: function(){
+		  $dialog.find(".popover_content").hide().end() // hide content
+		    .append($loading.clone()); // show loading
+		}
+	      });
+	    }).submit();
+	    // do nothing when there is no form
+	  },
+	  Cancel: function() {
+	    $(this).dialog("close");
+	  }
+	}
+      }).dialog("open");
+    
 //		});
-	});
+  });
 
 
 //	$('a.popover').each(function(){
