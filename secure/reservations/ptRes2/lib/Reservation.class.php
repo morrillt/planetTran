@@ -1574,6 +1574,21 @@ class Reservation {
 
   $(function() {
 
+    $("#child_seats_outgoing, #booster_seats_outgoing")
+      .change(function(e) {
+	var cs = $("#child_seats_outgoing");
+	var bs = $("#booster_seats_outgoing");
+	var sum = parseInt(cs.val()) + parseInt(bs.val());
+	
+	if(sum > 3) {
+	  alert("You cannot choose more than 3 children/booster seats.");
+	  $(this).find("option[value=0]").attr('selected','1');
+	  return false;
+	}
+	
+	
+      });
+
       $("[name=apts_from],[name=apts_to]")
 	.change(function() {
 	  var pi = $(this).parents().filter('.half_column');
