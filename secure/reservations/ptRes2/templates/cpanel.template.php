@@ -147,7 +147,7 @@ function showSchedulesTable($res, $err) {
         echo "        <tr class=\"$class\" align=\"center\">"
 					. '          <td style="text-align:left;"><a href="' . $_SERVER['PHP_SELF'].'?currentId='.$rs['memberid'].'&fname='
 								. $rs['fname'] . '&lname=' . $rs['lname'] . '&active=view">'
-								. $rs['fname'] . ' ' . $rs['lname'] . '</a>z</td>'
+								. $rs['fname'] . ' ' . $rs['lname'] . '</a></td>'
 					. '          <td style="text-align:left;">' . $rs['email'] . '</td>'
 					. '          <td style="text-align:left;">' . $rs['institution'] . '</td>'
 					. '          <td style="text-align:left;">' . $rs['position'] . '</td>'
