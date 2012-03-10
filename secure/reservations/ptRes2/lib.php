@@ -124,8 +124,8 @@ function getGPS ($location) {
 	  'zip' => $zip,
 	  'state' => $state,
 	  'city' => $city,
-	  'lat' => $ll[0],
-	  'lon' => $ll[1]
+	  'lat' => $ll[1],
+	  'lon' => $ll[0]
 	)));
 }
 function getYahooGPS($address) {

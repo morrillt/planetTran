@@ -463,10 +463,12 @@ class Auth {
 			$mailer->Body = $msg;
 			$mailer->Send();
 		}
+                
+                return $id;
 
 		}
 		
-		return $id;	
+		return "SUCCESS";	                			
 		
 	}
 

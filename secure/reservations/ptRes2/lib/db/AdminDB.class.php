@@ -471,9 +471,10 @@ class AdminDB extends DBEngine {
 		array_push($values, $rs['lon']);
 		array_push($values, -1);
 		array_push($values, $rs['type']);//accuracy
+        array_push($values, 0);//stub for auto id field
 		$this->assign_resource($id, $assignid);
 
-		$q = $this->db->prepare('INSERT INTO ' . $this->get_table('resources') . '  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+		$q = $this->db->prepare('INSERT INTO ' . $this->get_table('resources') . '  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
 		$result = $this->db->execute($q, $values);
 		$this->check_for_error($result);
 
