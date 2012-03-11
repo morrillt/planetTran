@@ -34,12 +34,36 @@ if($_POST['radio_profile'])
   $auth = new Auth();
   $auth->doLogin(null,null,null,null,null,null,true,$_POST['radio_profile'], false);
   ?>
-  <script>
-    window.parent.location.reload(true);
+<script language="JavaScript" type="text/javascript">
+<!--
+    window.opener.location.href = "https://secure.planettran.com/reservations/ptRes2/ctrlpnl.php";
     window.close();
-  </script>
+//-->
+</script>
   <?php
   die();
+}
+
+if(isset($_POST['back_to_old'])) {
+    if($_POST['back_to_old']) {
+                
+        foreach($_SESSION['old_session'] as $k=>$v) {            
+            $_SESSION[$k] = $v;
+        }
+        unset($_SESSION['old_session']);
+        
+        ?>
+<script language="JavaScript" type="text/javascript">
+<!--
+    window.opener.location.href = "https://secure.planettran.com/reservations/ptRes2/ctrlpnl.php";
+    window.close();
+//-->
+</script>
+            <?php
+            
+            die();
+        
+    }
 }
 
 ?>
@@ -62,10 +86,18 @@ if($_POST['radio_profile'])
 	<div id="main">
 
 		<h1>Change the current passenger profile</h1>
-
+                
+                <form id="profile_picker" method="post">
+                    
+                    <?php if(isset($_SESSION['old_session'])) : ?>
+                        <p>
+                             <input type="submit" name="back_to_old" value=" &lt;&lt; Back to Your Profile " />
+                        </p>
+                    <?php endif; ?>
+                    
 		<p class="">Search for profiles using any of the following criteria (including partial words, too):</p>
 
-		<form id="profile_picker" method="post">
+		
 			<fieldset>
 				<legend>Profile Search</legend>
 				<div class="row group">
