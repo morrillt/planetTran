@@ -703,8 +703,6 @@ class Reservation {
 		$toLocation = mysql_fetch_assoc(mysql_query("SELECT * FROM resources WHERE machid='".$this->toLocation."'"));
 		$stopLocation = mysql_fetch_assoc(mysql_query("SELECT * FROM resources WHERE machid='".$this->stopLoc."'"));
 		
-
-		
 		$member = mysql_fetch_assoc(mysql_query("SELECT * FROM login WHERE memberid='".$this->memberid."'"));
 
 		if (!$this->word) $this->word = 'reservation';
@@ -1881,7 +1879,7 @@ if(!history) {
 	    <select id="quote_saved_locations_from" name="from_location" class="saved_locations">
 	      <option value="">Saved locations</option>
 	      <?php foreach(Account::getSavedLocations() as $location): ?>
-		<option <?php if($location['machid'] == $values['from_location']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
+		<option <?php if($location['machid'] == $values['from_location'] || $location['machid'] === $_GET['from']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
 		      data-addr="<?php echo htmlspecialchars($location['address1']) ?>" data-zip="<?php echo htmlspecialchars($location['zip']) ?>"
 		      data-city="<?php echo htmlspecialchars($location['city'])?>" data-state="<?php echo htmlspecialchars($location['state']) ?>">
 		  <?php echo $location['name'] ?>
@@ -1954,7 +1952,7 @@ if(!history) {
 	    <select id="quote_saved_locations_to" name="to_location" class="saved_locations">
 	      <option value="">Saved locations</option>
 	      <?php foreach(Account::getSavedLocations() as $location): ?>
-		<option <?php if($location['machid'] == $values['to_location']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
+		<option <?php if($location['machid'] == $values['to_location'] || $location['machid'] === $_GET['to']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
 			data-addr="<?php echo htmlspecialchars($location['address1']) ?>" data-zip="<?php echo htmlspecialchars($location['zip']) ?>"
 			data-city="<?php echo htmlspecialchars($location['city'])?>" data-state="<?php echo htmlspecialchars($location['state']) ?>">
 		  <?php echo $location['name'] ?>
@@ -2070,7 +2068,7 @@ if(!history) {
 	    <option value="pm" <?php if('pm' == $values['ampm']) echo 'selected="selected"' ?>>PM</option>
 	  </select>
 	  <label for="check_by_the_hour">
-	    <input name="wait" type="checkbox" <?php if($values['wait']) echo 'checked="checked"' ?> id="check_by_the_hour" />Book by the hour <span id="tip1" class="tip">(?)</span>
+	    <input name="wait" type="checkbox" <?php if($values['wait']) echo 'checked="checked"' ?> id="check_by_the_hour" />Book by the hour <span id="tip1" class="tip">[?]</span>
 	  </label>
 	  <div class="tooltip tip1">
 	    <p>Reserve by the hour (minimum of 90 minutes) to direct your driver for a period of time or to more than one intermediate stop. These trips are billed at the following rates:</p>
@@ -2095,7 +2093,7 @@ if(!history) {
 	    <select id="saved_locations_from" name="from_location" class="saved_locations">
 	      <option value="">Saved locations</option>
 	      <?php foreach(Account::getSavedLocations() as $location): ?>
-		<option <?php if($location['machid'] == $values['from_location']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
+		<option <?php if($location['machid'] == $values['from_location'] || $location['machid'] === $_GET['from']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
 		      data-addr="<?php echo htmlspecialchars($location['address1']) ?>" data-zip="<?php echo htmlspecialchars($location['zip']) ?>"
 		      data-city="<?php echo htmlspecialchars($location['city'])?>" data-state="<?php echo htmlspecialchars($location['state']) ?>">
 		<?php echo $location['name'] ?></option>
@@ -2174,7 +2172,7 @@ if(!history) {
 	  <div class="row group">
 	    <!-- Unchecked by default.  Checking this will launch the same popover per the "edit" link below -->
 	    <input name="stop" value="1" type="checkbox" id="intermediate_stop" <?php if($values['stop']) echo 'checked="checked"' ?> />
-	    <label for="intermediate_stop">Add an intermediate stop <span class="tip">(?)</span></label>
+	    <label for="intermediate_stop">Add an intermediate stop <span class="tip">[?]</span></label>
 	    <div class="tooltip">Intermediate Stop trips add $20 plus wait time over 10 minutes at your intermediate stop to the cost of the trip. Reserve by the Hour to make more than one Intermediate Stop.</div>
 
 	  <div class="intermediate_stop">
@@ -2183,7 +2181,7 @@ if(!history) {
 	      <select id="saved_locations_stop" name="stopLoc" class="saved_locations">
 		<option value="">Saved locations</option>
 		<?php foreach(Account::getSavedLocations() as $location): ?>
-		<option <?php if($location['machid'] == $values['from_location']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
+		<option <?php if($location['machid'] == $values['stop_location'] || $location['machid'] === $_GET['stop']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
 		      data-addr="<?php echo htmlspecialchars($location['address1']) ?>" data-zip="<?php echo htmlspecialchars($location['zip']) ?>"
 		      data-city="<?php echo htmlspecialchars($location['city'])?>" data-state="<?php echo htmlspecialchars($location['state']) ?>">
 		      <?php echo $location['name'] ?></option>
@@ -2265,7 +2263,7 @@ if(!history) {
 	    <select id="saved_locations_to" name="to_location" class="saved_locations">
 	      <option value="">Saved locations</option>
 	      <?php foreach(Account::getSavedLocations() as $location): ?>
-		<option <?php if($location['machid'] == $values['to_location']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
+		<option <?php if($location['machid'] == $values['to_location'] || $location['machid'] === $_GET['to']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
 		      data-addr="<?php echo htmlspecialchars($location['address1']) ?>" data-zip="<?php echo htmlspecialchars($location['zip']) ?>"
 		      data-city="<?php echo htmlspecialchars($location['city'])?>" data-state="<?php echo htmlspecialchars($location['state']) ?>"><?php echo $location['name'] ?></option>
 	      <?php endforeach; ?>

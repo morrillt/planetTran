@@ -188,7 +188,7 @@ function process_reservation($fn) {
       if($_POST['stopLoc']){
         $stopLoc = $_POST['stopLoc'];
       }
-      else {
+      else{
         $stopLocation = array();
         $stopLocation['type'] = 1; // it is required
         $stopLocation['name'] = $_POST['stop_name'];
@@ -279,6 +279,7 @@ function process_reservation($fn) {
 
     $toLoc = add_resource($toLocation, true);
   }
+
   
 
   if($fn == 'create'){
