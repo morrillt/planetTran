@@ -97,20 +97,23 @@ function print_form($vals = array(), $paymentProfile = array()) {
 
 	<table width="100%" cellspacing=0 cellpadding=3>
 	<tr>
+	  
 	  <td rowspan="1000" valign="top">
-	    <h5>Existing cards</h5>
-	    <a class="popover-add" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=add"> Add Card </a>
-	    <?php foreach(Account::getCreditCards() as $paymentId => $description): ?>
-	      <p>
-		<?php echo $description ?>
-		<br>
-		<span class="options">
-		  <a class="popover-edit" title="Edit Credit Card" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=edit&paymentProfileId=<?php echo $paymentId ?>">Edit</a>
-		  |
-		  <a class="popover-delete" title="Delete Credit Card?" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=delete&paymentProfileId=<?php echo $paymentId ?>">Delete</a>
-		</span>
-	      </p>
-	    <?php endforeach; ?>
+	    <?php if(!$_GET['noedit']): ?>
+		<h5>Existing cards</h5>
+		<a class="popover-add" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=add"> Add Card </a>
+		<?php foreach(Account::getCreditCards() as $paymentId => $description): ?>
+		  <p>
+		    <?php echo $description ?>
+		    <br>
+		    <span class="options">
+		      <a class="popover-edit" title="Edit Credit Card" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=edit&paymentProfileId=<?php echo $paymentId ?>">Edit</a>
+		      |
+		      <a class="popover-delete" title="Delete Credit Card?" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=delete&paymentProfileId=<?php echo $paymentId ?>">Delete</a>
+		    </span>
+		  </p>
+		<?php endforeach; ?>
+	    <?php endif ?>
 	  </td>
 	  <td colspan="2"><h5>Card data</h5></td>
 	</tr>
@@ -128,7 +131,7 @@ function print_form($vals = array(), $paymentProfile = array()) {
 	?>
 	<tr><td>Description</td><td><textarea name="description"><?=$vals['description']?></textarea></td></tr>
 	<tr><td>&nbsp;</td><td>
-  <?php /*<input type="submit" value="Submit">*/ ?>
+  <input type="submit" value="Submit">
   </td></tr>
 	</table></form>
 	<?

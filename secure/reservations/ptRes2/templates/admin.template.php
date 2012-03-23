@@ -37,7 +37,7 @@ function print_manage_schedules(&$pager, $schedules, $err) {
     <td class="tableBorder">
       <table width="100%" border="0" cellspacing="1" cellpadding="0">
         <tr>
-          <td colspan="7" class="tableTitle">&#8250; <?=translate('All Schedules')?></td>
+          <td colspan="7" class="tableTitle">&#8250; <?=translate('All Sdchedules')?></td>
         </tr>
         <tr class="rowHeaders">
           <td><?=translate('Schedule Title')?></td>
@@ -427,24 +427,19 @@ function print_resource_edit($rs = null){
 
     ?>
 <div class="popover_content">
-  <script type="text/javascript">
-    $(function(){
-      locationSwitcher(".type_toggle", ".location_option");
-    });
-  </script>
-  <form id="add_location" method="post" action="admin_update.php?fn=<?php echo $machid ? 'editResource' : 'addResource' ?>&machid=<?php echo $machid ?>">
+  <form id="add_location" method="post" action="admin_update.php?fn=<?php echo $machid ? 'editResource' : 'addResource' ?>&amp;machid=<?php echo $machid ?>">
     <fieldset>
       <input type="hidden" name="scheduleid" value="<?php echo $scheduleid ?>" />
       <div class="radio_buttons">
-        <input value="1" name="type" <?php if(empty($rs['type']) || 1 == $rs['type']) echo 'checked="checked"' ?> type="radio" id="address" class="type_toggle" />
+        <!--input value="1" name="type" <?php if(empty($rs['type']) || 1 == $rs['type']) echo 'checked="checked"' ?> type="radio" id="address" class="type_toggle" />
         <label for="address">Address</label>
         <input name="type" value="air" <?php if('air' == $rs['type']) echo 'checked="checked"' ?> type="radio" id="airport" class="type_toggle" />
-        <label for="airport">Airport</label>
+        <label for="airport">Airport</label-->
         <!--input value="2" name="type" <?php if(2 == $rs['type']) echo 'checked="checked"' ?> type="radio" id="poi" class="type_toggle" />
         <label for="poi">Point of Interest</label-->
       </div>
 
-      <div class="location_option hidden">
+      <div class="location_option hidden 1">
         <!-- Conditionally shown based on radio selection above -->
         <div class="row">
           <label for="nickname">Nickname</label>
@@ -468,17 +463,20 @@ function print_resource_edit($rs = null){
         </div>
       </div><!-- /address -->
 
-      <div class="location_option hidden">
-        <!-- Conditionally shown based on radio selection above -->
+      <!--div class="location_option hidden air">
+        <!- - Conditionally shown based on radio selection above - ->
         <div class="row">
           <select name="airport" id="airport_select">
             <option value="">Select an airport</option>
             <?php foreach(array(
-              "Logan Int'l Airport (BOS)",
-              "Manchester Airport (MHT)",
-              "T.F. Green Airport (PVD)",
+              array("Logan Int'l Airport (BOS)", "1 Harborside Dr", "02128", "Boston", "MA"),
+              array("Manchester Airport (MHT)", "700 Huse Rd", "03103", "Manchester", "NH"),
+              array("T.F. Green Airport (PVD)", "700 Jefferson Boulevard", "Warwick", "02886", "RI"),
             ) as $v): ?>
-              <option value="<?php echo $v ?>" <?php if($v == $rs['airport']) echo 'selected="selected"' ?>><?php echo $v ?></option>
+              <option value="<?php echo $v[0] ?>" <?php if($v == $rs['airport']) echo 'selected="selected"' ?>
+   		      data-addr="<?php echo htmlspecialchars($v[1]) ?>" data-zip="<?php echo htmlspecialchars($v[2]) ?>"
+		      data-city="<?php echo htmlspecialchars($v[3])?>" data-state="<?php echo htmlspecialchars($v[4]) ?>">
+		<?php echo $v[0] ?></option>
             <?php endforeach; ?>
           </select>
         </div>
@@ -504,10 +502,10 @@ function print_resource_edit($rs = null){
           <label for="flight_details">Time/Other details</label>
           <input name="details" type="text" value="<?php echo $rs['details'] ?>" id="flight_details" class="flight_details" />
         </div>
-      </div><!-- /airport -->
+      </div><!- - /airport -- >
 
       <div class="location_option hidden">
-        <!-- Conditionally shown based on radio selection above -->
+        <!- - Conditionally shown based on radio selection above - ->
         <div class="row">
           <label for="point_city">City</label>
           <input name="point_city" type="text" id="point_city" value="<?php echo $rs['point_city'] ?>" />
@@ -516,7 +514,7 @@ function print_resource_edit($rs = null){
           <label for="poi_name">Point of Interest</label>
           <input name="point_name" type="text" id="poi_name" value="<?php echo $rs['point_name'] ?>" />
         </div>
-      </div><!-- /poi -->
+      </div><!- - /poi -->
 
 
 <!--      <input type="button" value="Save Location" class="spacious_top" />-->
@@ -849,13 +847,13 @@ function print_newschedule_edit($rs, $scheds, $type, &$pager, $login, $bill, $gr
 		$t->print_dropdown($paymentArray, null, 'paymentProfileId', null, '', 'paymentProfileId');
 		?>
 		<br>
-		<a href="javascript: paymentPopup('<?=$memberid?>', 'add')">Add Payment Info</a><br>
+		<a href="javascript: paymentPopup('<?=$memberid?>&amp;noedit=false', 'add')">Add Payment Info</a><br>
 		<?
 
 		if (!isset($paymentArray[''])) {
 			?>
-		<a href="javascript: paymentPopup('<?=$memberid?>', 'edit')">Edit Payment Info</a><br>
-		<a href="javascript: paymentPopup('<?=$memberid?>', 'delete')">Delete Payment Info</a>
+		<!--a href="javascript: paymentPopup('<?=$memberid?>', 'edit')">Edit Payment Info</a><br>
+		<a href="javascript: paymentPopup('<?=$memberid?>', 'delete')">Delete Payment Info</a-->
 			<?
 		}
 
@@ -962,7 +960,7 @@ function print_manage_perms(&$user, $rs, $err) {
   </table>
   <input type="hidden" name="memberid" value="<?=$user->get_id()?>" />
   <p style="padding-top: 5px; padding-bottom: 5px;"><input type="checkbox" name="notify_user" value="true" /><?=translate('Notify user')?></p>
-  <?= submit_button(translate('Save')) . hidden_fn('editPerms')?>
+  <?= submit_button(translate('Save')) // . hidden_fn('editPerms')?>
   <input type="button" name="cancel" value="<?=translate('Manage Users')?>" class="button" onclick="document.location='<?=$_SERVER['PHP_SELF']?>?tool=users';" />
 </form>
 <?

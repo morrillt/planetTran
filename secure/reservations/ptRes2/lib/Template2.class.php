@@ -65,7 +65,7 @@ class Template {
 	<script language="JavaScript" type="text/javascript" src="<?=$path?>jquery.js"></script>
 	<script language="JavaScript" type="text/javascript" src="<?=$path?>functions.js"></script>
 	<script language="JavaScript" type="text/javascript" src="<?=$path?>jquery.boxy.js"></script>
-    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
 	</head>
 	<title><?=$this->title?></title>

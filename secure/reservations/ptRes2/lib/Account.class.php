@@ -9,7 +9,7 @@ class Account
 {
   static $ROLES = array (
     'p' => 'Passenger',
-    'm' => 'Manager'
+    'a' => 'Manager'
   );
   static $BILLING_GROUPS = array(
     1 => 'First billing group',
@@ -136,13 +136,22 @@ class Account
 
   public static function getBillingGroups()
   {
-    //*
-    $results = arraY();
-    $q = mysql_query('select * from billing_groups order by group_name');
+    // if(!$_SESSION['sessionID']) return;
+    /*
+    $domain = mysql_fetch_assoc(mysql_query('select * from login where id=\''.$_SESSION['sessionID'].'\';'));
+    $domain = mysql_fetch_assoc(mysql_query('select * from billing_groups where groupid=\''.$domain['groupid'].'\';'));
+    $domain = $domain['domain'];
+    
+    if(!$domain) return array();
+    */
+    $results = array();
+    $q = mysql_query('select * from billing_groups order by name asc');// WHERE domain=\''.addslashes($domain).'\' order by group_name');
+    
     while($r=mysql_fetch_assoc($q)) {
       $results[$r['groupid']] = $r['group_name'];
     }
-    return $results; //*/ return self::$BILLING_GROUPS;
+    return $results;
+    //*/ return self::$BILLING_GROUPS;
   }
 
   public static function getCustomerTypes()

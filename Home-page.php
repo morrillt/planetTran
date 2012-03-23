@@ -31,7 +31,7 @@ function MM_effectHighlight(targetElement, duration, startColor, endColor, resto
 		  <li><a href="<?php echo $sitePrefix ?>/">HOME</a></li>
 		  <li><a href="<?php echo $securePrefix ?>/index.php">RESERVATIONS</a></li>
 		  <li><a href="<?php echo $sitePrefix ?>/service/">SERVICE</a></li>
-		  <li><a href="<?php echo $sitePrefix ?>/news/">NEWS</a></li>
+		  <!--li><a href="<?php echo $sitePrefix ?>/news/">NEWS</a></li-->
 		  <li><a href="<?php echo $sitePrefix ?>/about/">ABOUT</a></li>
 		  <li><a href="<?php echo $sitePrefix ?>/Boston-Limo-Services.php">CONTACT</a></li>
             </ul>
@@ -43,7 +43,7 @@ function MM_effectHighlight(targetElement, duration, startColor, endColor, resto
     	
         <div id="title">
         	<h1>Your Ride is Here</h1>
-            <p>Planet Tran brings you SmartTransport: reliable, convenient and eco-friendly chauffer-driven transporation in greater Boston and the San Francisco Bay area.</p>
+            <p>Planet Tran brings you SmartTransport: reliable, convenient and eco-friendly chauffeur-driven transportation in greater Boston and the San Francisco Bay area.</p>
         </div><!--END OF #title-->
         
         <div id="left_top_menu">
@@ -51,7 +51,7 @@ function MM_effectHighlight(targetElement, duration, startColor, endColor, resto
         	<div id="account_links">
             	<ul>
 		    <li><a href="<?php echo $securePrefix ?>/reserve.php?type=r&amp;tab=1">GET A QUICK QUOTE</a></li>
-                    <li><a href="<?php echo $securePrefix ?>/">LOG IN</a><br /><span>(It's quick and easy!)</span></li>
+                    <li><a href="<?php echo $securePrefix ?>/">LOG IN</a><!--br /><span>(It's quick and easy!)</span--></li>
                 </ul>
            </div><!--END OF container #account_links-->
         </div><!--END OF container #left_top_menu-->
@@ -60,6 +60,7 @@ function MM_effectHighlight(targetElement, duration, startColor, endColor, resto
 		<div id="bottom_menu">
         	<div class="left">Call us to reserve now!<br />
 			<span>1.888.756.8876</span><br />
+			<span>1.617.944.9229</span><br />
             <div style="margin-top:25px; line-height: 120%;"><img src="home/images/mobile_icon.png" alt="Book a ride from your mobile device!"/>Book a ride from<br />
             your mobile device!<br />
             <a href="http://m.planettran.com">GET THE APP</a></div>
@@ -67,9 +68,10 @@ function MM_effectHighlight(targetElement, duration, startColor, endColor, resto
             </div>
             
             <div class="middle">
-            	<div id="email_form"><form method="post" id="email_list" action="http://oi.vresp.com?fid=7a06db36ae" target="vr_optin_popup" onsubmit="window.open( 'http://www.verticalresponse.com', 'vr_optin_popup', 'scrollbars=yes,width=600,height=450' ); return true;">
-                    <input name="email_address" type="text" class="email" id="email" onclick="MM_effectHighlight(this, 400, '#ffffff', '#c5dc67', '', false)" value="join our mailing list" maxlength="60" /><input type="image" class="formimage" src="home/images/email_button.png" style="margin-left:0; height:auto" />
-              </form></div>
+            	<!--div id="email_form"><form method="post" id="email_list" action="http://oi.vresp.com?fid=7a06db36ae" target="vr_optin_popup" onsubmit="window.open( 'http://www.verticalresponse.com', 'vr_optin_popup', 'scrollbars=yes,width=600,height=450' ); return true;">
+		  <input name="email_address" type="text" class="email" id="email" onclick="MM_effectHighlight(this, 400, '#ffffff', '#c5dc67', '', false)" value="join our mailing list" maxlength="60" /><input type="image" class="formimage" src="home/images/email_button.png" style="margin-left:0; height:auto" />
+              </form>
+	    </div-->
               <div id="social_media_buttons"><span id="sprytrigger1"><a href="http://facebook.com/planettran"><img src="home/images/facebookbutton.png" alt="Find PlanetTran on Facebook"  /></a></span>
                 <a href="http://twitter.com/planettran" id="sprytrigger2"><img src="home/images/twitterbutton.png" alt="Follow PlanetTran on Twitter" /></a></div>
       </div>

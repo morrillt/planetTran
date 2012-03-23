@@ -14,8 +14,10 @@
           <div class="content_box">
             <div class="content_box_inner">
               <h1 id="hdr_about"><span class="imagetext">About Planettran</span></h1>
-              <p>PlanetTran was founded to give our customers a less expensive, more earth-friendly way to get around&mdash;without sacrificing service or comfort. Our all-hybrid fleet averages 40 miles per gallon, and our prices are up to 30% less than a traditional black car service.</p>
-              <p>We also use the latest technology, such as online booking and electronic billing, to make your life easier. The fact that it also reduces our carbon impact is an added bonus. And our email and text notifications, in-car wireless internet access and mobile application (<a href="http://m.planettran.com">http://m.planettran.com</a>) make us the most convenient choice for today&rsquo;s traveler.</p>
+              <p>About PlanetTran PlanetTran was founded to give our customers a more earth-friendly way to get around—without sacrificing service, reliability or comfort. Our drivers, dispatchers and office staff are committed to providing our customers with a world-class car service experience with the personal touch of a small business. Thank you for taking the time to learn a little bit more about us!<p>
+              
+              <!--p>PlanetTran was founded to give our customers a less expensive, more earth-friendly way to get around&mdash;without sacrificing service or comfort. Our all-hybrid fleet averages 40 miles per gallon, and our prices are up to 30% less than a traditional black car service.</p>
+              <p>We also use the latest technology, such as online booking and electronic billing, to make your life easier. The fact that it also reduces our carbon impact is an added bonus. And our email and text notifications, in-car wireless internet access and mobile application (<a href="http://m.planettran.com">http://m.planettran.com</a>) make us the most convenient choice for today&rsquo;s traveler.</p-->
             </div><!-- /content_box_inner -->
           </div><!-- /content_box -->
         </div><!-- /main -->

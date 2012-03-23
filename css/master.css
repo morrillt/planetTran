@@ -343,6 +343,7 @@ body.silo_contact #nav li.nav_contact a {
 	}
 
 /* U R Here */
+
 body.sn1 #subnav ul li.sn1 a, 
 body.sn2 #subnav ul li.sn2 a, 
 body.sn3 #subnav ul li.sn3 a, 
@@ -366,7 +367,18 @@ body.sn9 #secondary {
   display: none;
 }
 
+body.sn1.silo_reservations .nav_home a {
+  border-bottom: 2px solid #C5DC67 !important;
+  border-top: 2px solid #C5DC67 !important;
+  color: #6EB442 !important;
+  background: url(/img/nav_bg.png) no-repeat 5px -32px !important;
+}
 
+body.sn1.silo_reservations .nav_reservations a {
+  border: 0 !important;
+  color: #5E5E5E  !important;
+  background: url("/img/nav_bg.png") no-repeat scroll -58px 6px transparent !important;
+}
 
 /* Secondary styles (Right Column)
 -------------------------------------------------------------------*/

@@ -51,57 +51,70 @@ $(document).ready(function() {
   $('a.popover-edit, a.popover-add').live("click", function(event){
     $link = $(this);
 //	$('a.popover-edit, a.popover-add').each(function(){
+		var $dialog = $('<div></div>')
+			.append($loading.clone());
 //		var $link = $(this).click(function(event){
-
-    var $dialog = $('<div></div>').append($loading.clone());
-    event.preventDefault();
-    $dialog
-       //.load($link.attr('href') + ' .popover_content') /* When launching a popover, only show content within the external file's div.popover_content */
-      .load($link.attr('href')) /* NO! because we won't be able execute any js in that file!!! */
-      .dialog({
-	  resizable: false,
-	  modal: false,
-	  title: $link.attr('title'), /* Use link's title tag for popover title */
-	  width: 400,
-	  height: 425,
-	  buttons: {
-	  "Save": function(){
-	    $dialog.find(".popover_content form").submit(function(event){
-	      event.preventDefault();
-	      $.ajax({
-		type: "post",
-  //                  dataType: "json",
-		url: this.action,
-		data: $(this).serialize(),
-		success: function(data){
-		  data = $.trim(data);
-		  if(data == "success"){
-		    alert("Saved successfully!");
-		    document.location = document.location; // refresh
-		    $dialog.dialog("close"); // and close the dialog
-		  } else { // refresh the form on failure
-		    $dialog.html(data);
-		  }
-		},
-		error: function(){
-		  alert("Unexpected error!");
-		},
-		beforeSend: function(){
-		  $dialog.find(".popover_content").hide().end() // hide content
-		    .append($loading.clone()); // show loading
+      event.preventDefault();
+			$dialog
+//				.load($link.attr('href') + ' .popover_content') /* When launching a popover, only show content within the external file's div.popover_content */
+				.load($link.attr('href')) /* NO! because we won't be able execute any js in that file!!! */
+				.dialog({
+					resizable: false,
+					modal: false,
+					title: $link.attr('title'), /* Use link's title tag for popover title */
+					width: 400,
+					height: 425,
+					buttons: {
+						"Save": function(){
+              $dialog.find(".popover_content form").submit(function(event){
+                event.preventDefault();
+		var form = $(this);
+		var dataX = form.serializeArray();
+		var dataX2 = {};
+		
+		for(i in dataX) {
+		  dataX2[dataX[i].name] = dataX[i].value;
 		}
-	      });
-	    }).submit();
-	    // do nothing when there is no form
-	  },
-	  Cancel: function() {
-	    $(this).dialog("close");
-	  }
-	}
-      }).dialog("open");
-    
+                $.ajax({
+                  type: "post",
+//                  dataType: "json",
+                  url: this.action,
+                  data: $(this).serialize(),
+                  success: function(data){
+                    data = $.trim(data);
+                    if(data.substr(0,3) == "glb") {
+		      
+	  
+		      dataX2.machid = data;
+		      updateTable(dataX2);
+		
+                      alert("Saved successfully!");
+                      document.location = document.location; // refresh
+                      $dialog.dialog("close"); // and close the dialog
+                    } else { // refresh the form on failure
+                      $dialog.html(data);
+                    }
+                    
+                    
+                  },
+                  error: function(){
+                    alert("Unexpected error!");
+                  },
+                  beforeSend: function(){
+                    $dialog.find(".popover_content").hide().end() // hide content
+                      .append($loading.clone()); // show loading
+                  }
+                });
+              }).submit();
+              // do nothing when there is no form
+						},
+						Cancel: function() {
+							$(this).dialog("close");
+						}
+					}
+				}).dialog("open");
 //		});
-  });
+	});
 
 
 //	$('a.popover').each(function(){
@@ -298,18 +311,22 @@ $(function() {
 
 
 
-function locationSwitcherHelper(sel, index){
-  $(sel).hide().eq(index).show();
-}
 function locationSwitcher(sel1, sel2){
+  $(sel2).hide();
   $(sel1).each(function(index){
     $this = $(this);
-    if($this.is(":checked")){
-      locationSwitcherHelper(sel2, index);
-    }
-    $this.change(function(){
-      locationSwitcherHelper(sel2, index);
-    });
+
+    $this
+      .unbind('change')
+      .change(function(){
+	$(sel2).hide();
+	if($(this).is(":checked"))
+	{
+	  $($(sel2)[parseInt($(this).val())-1]).show();
+	}
+      });
+    
+    if(!$(sel2).filter(':visible').length) $this.change();
   });
 }
 function selectHiderHelper(selectSelector, hideSelector){
@@ -359,9 +376,9 @@ function paymentLinks(selector){
 $(function(){
   locationSwitcher(".from_toggle", ".from_location_option");
   locationSwitcher(".to_toggle", ".to_location_option");
-  selectHider("#saved_locations_from", "#saved_locations_from_wrap");
-  selectHider("#saved_locations_to", "#saved_locations_to_wrap");
-  selectHider("#saved_locations_stop", "#stop_address_wrap");
+  //selectHider("#saved_locations_from", "#saved_locations_from_wrap");
+  //selectHider("#saved_locations_to", "#saved_locations_to_wrap");
+  //selectHider("#saved_locations_stop", "#stop_address_wrap");
 
   paymentLinks("#payment_method");
 

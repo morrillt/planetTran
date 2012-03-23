@@ -69,6 +69,7 @@ class Template {
 <title><?php echo $this->title ?></title>
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="jquery.boxy.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
 </head>
 
 <body class="<?php echo $bodyClass ?>">

@@ -40,7 +40,12 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
 //		echo '<h3 align="center">' . (($edit) ? 'Edit your profile' : translate('Please register')) . '</h3>' . "\n";
 
 	if (!empty($msg))
-		CmnFns::do_error_box($msg, '', false);
+	{
+		if(substr($msg,0,3) == 'glb') {
+
+		}
+		else CmnFns::do_error_box($msg, '', false);
+	}
 
 	$mode = ($edit) ? "e" : "r";
 
@@ -151,18 +156,20 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
       </div>
     </div>
 
-    <div class="row group">
-      <div class="labelish">
-        <label for="role">Role</label>
+    <?php if($data['role'] === 'p' || $data['role'] === 'a'): ?>
+      <div class="row group">
+	<div class="labelish">
+	  <label for="role">Role</label>
+	</div>
+	<div class="inputs">
+	  <select name="role" id="role">
+	    <?php foreach(Account::getRoles() as $key => $name): ?>
+	      <option value="<?php echo $key ?>"<?php if($key == $data['role']) echo ' selected="selected"' ?>><?php echo $name ?></option>
+	    <?php endforeach; ?>
+	  </select>
+	</div>
       </div>
-      <div class="inputs">
-        <select name="role" id="role">
-          <?php foreach(Account::getRoles() as $key => $name): ?>
-            <option value="<?php echo $key ?>"<?php if($key == $data['role']) echo ' selected="selected"' ?>><?php echo $name ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-    </div>
+    <?php endif ?>
 
     <div class="row group">
       <div class="labelish">
@@ -208,20 +215,22 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
     <?php endif; */
     // die(print_r($_SESSION)); ?>
 
-    <div class="row group">
-      <div class="labelish">
-        <label for="billing_group">Billing Group</label>
+    <?php if(in_array($_SESSION['role'], array('v','m','a')) && $_SESSION['role'] !== 0): ?>
+      <div class="row group">
+	<div class="labelish">
+	  <label for="billing_group">Billing Group</label>
+	</div>
+	<div class="inputs"><!-- Only editable by SM and above -->
+	  <select name="groupid" id="groupid">
+	    <option value="">-- Choose One --</option>
+	    <?php foreach(Account::getBillingGroups() as $key => $name): ?>
+	      <option value="<?php echo $key ?>"<?php if($key == $data['groupid']) echo ' selected="selected"' ?>><?php echo $name ?></option>
+	    <?php endforeach; ?>
+	  </select>
+	</div>
       </div>
-      <div class="inputs"><!-- Only editable by SM and above -->
-        <select name="groupid" id="groupid">
-          <option value="">-- Choose One --</option>
-          <?php foreach(Account::getBillingGroups() as $key => $name): ?>
-            <option value="<?php echo $key ?>"<?php if($key == $data['groupid']) echo ' selected="selected"' ?>><?php echo $name ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-    </div>
-
+    <?php endif ?>
+    
     <!--div class="row group admin">
       <div class="labelish">
         <label for="price_type">Price Type</label>
@@ -431,16 +440,16 @@ function printLoginForm($msg = '', $resume = '') {
             <div class="article">
 
               <form name="login" method="post" id="res-form" action="<?= $_SERVER['PHP_SELF'] ?>">
-                <p>
+                <p STYLE=" position: relative">
                   <label for="res-email">Email address</label>
                   <input type="text" name="email" id="res-email" class="textbox" tabindex="1" />
                   <input type="image" name="login" value="Log In" class="image" src="/images/button-login-long.gif" tabindex="3" />
-                  <a href="register2.php?billtype=<?= $_GET['billtype'] ?>&biz=<?= $_GET['biz'] ?>&groupid=<?= $_GET['groupid'] ?>" class="" style="" onmouseover="javascript: window.status='Register'; return true;" onmouseout="javascript: window.status=''; return true;">First time user?</a>
+                  <a style="float: left; clear: both;position:absolute;right: 85px;top:20px;" href="register2.php?billtype=<?= $_GET['billtype'] ?>&amp;biz=<?= $_GET['biz'] ?>&amp;groupid=<?= $_GET['groupid'] ?>" class="" style="float: right; margin: -10px 83px 0 0;" onmouseover="javascript: window.status='Register'; return true;" onmouseout="javascript: window.status=''; return true;">Create an account</a>
                 </p>
                 <p>
                   <label for="res-pass">Password</label>
                   <input type="password" name="password" class="textbox" id="res-pass" tabindex="2" />
-                  <input type="checkbox" name="setCookie" value="true"> Stay logged in
+                  <input type="checkbox" name="setCookie" value="true"> Remember me on this computer
                   <input type="hidden" name="resume" value="<?= $resume ?>" />
                   <input type="hidden" name="login" value="1" />
                 </p>
@@ -452,7 +461,7 @@ function printLoginForm($msg = '', $resume = '') {
       </tr>
     </table>
     <div align="center" style="margin-bottom: 0;">
-      <? $link->doLink('forgot_pwd.php', translate('I Forgot My Password'), '', '', translate('Retreive lost password')) ?>
+      <? $link->doLink('forgot_pwd.php', translate('Forgot your password?'), '', '', translate('Retreive lost password')) ?>
       <? //$link->doLink('javascript: help();', translate('Help'), '', '', translate('Get online help')) ?>
     </div>
 <?

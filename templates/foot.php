@@ -1,7 +1,7 @@
 
 <div id="footer" class="group constrainer">
   <img src="/img/footer_stamp960.png" width="960" height="39" alt="PlanetTran Logo" />
-  <div id="footer2">Copyright &copy; 2011, PlanetTran, Inc. All Rights Reserved.</div>
+  <div id="footer2">Copyright &copy; 2012, PlanetTran, All Rights Reserved.</div>
 </div><!--/footer-->
 
 <script type="text/javascript">

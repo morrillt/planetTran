@@ -702,7 +702,9 @@ class Reservation {
 		$fromLocation = mysql_fetch_assoc(mysql_query("SELECT * FROM resources WHERE machid='".$this->machid."'"));
 		$toLocation = mysql_fetch_assoc(mysql_query("SELECT * FROM resources WHERE machid='".$this->toLocation."'"));
 		$stopLocation = mysql_fetch_assoc(mysql_query("SELECT * FROM resources WHERE machid='".$this->stopLoc."'"));
+		
 
+		
 		$member = mysql_fetch_assoc(mysql_query("SELECT * FROM login WHERE memberid='".$this->memberid."'"));
 
 		if (!$this->word) $this->word = 'reservation';
@@ -715,10 +717,17 @@ class Reservation {
 		*/
 		$convertible_seats = max(0,$this->convertible_seats).' ';
 		$booster_seats = max(0,$this->booster_seats).' ';
+		
+		//print_r($stopLocation);
+		// print_r($toLocation);
+		// die(print_r($fromLocation));
+		$address1 = $fromLocation['name']. ($fromLocation['schedule_id'] ? ' - '.$fromLocation['address1'] : ', ' ) .$fromLocation['city'].' '.$fromLocation['zip'].', '.$fromLocation['state'];
+		$address2 = $stopLocation['name']. ($stopLocation['schedule_id'] ? ' - '.$stopLocation['address1'] : ', ' ) .$stopLocation['city'].' '.$stopLocation['zip'].', '.$stopLocation['state'];
+		$address3 = $toLocation['name']. ($toLocation['schedule_id'] ? ' - '.$toLocation['address1'] : ', ' ) .$toLocation['city'].' '.$toLocation['zip'].', '.$toLocation['state'];
 		$variable = array(
-		  'address1'  => $fromLocation['location'],
-		  'address2'  => $toLocation['location'],
-		  'address3'  => $stopLocation['location'],
+		  'address1'  => $address1,
+		  'address2'  => $address2,
+		  'address3'  => $address3,
 		  'wait_time' => $this->wait_time,
 		  'amenities' => $booster_seats.','.$convertible_seats.','.((int)$this->meet_greet),
 		  'memberId'  => $this->memberid,
@@ -729,7 +738,6 @@ class Reservation {
 		  'trip_type' => $this->trip_type,
 		  'region'    => $this->regionID,
 		);
-
 		// $estimate = exec('/home/planet/scripts/estimate.pl "'.escapeshellarg(http_build_query($variable)).'"');
 		?>
 
@@ -767,7 +775,7 @@ class Reservation {
 								<label for="override_auto_billing"><?php echo translate('From') ?></label>
 							</div>
 							<div class="inputs">
-								<?php echo $fromLocation['name'].' '.$fromLocation['location'] ?>
+								<?php echo $variable['address1'] ?>
 								<!--Logan Int'l Airport<br />
 								Delta Flight #123<br />
 								3 checked bags<br />
@@ -782,7 +790,7 @@ class Reservation {
 									<label for="override_auto_billing"><?php echo translate('Intermediate Stop') ?></label>
 								</div>
 								<div class="inputs">
-									<?php echo $stopLocation['name'].' '.$stopLocation['location'] ?>
+									<?php echo $variable['address2'] ?>
 									<!-- 456 Beacon Street, Brighton MA 02445 -->
 								</div>
 							</div>
@@ -793,7 +801,7 @@ class Reservation {
 								<label for="override_auto_billing"><?php echo translate('To') ?></label>
 							</div>
 							<div class="inputs">
-								<?php echo $toLocation['name'].' '.$toLocation['location'] ?>
+								<?php echo $variable['address3'] ?>
 							</div>
 						</div>
 						<div class="row group">
@@ -843,6 +851,17 @@ class Reservation {
 								<!-- John Doe -->
 							</div>
 						</div>
+						<?php if($_POST['cphone']): ?>	
+						<div class="row group">
+						  <div class="labelish">
+						    <label for="override_auto_billing"><?php echo translate('Informations different than in profile') ?></label>
+						  </div>
+
+						  <div class="inputs">
+						    <?php echo $_POST['pname'].' '.$_POST['cphone'] ?>
+						  </div>
+						</div>
+						<?php endif ?>
 						<?php if($stopLocation['special']): ?>
 							<div class="row group">
 								<div class="labelish">
@@ -887,7 +906,10 @@ class Reservation {
 	
 
 					<div id="roundtrip_wrap" class="group spacious_top">	
-					  <input type="button" onclick="window.location.href = window.location.href+'&amp;from=<?php echo $this->toLocation ?>&amp;to=<?php echo $this->machid ?>'" id="book_return"    name="" value="<?php echo translate('Book a return trip') ?>" /> <span id="or" class="by"><?php echo translate('OR') ?></span> 
+					  <?php $_SESSION['booked'][$fromLocation['location'].':'.$toLocation['location']] = 1 ?>
+					  <?php if(!isset($_SESSION['booked'][$toLocation['location'].':'.$fromLocation['location']])): ?>
+					    <input type="button" onclick="window.location.href = window.location.href+'&amp;from=<?php echo $this->toLocation ?>&amp;to=<?php echo $this->machid ?>'" id="book_return"    name="" value="<?php echo translate('Book a return trip') ?>" /> <span id="or" class="by"><?php echo translate('OR') ?></span> 
+					  <?php endif ?>
 					  <input type="button" onclick="window.location.href = window.location.href+'&amp;from=<?php echo $this->machid ?>&amp;to=<?php echo $this->toLocation ?>'" id="book_duplicate" name="" value="<?php echo translate('Book similar trip at another time') ?>" />
 					</div>
 				</div>
@@ -1266,29 +1288,36 @@ class Reservation {
       );
 //      print_r($values);
     }
-    else
-    {
       // FIXME: populate values
-      $values = array();
-      if($_GET['from'])
+      if(($machid=$_GET['from'])||($machid=$this->machid))
       {
-	$fromLoc = mysql_fetch_assoc(mysql_query("SELECT * FROM resources where machid='".addslashes($_GET['from'])."'"));
+	$fromLoc = mysql_fetch_assoc(mysql_query("SELECT * FROM resources where machid='".addslashes($machid)."'"));
 	$values['from_name']    = $fromLoc['name'];
 	$values['from_address'] = $fromLoc['address1'];
 	$values['from_city']    = $fromLoc['city'];
 	$values['from_state']   = $fromLoc['state'];
 	$values['from_zip']     = $fromLoc['zip'];
       }
-      if($_GET['to'])
+      if(($machid=$_GET['to'])||($machid=$this->toLocation))
       {
-	$toLoc = mysql_fetch_assoc(mysql_query("SELECT * FROM resources where machid='".addslashes($_GET['to'])."'"));
+	$toLoc = mysql_fetch_assoc(mysql_query("SELECT * FROM resources where machid='".addslashes($machid)."'"));
 	$values['to_name']    = $toLoc['name'];
 	$values['to_address'] = $toLoc['address1'];
 	$values['to_city']    = $toLoc['city'];
 	$values['to_state']   = $toLoc['state'];
 	$values['to_zip']     = $toLoc['zip'];
       }
-    }
+    
+      if(($machid=$_GET['stop'])||($machid=$this->stopLoc))
+      {
+	$toLoc = mysql_fetch_assoc(mysql_query("SELECT * FROM resources where machid='".addslashes($machid)."'"));
+	$values['stop_name']    = $toLoc['name'];
+	$values['stop_address'] = $toLoc['address1'];
+	$values['stop_city']    = $toLoc['city'];
+	$values['stop_state']   = $toLoc['state'];
+	$values['stop_zip']     = $toLoc['zip'];
+      }
+    
 
     if(!class_exists('Account')) {
 	require_once dirname(__FILE__).'/Account.class.php';
@@ -1302,6 +1331,18 @@ class Reservation {
 }
 </style>
 <script>
+if(typeof String.prototype.trim !== 'function') {
+  String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g, ''); 
+  }
+}
+
+if(!history) {
+  history = {
+    pushState: function() {}
+  }
+}
+
 (function($){
 
   $.fn.serializeObject = function() {
@@ -1365,12 +1406,22 @@ class Reservation {
 	  var content = '';
 	  var esubtotal = 0;
 	  
-	  var base_price = parseFloat(data[4]);
+	  var base_price = parseFloat(data[0]);
 	  esubtotal += base_price;
 	  content = content + '<div class="line_item group">'+
 	    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
 	    '<span class="price" id="total_price">$'+base_price+'</span>'+
 	  '</div>';
+	  
+	  var meet_greet = $("#meet_greet");
+	  if(meet_greet.is(":checked")) {
+	      esubtotal += 30;
+	      
+	      content = content + '<div class="line_item group">'+
+		'<span class="line_description">Logan Airport meet and greet</span>'+
+		'<span class="price" id="total_price">$30</span>'+
+	      '</div>';
+	  }
 	  
 	  var cts = $("[name=carTypeSelect]:checked");
 	  if(cts.val() != "" && cts.val() != "P") {
@@ -1397,6 +1448,7 @@ class Reservation {
 	    '</div>';
 	  }
 	  
+	  
 	  var booster_seats = $("#booster_seats_outgoing");
 	  if(booster_seats.val() != "0") {
 	    var booster_seats_price = 15*parseInt(booster_seats.val());
@@ -1419,23 +1471,11 @@ class Reservation {
 	    '</div>';
 	  }
 
-	  content = content + '<div class="line_item group total">'+
-	    '<span class="line_description">Estimate subtotal:</span>'+
-	    '<span class="price" id="total_price">$'+esubtotal+'</span>'+
-	  '</div>';
-
-	  var total_fare_1 = parseFloat(data[0]);
-	  if(!total_fare) total_fare = esubtotal;
-	  var total_fare = esubtotal - base_price + total_fare_1;
-
+	  var coupon = 0;
 	  if(parseFloat(data[3]))
 	  {
-	    var coupon = esubtotal - total_fare;
-	    content = content + '<div class="line_item group total">'+
-	      '<span class="line_description">Coupon:</span>'+
-	      '<span class="price" id="total_price">-$'+coupon+'</span>'+
-	    '</div>';
-
+	    coupon = parseFloat(data[3]);
+	    esubtotal += coupon;
 	    $("#coupon_code").parent().find('.msg').remove();
 	    $('<div class="msg" style="color:#0f0;">Provided coupon code is valid!</div>').insertBefore($("#coupon_code"));
 	  } else if($("#coupon_code").val()) {
@@ -1444,6 +1484,23 @@ class Reservation {
 	    alert('Provided coupon code is wrong!');
 	  }
 	  
+	  content = content + '<div class="line_item group total">'+
+	    '<span class="line_description">Estimate subtotal:</span>'+
+	    '<span class="price" id="total_price">$'+esubtotal+'</span>'+
+	  '</div>';
+	  
+	  if(coupon)
+	  {
+	    content = content + '<div class="line_item group total">'+
+	      '<span class="line_description">Coupon:</span>'+
+	      '<span class="price" id="total_price">-$'+coupon+'</span>'+
+	    '</div>';
+	  }
+	  
+	  var total_fare_1 = parseFloat(data[0]);
+	  if(!total_fare) total_fare = esubtotal;
+	  var total_fare = esubtotal - coupon - base_price + total_fare_1;
+
 	  content = content + '<div class="line_item group total">'+
 	    '<span class="line_description">Total estimated fare:</span>'+
 	    '<span class="price" id="total_price">$'+total_fare+'</span>'+
@@ -1458,34 +1515,38 @@ class Reservation {
 
     function getAddresses()
     {
-	var fromAddr,fromCity,fromZip,toAddr,toCity,toZip,stopAddr,stopCity,stopZip,airport;
+	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport;
 	
 	customFrom = $("#saved_locations_from");
 	if(customFrom.val() == "") {
-	  fromAddr = $("#from_street_address").val();
-	  fromCity = $("#from_city").val();
+	  fromAddr  = $("#from_street_address").val();
+	  fromCity  = $("#from_city").val();
 	  fromState = $("#from_state").val();
-	  fromZip  = $("#from_zipcode").val();
+	  fromZip   = $("#from_zipcode").val();
+	  fromNick  = $("#from_name").val();
 	} else {
 	  customFromO = customFrom.find("option:selected");
-	  fromAddr = customFromO.attr("data-addr");
-	  fromCity = customFromO.attr("data-city");
+	  fromAddr  = customFromO.attr("data-addr");
+	  fromCity  = customFromO.attr("data-city");
 	  fromState = customFromO.attr("data-state");
-	  fromZip  = customFromO.attr("data-zip");
+	  fromZip   = customFromO.attr("data-zip");
+	  fromNick  = customFromO.text();
 	}
 
 	customTo = $("#saved_locations_to");
 	if(customTo.val() == "") {
-	  toAddr = $("#to_street_address").val();
-	  toCity = $("#to_city").val();
+	  toAddr  = $("#to_street_addres").val();
+	  toCity  = $("#to_city").val();
 	  toState = $("#to_state").val();
-	  toZip  = $("#to_zipcode").val();
+	  toZip   = $("#to_zipcode").val();
+	  toNick  = $("#to_name").val();
 	} else {
 	  customToO = customTo.find("option:selected");
-	  toAddr = customToO.attr("data-addr");
-	  toCity = customToO.attr("data-city");
-	  toState = customToO.attr("data-state");
-	  toZip  = customToO.attr("data-zip");
+	  toAddr    = customToO.attr("data-addr");
+	  toCity    = customToO.attr("data-city");
+	  toState   = customToO.attr("data-state");
+	  toZip     = customToO.attr("data-zip");
+	  toNick    = customToO.text();
 	}
 
 	customStop = $("#saved_locations_stop");
@@ -1494,31 +1555,36 @@ class Reservation {
 	  stopCity  = $("#stop_city").val();
 	  stopState = $("#stop_state").val();
 	  stopZip   = $("#stop_zipcode").val();
+	  stopNick  = $("#stop_name").val();
 	} else {
-	  customStopO = customTo.find("option:selected");
-	  stopAddr  = customToO.attr("data-addr");
-	  stopCity  = customToO.attr("data-city");
-	  stopState = customToO.attr("data-state");
-	  stopZip   = customToO.attr("data-zip");
+	  customStopO = customStop.find("option:selected");
+	  stopAddr    = customStopO.attr("data-addr");
+	  stopCity    = customStopO.attr("data-city");
+	  stopState   = customStopO.attr("data-state");
+	  stopZip     = customStopO.attr("data-zip");
+	  stopNick    = customStopO.text();
 	}
 
 	return {
-	  'from_address': fromAddr,
-	  'from_city':    fromCity,
-	  'from_zip':     fromZip,
-	  'from_state':   fromState,
-	  'to_address':   toAddr,
-	  'to_city':      toCity,
-	  'to_state':     toState,
-	  'to_zip':       toZip,
-
+	  'from_address':  fromAddr,
+	  'from_city':     fromCity,
+	  'from_zip':      fromZip,
+	  'from_state':    fromState,
+	  'from_nick':     fromNick,
 	  
-	  'stop_addr':   stopAddr,
-	  'stop_city':   stopCity,
+	  'to_address':    toAddr,
+	  'to_city':       toCity,
+	  'to_state':      toState,
+	  'to_zip':        toZip,
+	  'to_nick':       toNick,
+	  
+	  'stop_addr':     stopAddr,
+	  'stop_city':     stopCity,
 	  'stop_state':    stopState,
-	  'stop_zip':    stopZip,
+	  'stop_zip':      stopZip,
+	  'stop_nick':     stopNick,
 
-	  'to_location': '',
+	  'to_location':   '',
 	  'from_location': '',
 	  'stop_location': ''
 
@@ -1534,15 +1600,16 @@ class Reservation {
 	
 	customFrom = $("#quote_saved_locations_from");
 	if(customFrom.val() == "") {
-	  fromAddr = $("#quote_from_street_address").val();
-	  fromCity = $("#quote_from_city").val();
+	  fromAddr  = $("#quote_from_street_address").val();
+	  fromCity  = $("#quote_from_city").val();
 	  fromState = $("#quote_from_state").val();
-	  fromZip  = $("#quote_from_zipcode").val();
+	  fromZip   = $("#quote_from_zipcode").val();
 	} else {
 	  customFromO = customFrom.find("option:selected");
-	  fromAddr = customFromO.attr("data-addr");
-	  fromCity = customFromO.attr("data-city");
-	  fromZip  = customFromO.attr("data-zip");
+	  fromAddr  = customFromO.attr("data-addr");
+	  fromCity  = customFromO.attr("data-city");
+	  fromState = customFromO.attr("data-state");
+	  fromZip   = customFromO.attr("data-zip");
 	}
 
 	customTo = $("#quote_saved_locations_to");
@@ -1555,6 +1622,7 @@ class Reservation {
 	  customToO = customTo.find("option:selected");
 	  toAddr = customToO.attr("data-addr");
 	  toCity = customToO.attr("data-city");
+	  toState = customToO.attr("data-state");
 	  toZip  = customToO.attr("data-zip");
 	}
 
@@ -1574,14 +1642,55 @@ class Reservation {
 
   $(function() {
 
-      $("[name=apts_from],[name=apts_to]")
+    $("#child_seats_outgoing, #booster_seats_outgoing")
+      .change(function(e) {
+	var cs = $("#child_seats_outgoing");
+	var bs = $("#booster_seats_outgoing");
+	var sum = parseInt(cs.val()) + parseInt(bs.val());
+	
+	if(sum > 3) {
+	  alert("You cannot choose more than 3 children/booster seats.");
+	  $(this).find("option[value=0]").attr('selected','1');
+	  return false;
+	}
+	
+	
+      });
+
+      $("[name=apts_from],[name=from_location]")
 	.change(function() {
-	  var pi = $(this).parents().filter('.half_column');
-	  pi.find("[name=from_name],[name=to_name]").val($('option:selected', this).text());
-	  pi.find("[name=from_address],[name=to_address]").val($('option:selected', this).attr("data-address"));
-	  pi.find("[name=from_zip],[name=to_zip]").val($('option:selected', this).attr("data-zip"));
-	  pi.find("[name=from_city],[name=to_city]").val($('option:selected', this).attr("data-city"));
-	  pi.find("[name=from_state],[name=to_state]").val($('option:selected', this).attr("data-state"));
+	  var meet = $('#meet_greet');
+	  if($('option:selected', this).text().indexOf("Boston Logan") == -1) {
+	    meet.removeAttr("checked").parent().hide();
+	  } else {
+	    meet.parent().show();
+	  }
+	})
+	.change()
+      ;
+      
+      $("[name=from_location],[name=to_location]")
+	.change(function() {
+	  if($(this).val().indexOf("airport-") != -1) {
+	    $(this).next().find('[name=to_type][value=2]').attr("checked", 1).change();
+	  } else {
+	    $(this).next().find('[name=to_type][value=1]').attr("checked", 1).change();
+	  }
+	})
+	.change()
+      ;      
+	
+      $("[name=apts_from],[name=apts_to],[name=stopLoc],[name=from_location],[name=to_location]")
+	.change(function() {
+	  var pi = $($(this).parents().filter('.intermediate_stop,.half_column')[0]);
+
+	  var name_val = $('option:selected', this).text().trim();
+	  if(name_val == "Saved locations") name_val = "";
+	  $(pi.find("[name=from_name],[name=to_name],[name=stop_name]")[0]).val(name_val);
+	  $(pi.find("[name=from_address],[name=to_address],[name=stop_address]")[0]).val($('option:selected', this).attr("data-addr"));
+	  $(pi.find("[name=from_zip],[name=to_zip],[name=stop_zip]")[0]).val($('option:selected', this).attr("data-zip"));
+	  $(pi.find("[name=from_city],[name=to_city],[name=stop_city]")[0]).val($('option:selected', this).attr("data-city"));
+	  $(pi.find("[name=from_state],[name=to_state],[name=stop_state]")[0]).val($('option:selected', this).attr("data-state"));
 	});
 
     $("#quote_tabs").tabs("#quote_tabs_content > div");
@@ -1592,6 +1701,7 @@ class Reservation {
     
     $("#order_steps").tabs("#steps_main > div");
     var api = $("#order_steps").data("tabs");
+    
 
     var stepNb = 0;
     <?php if($this->has_warnings()): ?>
@@ -1618,7 +1728,26 @@ class Reservation {
 	    if(!price || price == NaN || price == "NaN") {
 	      alert("One of the addresses you have provided is wrong!");
 	    } else {
-	      history.pushState({ isMine:true }, "step"+nb, "reserve.php?type=r&step="+nb);
+	      
+	      var Cx = $('#steps_main');
+	      var addresses = getAddresses();
+	      
+	      $($('.order_details li:nth-child(2)', Cx)).text('Pickup Location: '+addresses.from_nick+' - '+addresses.from_address+", "+addresses.from_city+", "+addresses.from_state+" "+addresses.from_zip);
+	      if(addresses.stop_addr && $("#intermediate_stop").is(":checked"))
+	      {
+		$($('.order_details li:nth-child(3)', Cx))
+		    .show()
+		    .text('Intermediate stop: '+addresses.stop_nick+' - '+addresses.stop_addr+", "+addresses.stop_city+", "+addresses.stop_state+" "+addresses.stop_zip)
+		;
+	      } else {
+		$($('.order_details li:nth-child(3)', Cx)).hide();
+	      }
+	      $($('.order_details li:nth-child(4)', Cx)).text('Drop-off Location: '+addresses.to_nick+' - '+addresses.to_address+", "+addresses.to_city+", "+addresses.to_state+" "+addresses.to_zip);
+	      
+	      
+	      try {
+	       history.pushState({ isMine:true }, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);
+	      } catch(e) {}
 	      refresh_estimate();
 	      api.next();
 	    }
@@ -1626,7 +1755,9 @@ class Reservation {
 	  }
 	});
       } else {
-	history.pushState({ isMine:true }, "step"+nb, "reserve.php?type=r&step="+nb);
+	try {
+	  history.pushState({ isMine:true }, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);
+	} catch(e) {}
 	refresh_estimate();
 	api.next();
       }
@@ -1634,7 +1765,9 @@ class Reservation {
 
     $("input.prev").not('[id=get_a_quote_button]').click(function(){
       var nb = parseInt($($(this).parents().filter('[class*=step]')[0]).attr("class").replace("step", ""))-1;
-      history.pushState({isMine:true}, "step"+nb, "reserve.php?type=r&step="+nb);
+      try {
+	history.pushState({isMine:true}, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);
+      } catch(e) {}
 
       api.prev();
     });
@@ -1645,37 +1778,23 @@ class Reservation {
 	var l = data.delegateTarget.location.href;
 	if(l.indexOf('step=') == -1) return;
 	var step = parseInt(l.split('step=')[1]) - 1;
-	api.click(step);
+	// if(api.
+	// api.click(step);
 	// console.log(data.delegateTarget.location.href);
 	// console.log(data.currentTarget.location.href);
         // if (data.state.isMine)
         //     $.getScript(location.href); 
      });
-    var Cx = $('#steps_main');
-    $('[name=from_location],[name=from_address],[name=to_address],[name=to_location]', Cx)
-      .change(function() {
-        var froma = $('[name=from_address]', Cx).val();
-	var froml = $('[name=from_location] option:selected', Cx).text();
-	
-        var toa = $('[name=to_address]', Cx).val();
-        var tol = $('[name=to_location] option:selected', Cx).text();
-	
-	var v1 = froma ? froma : froml;
-	var v2 = toa ? toa : tol;
-	
-        $($('.order_details li:nth-child(2)', Cx)).text('Pickup Location: '+v1).text();
-        $($('.order_details li:nth-child(3)', Cx)).text('Drop-off Location: '+v2).text();
-      });
 
-    $('label[for=from_zipcode] a,label[for=to_zipcode] a')
+    $('label[for=from_zipcode] a,label[for=to_zipcode] a,label[for=stop_zipcode] a')
       .click(function(e) {
 	e.preventDefault();
 	
-	var f = $($(this).parents().filter('[id*=locations_]')[0]);
+	var f = $($(this).parents().filter('[id*=locations_],.intermediate_stop')[0]);
 	
 	var address = f.find('input[name*=address]');
 	var city = f.find('input[name*=city]');
-	var state =  f.find('input[name*=zip]');
+	var state =  f.find('input[name*=state]');
 	var zip = f.find('input[name*=zip]');
 	
 	// console.log(address);
@@ -1705,7 +1824,7 @@ class Reservation {
 	  }
 	});
       });
-    
+    /*
     $('[name=from_location],[name=to_location]')
       .change(function() {
 	if($(this).val() == '') {
@@ -1715,7 +1834,7 @@ class Reservation {
 	}
       })
       .change();
-    
+    */
   });
 </script>
 
@@ -1744,7 +1863,7 @@ class Reservation {
 	    </ol>
 	  </div>
 	  
-	  <div style="width:100%;margin: -15px 0 15px 0;display:none;" id="quote_contents">
+	  <div style="width:100%;float:left;clear:both;margin: 5px 0 15px 0;display:none;" id="quote_contents">
 	    <h2>Estimated flat-rate fare: $<span class="price"></span></h2>
 	    <h3>Additional Information:</h3>
 	    <ul style="list-style-type:disc">
@@ -1769,6 +1888,7 @@ class Reservation {
 		</option>
 	      <?php endforeach; ?>
 	    </select>
+	    
 	  <div id="saved_locations_from_wrap1">
 
 	    <div id="from_address_wrap1" class="from_location_option1">
@@ -1841,6 +1961,7 @@ class Reservation {
 		</option>
 	      <?php endforeach; ?>
 	    </select>
+
 	  <div id="saved_locations_to_wrap1">
 
 	    <div id="to_address_wrap1" class="to_location_option1">
@@ -1858,7 +1979,7 @@ class Reservation {
 		<input name="to_state" type="text" id="quote_to_state" value="<?php echo $values['to_state'] ?>" />
 	      </div>
 	      <div class="row group">
-		<label for="to_zipcode">Zip Code <span class="popover"><a href="#">Look Up</a></span></label><br />
+		<label for="to_zipcode">Zip Code <span class="popover"><a href="#">(look up)</a></span></label><br />
 		<input name="to_zip" type="text" id="quote_to_zipcode" value="<?php echo $values['to_zip'] ?>" />
 	      </div>
 	    </div><!-- /to_address -->
@@ -1954,9 +2075,11 @@ class Reservation {
 	  <div class="tooltip tip1">
 	    <p>Reserve by the hour (minimum of 90 minutes) to direct your driver for a period of time or to more than one intermediate stop. These trips are billed at the following rates:</p>
 	    <p>
-	      <strong>Prius:</strong> $60 per hour<br />
-	      <strong>SUV:</strong> $70 per hour<br />
-	      <strong>Lexus Sedan:</strong> $75 per hour (Mass only)
+	      <strong>Prius:</strong> $65 per hour<br />
+	      <strong>Prius V:</strong> $70 per hour<br />
+	      <strong>Camry:</strong> $70 per hour<br />
+	      <strong>Highlander:</strong> $75 per hour<br />
+	      <strong>Lexus Sedan:</strong> $75 per hour (Massachusetts only)
 	    </p>
 	    <p>If the passenger is running late, PlanetTran will wait the entire trip time before creating a no-show billing for the reserved trip.</p>
 	  </div>
@@ -1978,6 +2101,7 @@ class Reservation {
 		<?php echo $location['name'] ?></option>
 	      <?php endforeach; ?>
 	    </select>
+
 	  <div id="saved_locations_from_wrap">
 	    <!-- Conditionally shown instead of select tag above if logged out
 	      <a href="#">Log in to view saved locations</a>
@@ -1985,7 +2109,7 @@ class Reservation {
 
 	    <div class="radio_buttons">
 	      <input type="radio" name="from_type" <?php if(empty($values['from_type']) || $values['from'] == 1) echo 'checked="checked"' ?> value="1" id="from_address" class="from_toggle" /><label for="from_address">Address</label>
-	      <input type="radio" name="from_type" <?php if($values['from'] == 'from_airport_wrap') echo 'checked="checked"' ?> value="from_airport_wrap" id="from_airport" class="from_toggle" /><label for="from_airport">Airport</label>
+	      <input type="radio" name="from_type" <?php if($values['from'] == 'from_airport_wrap') echo 'checked="checked"' ?> value="2" id="from_airport" class="from_toggle" /><label for="from_airport">Airport</label>
 	      <?php /*<input type="radio" name="from_type" <?php if($values['from_type'] == 2) echo 'checked="checked"' ?> value="2" id="from_poi" class="from_toggle" /><label for="from_poi">Point of Interest</label> */ ?>
 	    </div>
 
@@ -2013,7 +2137,7 @@ class Reservation {
 	      </div>
 	    </div><!-- /from_address -->
 
-	    <div id="from_poi_wrap" class="from_location_option">
+	    <div id="from_airport_wrap" class="from_location_option">
 	      <!-- Conditionally shown based on radio selection above -->
 	      <div class="row group">
 		<select name="apts_from">
@@ -2040,12 +2164,18 @@ class Reservation {
 		</div>
 	      </span>
 	    </div><!-- /from_poi -->
+	  <!-- Conditionally show the Meet and Greet only if it applies to the reservation per Step 1 (if Pickup or Stop location = Logan Airport) -->
+	  <div class="row group">
+	    <input name="greet" type="checkbox" id="meet_greet" <?php if($values['greet']) echo 'checked="checked"' ?>/>
+	    <label for="meet_greet">Logan airport meet and greet $30 <span class="tip">[?]</span></label>
+	    <div class="tooltip">Massport requires drivers to stay with their vehicles; select the meet and greet to be met at Baggage Claim and escorted to the car.</div>
+	  </div>
 	  </div>
 	  <div class="row group">
 	    <!-- Unchecked by default.  Checking this will launch the same popover per the "edit" link below -->
 	    <input name="stop" value="1" type="checkbox" id="intermediate_stop" <?php if($values['stop']) echo 'checked="checked"' ?> />
 	    <label for="intermediate_stop">Add an intermediate stop <span class="tip">(?)</span></label>
-	    <div class="tooltip">Intermediate Stop trips add $15 plus wait time over 10 minutes at your intermediate stop to the cost of the trip. Reserve by the Hour to make more than one Intermediate Stop.</div>
+	    <div class="tooltip">Intermediate Stop trips add $20 plus wait time over 10 minutes at your intermediate stop to the cost of the trip. Reserve by the Hour to make more than one Intermediate Stop.</div>
 
 	  <div class="intermediate_stop">
 	    The intermediate stop location
@@ -2059,6 +2189,7 @@ class Reservation {
 		      <?php echo $location['name'] ?></option>
 		<?php endforeach; ?>
 	      </select>
+
 	      <div id="stop_address_wrap" class="stop_location_option">
 		<!-- Conditionally and dynamically show this based on radio selection above -->
 		<div class="row group">
@@ -2139,6 +2270,7 @@ class Reservation {
 		      data-city="<?php echo htmlspecialchars($location['city'])?>" data-state="<?php echo htmlspecialchars($location['state']) ?>"><?php echo $location['name'] ?></option>
 	      <?php endforeach; ?>
 	    </select>
+
 	  <div id="saved_locations_to_wrap">
 	    <!-- Conditionally show the following instead of the preceeding select tag if user is currently logged out
 	      <a href="#">Log in to view saved locations</a>
@@ -2169,7 +2301,7 @@ class Reservation {
 		<input name="to_state" type="text" id="to_state" value="<?php echo $values['to_state'] ?>" />
 	      </div>
 	      <div class="row group">
-		<label for="to_zipcode">Zip Code <span class="popover"><a href="#">Look Up</a></span></label><br />
+		<label for="to_zipcode">Zip Code <span class="popover"><a href="#">(look up)</a></span></label><br />
 		<input name="to_zip" type="text" id="to_zipcode" value="<?php echo $values['to_zip'] ?>" />
 	      </div>
 	    </div><!-- /to_address -->
@@ -2203,7 +2335,6 @@ class Reservation {
 	    </div><!-- /to_poi -->
 	  </div>
 
-
 	  <div id="to_airport_wrap" class="to_airport_option">
 	    <div class="group">
 	      <!-- Conditionally shown based on radio selection above -->
@@ -2234,6 +2365,7 @@ class Reservation {
 	    </div>
 	  </div>
 
+	  
 	  </fieldset>
 	</div><!-- /group -->
 
@@ -2257,7 +2389,7 @@ class Reservation {
 		<div class="vehicle_price">$<?php echo (60+$v['price']) ?></div>
 	      </label>
 	      <div class="vehicle_chooser">
-		<input type="radio" name="carTypeSelect" id="vehicle<?php echo $k ?>" value="<?php echo $k.'' ?>" <?php if($k == $values['carTypeSelect']) echo 'checked="checked"' ?>/>
+		<input type="radio" name="carTypeSelect" id="vehicle<?php echo $k ?>" value="<?php echo $k.'' ?>" <?php if($k == $values['carTypeSelect'] || (!$values['carTypeSelect'] && $k=="P")) echo 'checked="checked"' ?>/>
 	      </div>
 	    </div>
 	  <?php endforeach ?>
@@ -2268,6 +2400,7 @@ class Reservation {
 	<ul class="order_details">
 	  <li>Fare Type: One way</li>
 	  <li>Pickup location: Logan Int'l Airport</li>
+	  <li style="display: none">Pickup location: Logan Int'l Airport</li>
 	  <li>Drop-off location: Manchester Int'l Airport</li>
 	</ul>
 
@@ -2295,7 +2428,7 @@ class Reservation {
 	    </div>
 	    <div class="inputs">
 	      <select name="pax" id="passengers_outgoing">
-		<?php foreach(range(1,3) as $v): ?>
+		<?php foreach(range(1,4) as $v): ?>
 		  <option value="<?php echo $v ?>" <?php if($v == $values['pax']) echo 'selected="selected"' ?>><?php echo $v ?></option>
 		<?php endforeach; ?>
 	      </select>
@@ -2335,18 +2468,20 @@ class Reservation {
 	  </div>
 	  <div class="row group">
 	    <div class="labelish">
+	      <label for="pname">Passenger contact data</label>
+	    </div>
+	    <div class="inputs">
+	      Name: <input name="pname" type="text" id="pname" value="<?php echo $values['pname'] ?>" />
+	      <br/>
+	      Cell #: <input name="cphone" type="text" id="cphone" value="<?php echo $values['cphone'] ?>" />
+	    </div>
+	  </div>
+	  <div class="row group">
+	    <div class="labelish">
 	      <label for="project_code">Cost or project code</label>
 	    </div>
 	    <div class="inputs">
 	      <input name="cccode" type="text" id="project_code" value="<?php echo $values['cccode'] ?>" />
-	    </div>
-	  </div>
-	  <!-- Conditionally show the Meet and Greet only if it applies to the reservation per Step 1 (if Pickup or Stop location = Logan Airport) -->
-	  <div class="row group">
-	    <div class="inputs">
-	      <input name="greet" type="checkbox" id="meet_greet" <?php if($values['greet']) echo 'checked="checked"' ?>/>
-	      <label for="meet_greet">Logan airport meet and greet $30 <span class="tip">[?]</span></label>
-	      <div class="tooltip">The &ldquo;Meet and greet&rdquo; option means that your PlanetTran driver will enter the airport, meet you at your gate, and take you and your luggage to the vehicle parked outside.</div>
 	    </div>
 	  </div>
 	  <div class="row group">
@@ -2417,9 +2552,9 @@ class Reservation {
 	  </div>
 
 	<h2>About your reservation</h2>
-	<p  class="spacious_top">Lorem ipsum dolor sit amet, in sapien erat interdum, sem tristique ullamcorper vitae, interdum dolore, sed fringilla eleifend. Ligula faucibus neque pede, in tempor ultrices, fames nulla dignissim nam consequat ut, libero odio tempus elementum. Tortor tellus duis, odio viverra arcu sint ultricies, in sagittis malesuada, arcu elit vel praesent semper elit.</p>
+	<!-- p class="spacious_top">Lorem ipsum dolor sit amet, in sapien erat interdum, sem tristique ullamcorper vitae, interdum dolore, sed fringilla eleifend. Ligula faucibus neque pede, in tempor ultrices, fames nulla dignissim nam consequat ut, libero odio tempus elementum. Tortor tellus duis, odio viverra arcu sint ultricies, in sagittis malesuada, arcu elit vel praesent semper elit.</p>
 
-	<!-- div id="reservation_summary">
+	<div id="reservation_summary">
 	  <div class="line_item group">
 	    <span class="line_description">Estimated fare for Prius Sedan (including applicable tolls)</span>
 	    <span class="price">$70.00</span>
@@ -2463,7 +2598,6 @@ class Reservation {
     </form>
   </div>
 </div>
-
 <?php
 //		global $conf;
 //
@@ -2898,7 +3032,6 @@ EOT;
 		
 			$msg .= $sf;
 		}
-
 		$send = false;
 
 
@@ -3425,7 +3558,7 @@ BODY2;
 function get_airports_options()
 {
   $apts = array('41b40be9091' => array("Boston Logan Int'l Airport", "Boston", "MA", "02128", "1 Harborside Dr"),
-		'airport-MHT' => array("Manchester Int'l Airport", "Manchester", "CA", "03103", "1 Airport Road"),
+		'airport-MHT' => array("Manchester Int'l Airport", "Manchester", "NH", "03103", "1 Airport Road"),
 		'airport-PVD' => array("TF Green Int'l Airport", "Warwick", "RI", "02886", "544 Airport Road"),
 		'airport-SFO' => array("San Francisco Int'l Airport", "San Francisco", "CA", "94128", "806 South Airport Boulevard"),
 		'airport-OAK' => array("Oakland Int'l Airport", "Oakland", "CA", "94621", "1 Airport Drive"),
@@ -3433,7 +3566,7 @@ function get_airports_options()
   $options = '';
   foreach($apts as $k=>$v)
   {
-    $options .= '<option data-address="'.$v[4].'" data-zip="'.$v[3].'" data-state="'.$v[2].'" data-city="'.$v[1].'">'.$v[0].'</option>';
+    $options .= '<option data-addr="'.$v[4].'" data-zip="'.$v[3].'" data-state="'.$v[2].'" data-city="'.$v[1].'">'.$v[0].'</option>';
   }
   return $options;
 }

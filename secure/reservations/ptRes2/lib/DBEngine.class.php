@@ -163,7 +163,7 @@ class DBEngine {
 		$sp = "";
 		$values = array();
 		if(!Auth::isAdmin()) {
-			$query_string =
+		    $query_string =
 			'AND s.scheduleid = sp.scheduleid '
 			.'AND sp.memberid = ? ';
 			$sp = "schedule_permission sp, ";
@@ -176,7 +176,10 @@ class DBEngine {
 		if(isset($_POST['group']) && !empty($_POST['group']))
 			$query_string .= "AND l.groupid='".$_POST['group']."' ";
 		if(isset($_POST['email']) && !empty($_POST['email']))
-			$query_string .= "AND l.email like '%".$_POST['email']."%' ";
+		{
+		  $query_string .= "AND l.email like ? ";
+		  $values[] = '%'.$_POST['email'].'%';
+		}
 		if($query_string == '') {
 			return;
 			$query_string = "AND sp.memberid = 'sjlkfd'";
@@ -199,7 +202,9 @@ class DBEngine {
 		// Prepare query
 		$q = $this->db->prepare($query);
 		// Execute query
-		$result = $this->db->execute($q, $values);
+		// var_dump($query);
+		// die(print_r($values));
+		$result = $this->db->execute($q, $values);//$values);
 		// Check if error
 		$this->check_for_error($result);
 		if ($result->numRows() <= 0) {

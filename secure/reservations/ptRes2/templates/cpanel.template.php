@@ -65,16 +65,38 @@ function showAnnouncementTable() {
 <?
 }
 
+if(!function_exists('_wordwrap')) {
+  function _wordwrap($text)   {
+      $split = explode(" ", $text);
+      foreach($split as $key=>$value)   {
+	  if (strlen($value) > 6)    {
+	      $split[$key] = chunk_split($value, 5, "&#8203;");
+	  }
+      }
+      return implode(" ", $split);
+  }
+}
+
 function showSchedulesTable($res, $err) {
 	global $link;
 ?>
+<style>
+  table tr th,
+  table tr td {
+    border-bottom: 1px solid #CCCCCC;
+    border-right: 1px solid #CCCCCC;
+    font-size: 0.8em;
+    padding: 3px;
+    text-align: left;
+  }
+</style>
 <table width="100%" border="0" cellspacing="0" cellpadding="1" align="center">
   <tr>
     <td class="tableBorder">
       <table width="100%" border="0" cellspacing="1" cellpadding="0">
         <tr>
           <td colspan="1" class="tableTitle">
-		    &#8250; Passenger Schedules
+		  &#8250; Passenger Schedules
 		  </td>
 		  <td align="right" class="tableTitle">
 		  <input type="button" value="Create Passenger Schedule" onmouseup="schedule('c','','','','');" onmouseover="window.status='Create Passenger Schedule'; return true;" onmouseout="window.status=''; return true;">
@@ -95,7 +117,7 @@ function showSchedulesTable($res, $err) {
           <td width="20%">Company/Organization</td>
           <td width="8%">Dept. Code</td>
           <td width="11%">Phone</td>
-          <td width="7%">View</td>
+          <!--td width="7%">View</td-->
           <td width="7%">Modify</td>
           <td width="7%">Delete</td>
         </tr>
@@ -147,12 +169,12 @@ function showSchedulesTable($res, $err) {
         echo "        <tr class=\"$class\" align=\"center\">"
 					. '          <td style="text-align:left;"><a href="' . $_SERVER['PHP_SELF'].'?currentId='.$rs['memberid'].'&fname='
 								. $rs['fname'] . '&lname=' . $rs['lname'] . '&active=view">'
-								. $rs['fname'] . ' ' . $rs['lname'] . '</a>z</td>'
-					. '          <td style="text-align:left;">' . $rs['email'] . '</td>'
-					. '          <td style="text-align:left;">' . $rs['institution'] . '</td>'
-					. '          <td style="text-align:left;">' . $rs['position'] . '</td>'
-					. '          <td style="text-align:left;">' . $rs['phone'] . '</td>'
-                    . '          <td>' . $link->getLink("javascript: schedule('v','','','','" . $rs['scheduleid'] . "');", translate('View'), '', '', 'View this schedule') . '</td>'
+								. _wordwrap($rs['fname'] . ' ' . $rs['lname']) . '</a></td>'
+					. '          <td style="text-align:left;">' . _wordwrap($rs['email']) . '</td>'
+					. '          <td style="text-align:left;">' . _wordwrap($rs['institution']) . '</td>'
+					. '          <td style="text-align:left;">' . _wordwrap($rs['position']) . '</td>'
+					. '          <td style="text-align:left;">' . _wordwrap($rs['phone']) . '</td>'
+                    . '          <!--td>' . $link->getLink("javascript: schedule('v','','','','" . $rs['scheduleid'] . "');", translate('View'), '', '', 'View this schedule') . '</td-->'
                     . '          <td>' . $link->getLink("javascript: schedule('m','','','','" . $rs['scheduleid'] . "');", translate('Modify'), '', '', 'Modify this schedule') . '</td>';
 	if($rs['memberid'] == $_SESSION['sessionID']) {
 		echo '<td>&nbsp;</td>';
@@ -377,7 +399,7 @@ include dirname(__FILE__).'/../../../../config/paths.php';
 ?>
 <table width="100%" border="0" cellspacing="1" cellpadding="0">
   <caption class="group">
-    <h2>John Doe's Trips</h2>
+    <h2><?php print $_SESSION['currentName'] ?>'s Trips</h2>
     <a href="<?php echo $securePrefix ?>/export_receipts.php">View/export Monthly Reports</a>
   </caption>
   <tr>
@@ -460,21 +482,24 @@ include dirname(__FILE__).'/../../../../config/paths.php';
 //    $hours = date('h', $rs['date']);
 //    $minutes = date('i', $rs['date']);
 //    $am = ($hours / 12) < 1;
+    
+    
+    $member = mysql_fetch_assoc(mysql_query("select * from login where memberid='".$rs['memberid']."'"));
 ?>
     <tr>
-      <td><a href="#">View</a> | <a href="#">Send Feedback</a></td>
+      <td><a href="javascript:reserve('v','','','<?php echo $rs['resid'] ?>')">View</a> | <a href="survey.php?resid=<?php echo $rs['resid'] ?>">Send Feedback</a></td>
       <td><?php echo date('m/d/Y', $rs['date']) ?></td>
-      <td><?php echo sprintf('%02d:%02d %s',
-        strftime('%I ', $rs['date']),
-        strftime('%M ', $rs['date']),
-        strftime('%p', $rs['date'])
-      ) ?></td>
+      <td><?php echo date("h:i A", 60*$rs['startTime']) ?></td>
       <td>$<?php echo $rs['total_fare'] ?></td>
       <td><?php echo $rs['fromLocationName'] ?></td>
       <td><?php echo $rs['toLocationName'] ?></td>
-      <td><a href="#">PDF</a> | <a href="#">Email</a></td>
+      <td><a href="newReceipt.php?resid=<?php echo $rs['resid'] ?>">PDF</a> |
+          <a href="<?php echo "/dispatch/ptRes/emailReceipt.php?resid=".$rs['resid']."&email=".$member['email'] ?>">Email</a></td>
     </tr>
+    
+
 <?php
+//$_SESSION['sessionAdmin']
 /*
 		echo "<tr class=\"$class\" align=\"center\">"
 		. '<td>' . $link->getLink("javascript: reserve('v','','','" . $rs['resid']. "');", CmnFns::formatDate($rs['date']), '', '', translate('View this reservation')) . '</td>'
@@ -508,6 +533,19 @@ function showTrainingTable($per, $err, $scheduleid) {
 //echo '</pre>';
 ?>
 
+<script>
+ function updateTable(data2)
+ {
+   var t = $("#locsTable");
+   var edit = '<a href="/pop/add_location.php?machid='+data2.machid+'" class="popover-edit" title="Edit Location">Edit</a>'+
+              '|'+
+	      '<a href="/pop/delete_location.php?machid='+data2.machid+'" class="popover-delete parentTr" title="Delete Location?">Delete</a>';
+	      
+   t.prepend("<tr><td>"+data2.name+"</td><td>"+data2.address1+"</td>"+
+		  "<td>"+data2.city+"</td><td>"+data2.state+"</td>"+
+		  "<td>"+data2.zip+"</td><td>"+edit+"</td></tr>");
+ }
+</script>
 
   <h1 id="hdr_my_locations"><span class="imagetext">My Locations</h1>
 
@@ -516,7 +554,7 @@ function showTrainingTable($per, $err, $scheduleid) {
   </form>
   <p class="align_right"><a href="/pop/add_location.php" class="popover-add" title="Add New Location">+ Add Location</a></p>
 
-  <table cellpadding="0" cellspacing="0">
+  <table id="locsTable" cellpadding="0" cellspacing="0">
     <thead>
       <tr>
         <th>Nickname</th>
@@ -545,11 +583,11 @@ function showTrainingTable($per, $err, $scheduleid) {
           <td><?php echo $rs['state'] ?></td>
           <td><?php echo $rs['zip'] ?></td>
           <td>
-            <?php if(true || !empty($rs['scheduleid'])): ?>
+            <?php if(!empty($rs['scheduleid'])): ?>
               <a href="/pop/add_location.php?machid=<?php echo $machid ?>" class="popover-edit" title="Edit Location">Edit</a>
               |
-	      <a href="/pop/delete_location.php?machid=<?php echo $machid ?>" class="popover-delete parentTr" title="Delete Location?">Delete</a>
             <?php endif; ?>
+	    <a href="/pop/delete_location.php?machid=<?php echo $machid ?>" class="popover-delete parentTr" title="Delete Location?">Delete</a>
           </td>
         </tr>
       <?php endfor; ?>

@@ -22,31 +22,11 @@ if ($groupid) $groupmsg = " and includes any discounts on this account";
 //$fromquote = apt_or_zip($from['machid'], $from['zip']);
 //$toquote = apt_or_zip($to['machid'], $to['zip']);
 
-if($_REQUEST['from_address']) {
-  $location1 = $_REQUEST['from_address'].' '.$_REQUEST['from_city'].' '.$_REQUEST['from_state'].', '.$_REQUEST['from_zip'];
-  $region_location1 = get_service_region3($_REQUEST['from_state'],$_REQUEST['from_zip']);
-} else {
-  $location1 = generate_location($from);
-  $region_location1 = get_service_region2($from);
-}
+$location1 = implode(" ",array_filter(array($_REQUEST['from_address'], $_REQUEST['from_city'], $_REQUEST['from_state'], $_REQUEST['from_zip']?', '.$_REQUEST['from_zip']:'')));
+$location2 = implode(" ",array_filter(array($_REQUEST['to_address'],   $_REQUEST['to_city'],   $_REQUEST['to_state'],       $_REQUEST['to_zip']?', '.$_REQUEST['to_zip']:'')));
+$location3 = implode(" ",array_filter(array($_REQUEST['stop_address'], $_REQUEST['stop_city'], $_REQUEST['stop_state'], $_REQUEST['stop_zip']?', '.$_REQUEST['stop_zip']:'')));
 
-if($_REQUEST['to_address']) {
-  $location2 = $_REQUEST['to_address'].' '.$_REQUEST['to_city'].' '.$_REQUEST['to_state'].', '.$_REQUEST['to_zip'];
-  $region_location2 = get_service_region3($_REQUEST['to_state'],$_REQUEST['to_zip']);
-} else {
-  $location2 = generate_location($to);
-  $region_location2 = get_service_region2($to);
-}
-
-if($_REQUEST['stop_address']) {
-  $location3 = $_REQUEST['stop_address'].' '.$_REQUEST['stop_city'].' '.$_REQUEST['stop_state'].', '.$_REQUEST['stop_zip'];
-  $region_location3 = get_service_region3($_REQUEST['stop_state'],$_REQUEST['stop_zip']);
-} else {
-  $location3 = generate_location($stop);
-  $region_location3 = get_service_region2($stop);
-}
-
-
+/*
 if(isset($_GET['stopID']) && $_GET['stopID'] !='')
 {
 	if($region_location1 == $region_location2 && $region_location1 == $region_location3)
@@ -75,7 +55,7 @@ $air_code = apt_or_zip($from['machid'],'');
 if($air_code==''){
     $air_code = apt_or_zip($to['machid'],'');
 }
-
+*/
 //$regioncode = get_service_region($from['zip'], $to['zip'], $air_code,$from['state'], $to['state']);
 
 $memberid=(isset($_SESSION['currentID']) ? $_SESSION['currentID'] : $_SESSION['sessionID']);
@@ -114,10 +94,13 @@ if(isset($_REQUEST['trip_type'])&& ! empty($_REQUEST['trip_type'])){
 }
 
 $variable = 'address1=' . $location1 . '&address2=' . $location2 .'&address3=' . $location3. '&wait_time=0&amenities='.$convertible_seats.','.$booster_seats.','.$meet_greet.'&memberid='.$memberid.'&groupid='.$groupid.'&coupon='.$coupon.'&origin=w&vehicle_type='.$vehicle_type.'&trip_type='.$trip_type.'&region=' . $regioncode;
+// 'address1=32837&address2=60185&address3=&wait_time=0&amenities=0,0,0&memberid=glb4e0bb288a1149&groupid=0&coupon=&origin=w&vehicle_type=P&trip_type=P&region='
+// 'address1=Consulate Dr Orlando FL, 32837&address2=Broad Way Northville NY, 12134&address3=&wait_time=0&amenities=0,0,0&memberid=glb4e0bb288a1149&groupid=0&coupon=&origin=w&vehicle_type=P&trip_type=P&region='
+
 // die($variable);
 
 $script = get_script();
-
+/*
 if(0 && $script == 0) //users with gourpid will be taken old price policy.
 {
     
@@ -137,7 +120,7 @@ if(0 && $script == 0) //users with gourpid will be taken old price policy.
 		$fromZip = 'SJC';
 	elseif($fromZip == '02886')   
 		$fromZip = 'PVD';
-    */      
+    *       
 
 	if($toZip == '02128')
 		$toZip = 'BOS';
@@ -162,10 +145,11 @@ if(0 && $script == 0) //users with gourpid will be taken old price policy.
 
 }
 else
-{
+*/
+	// die(EscapeShellArg($variable));
 	$out = exec('/home/planet/scripts/estimate.pl'.' '.EscapeShellArg($variable));  
 	parse_str($out);
-}
+// }
 
 if($fare > 0 && $fare < 29)
 	$fare = 29;

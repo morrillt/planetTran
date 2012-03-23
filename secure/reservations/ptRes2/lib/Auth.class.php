@@ -155,7 +155,7 @@ class Auth {
 			if ($mobile) 
 				$resume = 'm.main.php';
 			else
-				$resume = 'ctrlpnl.php';
+				$resume = 'reserve.php?type=r';
 		} 
 
 		$_SESSION['sessionID'] = null;
@@ -463,10 +463,12 @@ class Auth {
 			$mailer->Body = $msg;
 			$mailer->Send();
 		}
+                
+                return $id;
 
 		}
 		
-		return $id;	
+		return "SUCCESS";	                			
 		
 	}
 

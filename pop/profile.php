@@ -2,9 +2,9 @@
 
 session_start();
 $conf= array( 'db' => array('hostSpec'=>'localhost','dbType'=>'mysql','dbUser'=>'planet_schedul','dbPass'=>'schedule','dbName'=>'planet_reservations'));
-if(!($_SESSION['role']=='a' || $_SESSION['role']=='m' || $_SESSION['role']=='w' || $_SESSION['old_session']['role']=='a' || $_SESSION['old_session']['role']=='m' || $_SESSION['old_session']['role']=='w'))
+if($_SESSION['role']=='p')
 {
-  // die('Auth error');
+  die('Auth error');
 }
 
 ob_start();
@@ -21,10 +21,12 @@ ob_end_clean();
 
 mysql_connect('localhost','planet_schedul','schedule');
 mysql_select_db('planet_reservations');
-// die(print_r($_POST));
 if($_POST['radio_profile'])
 {
-  
+  $_SESSION['currentID'] = $_POST['radio_profile'];
+  $r = mysql_fetch_assoc(mysql_query("SELECT * FROM login where memberid='".$_SESSION['currentID']."'"));
+  $_SESSION['currentName'] = $r['fname'].' '.$r['lname'];
+/*
   $_SESSION['old_session'] = array();
   foreach($_SESSION as $k=>$v) {
     if($k == 'old_session') continue;
@@ -33,13 +35,47 @@ if($_POST['radio_profile'])
   
   $auth = new Auth();
   $auth->doLogin(null,null,null,null,null,null,true,$_POST['radio_profile'], false);
+
+  $mimedId = $_SESSION['sessionID'];
+  $_SESSION = $_SESSION['old_session'];
+  $_SESSION['currentId'] = $mimedId;
+*/
+  
   ?>
-  <script>
-    window.parent.location.reload(true);
+<script type="text/javascript">
+//<!--
+    var ol = window.opener.location;
+    window.opener.location = window.opener.location + ((ol+"").indexOf("?") != -1 ? "&" : "?") + "reload";
     window.close();
-  </script>
+//-->
+</script>
   <?php
   die();
+}
+
+if(isset($_POST['back_to_old'])) {
+    if($_POST['back_to_old']) {
+    $r = mysql_fetch_assoc(mysql_query("SELECT * FROM login where memberid='".$_SESSION['sessionID']."'"));
+    $_SESSION['currentName'] = $r['fname'].' '.$r['lname'];
+  
+           /*     
+        foreach($_SESSION['old_session'] as $k=>$v) {            
+            $_SESSION[$k] = $v;
+        }*/
+        unset($_SESSION['currentID']); //$_SESSION['old_session']);
+        
+        ?>
+<script type="text/javascript">
+//<!--
+    window.opener.location = window.opener.location;//.reload(true);//href = "https://secure.planettran.com/reservations/ptRes2/ctrlpnl.php";
+    window.close();
+//-->
+</script>
+            <?php
+            
+            die();
+        
+    }
 }
 
 ?>
@@ -62,10 +98,18 @@ if($_POST['radio_profile'])
 	<div id="main">
 
 		<h1>Change the current passenger profile</h1>
-
+                
+                <form id="profile_picker" method="post">
+                    
+                    <?php if(isset($_SESSION['old_session'])) : ?>
+                        <p>
+                             <input type="submit" name="back_to_old" value=" &lt;&lt; Back to Your Profile " />
+                        </p>
+                    <?php endif; ?>
+                    
 		<p class="">Search for profiles using any of the following criteria (including partial words, too):</p>
 
-		<form id="profile_picker" method="post">
+		
 			<fieldset>
 				<legend>Profile Search</legend>
 				<div class="row group">
@@ -92,19 +136,21 @@ if($_POST['radio_profile'])
 						<input type="text" class="text" name="email" id="picker_email" />
 					</div>
 				</div>
-				<div class="row group">
-					<div class="labelish">
-						<label for="picker_group">Billing Group</label>
+				<?php if($_SESSION['role'] != 'a'): ?>
+					<div class="row group">
+						<div class="labelish">
+							<label for="picker_group">Billing Group</label>
+						</div>
+						<div class="inputs">
+							<select style="width: 84%" name="group" id="group">
+								<option value=""></option>
+								<?php foreach(AdminDB::get_grouplist() as $id=>$name): ?>
+									<option value="<?php echo $id ?>"><?php echo $name ?></option>
+								<?php endforeach ?>
+							</select>
+						</div>
 					</div>
-					<div class="inputs">
-						<select name="group" id="group">
-							<option value=""></option>
-							<?php foreach(Account::getBillingGroups() as $id=>$name): ?>
-								<option value="<?php echo $id ?>"><?php echo $name ?></option>
-							<?php endforeach ?>
-						</select>
-					</div>
-				</div>
+				<?php endif ?>
 				<div class="row group">
 					<div class="inputs">
 						<input type="submit" value="Search" /><br />
@@ -144,6 +190,7 @@ if($_POST['radio_profile'])
 				  <?php 
 					$db = new DBEngine();
 					$db->db_connect();
+					if($_SESSION['role']=='a')$_POST['group']=$_SESSION['curGroup'];
 					$order = array('date', 'name', 'startTime', 'endTime', 'created', 'modified');
 					$res   = $db->get_admin_schedules($_SESSION['sessionID'], array(),array());
 					

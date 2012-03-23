@@ -456,24 +456,34 @@ class AdminDB extends DBEngine {
 		array_push($values, $rs['scheduleid']);
 		array_push($values, $rs['name']);
 		array_push($values, $rs['location']);
+		
 		array_push($values, $rs['rphone']);
 		array_push($values, $rs['notes']);
-		array_push($values, 'a');
 		array_push($values, $rs['minRes']);
 		array_push($values, $rs['maxRes']);
+		
 		array_push($values, intval(isset($rs['autoAssign'])));
 		array_push($values, $rs['state']);
 		array_push($values, $rs['zip']);
 		array_push($values, $rs['address1']);
+		
 		array_push($values, $rs['address2']);
 		array_push($values, $rs['city']);
 		array_push($values, $rs['lat']);
 		array_push($values, $rs['lon']);
-		array_push($values, -1);
-		array_push($values, $rs['type']);//accuracy
+		//array_push($values, -1);
+		//array_push($values, $rs['type']);//accuracy
+		// array_push($values, 0);//stub for auto id field
 		$this->assign_resource($id, $assignid);
-
-		$q = $this->db->prepare('INSERT INTO ' . $this->get_table('resources') . '  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+		$q = mysql_fetch_assoc(mysql_query("select * from " . $this->get_table('resources') . ' WHERE (scheduleid=\''.$rs['scheduleid'].'\') or scheduleid is null or scheduleid = \'\' and location=\''.addslashes($rs['location']).'\''));
+		if($q) return $q['machid'];
+		$q = $this->db->prepare('INSERT INTO ' . $this->get_table('resources') . ' (machid,scheduleid,name,location,'.
+											     'rphone,notes,minRes,maxRes,'.
+											     'autoAssign,state,zip,address1,'.
+											     'address2,city,lat,lon) VALUES(?,?,?,?,'.
+															    '?,?,?,?,'.
+															    '?,?,?,?,'.
+															    '?,?,?,?)');
 		$result = $this->db->execute($q, $values);
 		$this->check_for_error($result);
 

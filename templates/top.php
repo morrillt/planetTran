@@ -8,7 +8,7 @@ require dirname(__FILE__).'/../config/paths.php';
   <div id="utility">
     <div class="group constrainer">
       <div id="utility_contact">
-        <a href="<?php echo $sitePrefix ?>/pop/help.php" class="popupwindow" rel="windowPicker">Help</a> <span class="pipe">|</span> 888-756-8876
+        <!--a href="<?php echo $sitePrefix ?>/pop/help.php" class="popupwindow" rel="windowPicker">Help</a> <span class="pipe">|</span--> 888.756.8876
       </div>
       <div id="utility_user_links">
         <?php if(Auth::is_logged_in()): ?>
@@ -30,8 +30,12 @@ require dirname(__FILE__).'/../config/paths.php';
       <a href="<?php echo $sitePrefix ?>/" accesskey="1"><img src="/img/planettran_logo22560.png" width="225" height="60" alt="PlanetTran" /></a>
     </div>
     <ul id="nav">
-      <li class="nav_home"><a href="<?php echo $sitePrefix ?>/"><span class="imagetext">Home</span></a></li>
-      <li class="nav_reservations"><a href="<?php echo $securePrefix ?>/index.php"><span class="imagetext">Reservations</span></a></li>
+      <?php if(!Auth::is_logged_in()): ?>
+	<li class="nav_home"><a href="<?php echo $sitePrefix ?>/"><span class="imagetext">Home</span></a></li>
+      <?php else: ?>
+	<li class="nav_home"><a href="<?php echo $securePrefix ?>/ctrlpnl.php"><span class="imagetext">Home</span></a></li>
+      <?php endif ?>
+      <li class="nav_reservations"><a href="<?php echo $securePrefix ?>/reserve.php?type=r&amp;step=1"><span class="imagetext">Reservations</span></a></li>
       <li class="nav_service"><a href="<?php echo $sitePrefix ?>/service/"><span class="imagetext">Service</span></a></li>
       <li class="nav_news"><a href="<?php echo $sitePrefix ?>/news/"><span class="imagetext">News</span></a></li>
       <li class="nav_about"><a href="<?php echo $sitePrefix ?>/about/"><span class="imagetext">About</span></a></li>

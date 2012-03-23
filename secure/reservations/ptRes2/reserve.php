@@ -95,7 +95,7 @@ function process_reservation($fn) {
 	$delimiter = 'DELIMITER';
 
 	$_SESSION['confirmEmail'] = $_POST['confirmEmail'];
-	if (isset($_POST['group'])) {
+	if (isset($_POST['group']) || ($_POST['cphone']) || ($_POST['pname'])) {
 			$delimiter = "GROUP_DEL";
 			$_POST['summary'] =
 	                        $_POST['pname'] . $delimiter .
@@ -117,8 +117,11 @@ function process_reservation($fn) {
 				$_POST['city'] . $delimiter .
 			$_POST['cell'];
 
+	
+
 	if (isset($_POST['hack']))
 		$_POST['summary'] = $_POST['pname'] . $delimiter . $_POST['ccnum'] . $delimiter . $_POST['expdate'] . $delimiter . $_POST['address'] . $delimiter . $_POST['city'] . $delimiter . $_POST['cell'];
+	
 	if (isset($_POST['resid']))
 		$res = new $Class($_POST['resid']);
 	else if (isset($_GET['resid']))
@@ -276,36 +279,37 @@ function process_reservation($fn) {
 
     $toLoc = add_resource($toLocation, true);
   }
+  
 
-	if($fn == 'create'){
-		$res->add_res($fromLoc, $toLoc, $_SESSION['currentID'], $startTime, $startTime + 15, $repeat, $_POST['date'], $_POST['minRes'], $_POST['maxRes'], stripslashes($_POST['summary']), stripslashes($_POST['special']), $flightDets, (isset($_POST['checkBags'])?1:0), $scheduleid, $specialItems, stripslashes($_POST['dispNotes']), $_POST['coupon'], null, $authWait, $paymentProfileId, $stopLoc, (isset($_POST['autoBillOverride'])?1:0), $convertible_seats, $booster_seats, $regionID, $vehicle_type, $trip_type, $passenger_count, $meet_greet, $estimate);
+  if($fn == 'create'){
+	  $res->add_res($fromLoc, $toLoc, $_SESSION['currentID'], $startTime, $startTime + 15, $repeat, $_POST['date'], $_POST['minRes'], $_POST['maxRes'], stripslashes($_POST['summary']), stripslashes($_POST['special']), $flightDets, (isset($_POST['checkBags'])?1:0), $scheduleid, $specialItems, stripslashes($_POST['dispNotes']), $_POST['coupon'], null, $authWait, $paymentProfileId, $stopLoc, (isset($_POST['autoBillOverride'])?1:0), $convertible_seats, $booster_seats, $regionID, $vehicle_type, $trip_type, $passenger_count, $meet_greet, $estimate);
 //		$res->add_res($_POST['fromLoc'], $_POST['toLoc'], $_SESSION['currentID'], $startTime, $startTime + 15, $repeat, $_POST['date'], $_POST['minRes'], $_POST['maxRes'], stripslashes($_POST['summary']), $flightDets, (isset($_POST['checkBags'])?1:0), $_POST['scheduleid'], $specialItems, stripslashes($_POST['dispNotes']), $_POST['coupon'], null, $authWait, $paymentProfileId, $stopLoc, (isset($_POST['autoBillOverride'])?1:0), $convertible_seats, $booster_seats, $regionID, $vehicle_type, $trip_type, $passenger_count, $meet_greet, $estimate);
-	} else if ($fn == 'modify') {
+  } else if ($fn == 'modify') {
 //		$ok = $res->db->check_disp_state($_POST['resid']);
-		$ok = $res->db->check_disp_state($_GET['resid']);
+	  $ok = $res->db->check_disp_state($_GET['resid']);
 
-		if (!$ok && $_SESSION['role'] != 'm') {
-			$res->print_res_fail();
-		} else {
-			//$check = checkGPS($_POST['fromLoc'], $_POST['toLoc']);
-			//if ($check['reason'])
-			//	$res->print_fail($check, $_POST['scheduleid']);
-			//else {
-				$res->mod_res($fromLoc, $toLoc,$_POST['date'], $startTime, $startTime + 15, isset($_POST['del']), $_POST['minRes'], $_POST['maxRes'], isset($_POST['mod_recur']), stripslashes($_POST['summary']), $flightDets, (isset($_POST['checkBags'])?1:0), $specialItems, $_POST['scheduleid'], stripslashes($_POST['dispNotes']), $_POST['coupon'], null, $authWait, $paymentProfileId, $stopLoc,(isset($_POST['autoBillOverride'])?1:0), $convertible_seats, $booster_seats, $regionID, $vehicle_type, $trip_type, $passenger_count, $meet_greet, $estimate);
-				//mod_dynstat($_POST['resid'], "planet_reservations");
-			//}
-		}
-	} else if ($fn == 'delete') {
+	  if (!$ok && $_SESSION['role'] != 'm') {
+		  $res->print_res_fail();
+	  } else {
+		  //$check = checkGPS($_POST['fromLoc'], $_POST['toLoc']);
+		  //if ($check['reason'])
+		  //	$res->print_fail($check, $_POST['scheduleid']);
+		  //else {
+			  $res->mod_res($fromLoc, $toLoc,$_POST['date'], $startTime, $startTime + 15, isset($_POST['del']), $_POST['minRes'], $_POST['maxRes'], isset($_POST['mod_recur']), stripslashes($_POST['summary']), $flightDets, (isset($_POST['checkBags'])?1:0), $specialItems, $_POST['scheduleid'], stripslashes($_POST['dispNotes']), $_POST['coupon'], null, $authWait, $paymentProfileId, $stopLoc,(isset($_POST['autoBillOverride'])?1:0), $convertible_seats, $booster_seats, $regionID, $vehicle_type, $trip_type, $passenger_count, $meet_greet, $estimate);
+			  //mod_dynstat($_POST['resid'], "planet_reservations");
+		  //}
+	  }
+  } else if ($fn == 'delete') {
 //		$ok = $res->db->check_disp_state($_POST['resid']);
-		$ok = $res->db->check_disp_state($_GET['resid']);
+	  $ok = $res->db->check_disp_state($_GET['resid']);
 
-		if (!$ok && $_SESSION['role'] != 'm') {
-			$res->print_res_fail();
-		} else {
-		$res->del_res(isset($_POST['mod_recur']));
-		//del_dynstat($_POST['resid']);
-		}
-	}
+	  if (!$ok && $_SESSION['role'] != 'm') {
+		  $res->print_res_fail();
+	  } else {
+	  $res->del_res(isset($_POST['mod_recur']));
+	  //del_dynstat($_POST['resid']);
+	  }
+  }
 
 //  return $res;
 }
