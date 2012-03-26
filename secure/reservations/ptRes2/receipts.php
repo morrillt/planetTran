@@ -28,7 +28,24 @@ $t->startMain();
 <?php
 
 //show_form();
+if($_SESSION['role']=='a' || $_SESSION['role']=='m' || $_SESSION['role']=='w' || $_SESSION['role']=='v') {
+	// If role is appropriate, allow for searching
+	echo '<form action="'. $_SERVER['PHP_SELF']. '" method="post">
+	<table>
+	  <tr>
+	    <td>First Name: <input type="text" name="firstName"/> </td> <td> Last Name: <input type="text" name="lastName"/> </td> '.
+	   '<td>Email: <input type="text" name="email"></td></tr><tr>';
+	
+	$groups = AdminDB::get_grouplist();
 
+	echo '<select name="group">';
+	echo '<option value="">Select group</option>';
+	foreach ($groups as $k => $v) {
+		echo "<option value=\"$k\">$v</option>\n";
+	}
+	echo '</select></td></tr></table>';
+	echo '<input type="submit"/>';
+}
 $res = $db->get_user_receipts($_SESSION['currentID']);
 
 showReceiptsTable($res, $db->get_err());

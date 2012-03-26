@@ -80,13 +80,13 @@ function schedule(type, machid, ts, resid, scheduleid, read_only) {
 }
 
 function reserve(type, machid, ts, resid, scheduleid, read_only) {  
-		w = (type == 'm' || type == 'r') ? 500 : 425;
-		h = (type == 'm' || type == 'r') ? 700 : 550;
+		w = 450;
+		h = 700;
 		
 		var left = (screen.width/2)-(w/2);
 		var top = (screen.height/2)-(h/2);
-
-		nurl = "reserve.php?type=" + type + "&machid=" + machid + "&ts=" + ts + "&resid=" + resid + '&scheduleid=' + scheduleid + "&is_blackout=0&read_only=" + read_only;    
+		
+		nurl = "view_reservation.php?type=" + type + "&machid=" + machid + "&ts=" + ts + "&resid=" + resid + '&scheduleid=' + scheduleid + "&is_blackout=0&read_only=" + read_only;    
 		window.open(nurl,"reserve","width=" + w + ",height=" + h + ",top=" + top + ",left=" + left + ", scrollbars,resizable=no,status=no");     
 		void(0);    
 }
@@ -1326,4 +1326,16 @@ function get_state_from_zip(zip) {
 		 return 'WY' ;
 	}
 		return '';
+}
+
+function pop_email(resid, email) {  
+		w = 300;
+		h = 300;
+		
+		var left = (screen.width/2)-(w/2);
+		var top = (screen.height/2)-(h/2);
+		
+		nurl = "emailPopup.php?resid=" + resid + "&email=" + email;    
+		window.open(nurl,"pop_email","width=" + w + ",height=" + h + ",top=" + top + ",left=" + left + ", scrollbars=no,resizable=no,status=no");     
+		void(0);    
 }
