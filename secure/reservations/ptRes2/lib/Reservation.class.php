@@ -2443,7 +2443,7 @@ if(!history) {
 	      foreach($tools->car_select_details() as $k=>$v): ?>
 	    <div class="vehicle_desc group">
 	      <label for="vehicle<?php echo $k ?>" style="display:block;float: left;width: 95%;">
-		<img src="http://placehold.it/145x60&text=Vehicle" width="145" height="60" alt="<?php echo $v['name'] ?>" />
+		<img src="/img/vehicles/<?php echo $v['img'] ?>" width="145" height="60" alt="<?php echo $v['name'] ?>" />
 		<div class="vehicle_details">
 		  <label for="vehicle1" class="vehicle_name"><?php echo $v['name'] ?></label><br />
 		  Seats: <?php echo $v['seats'] ?> passengers<br />
