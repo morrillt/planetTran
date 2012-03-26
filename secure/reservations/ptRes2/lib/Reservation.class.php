@@ -1240,6 +1240,123 @@ class Reservation {
 	/**
 	* Prints out the reservation table
 	*/
+	function print_res_read_only() {
+		global $conf;
+		
+		if (!empty($this->id))
+			$this->load_by_id();
+		else
+			$this->load_by_get();
+		$user = new User($this->memberid);
+		$resend_url = $conf['app']['weburi']."/resend.php?id=".$this->memberid;
+		$resend_url = "<br>&nbsp<br><a href=\"$resend_url\">Click here to send the confirmation email again.</a>";
+
+		// location information
+		$toRs = $this->db->get_resource_data($this->toLocation);
+		$fromRs = $this->db->get_resource_data($this->machid);
+		$rs = $this->db->get_resource_data($this->machid);
+
+		$loclist = $this->db->get_user_permissions($this->db->get_user_scheduleid($this->memberid));
+	
+		if ($this->type == 'm' || $this->type == 'd') {
+			$trip = $this->db->get_trip_data($this->id);
+	
+			//echo Auth::isSuperAdmin();
+
+			if ( (!Auth::has_permission(DISP_WRITE) && !Auth::isSuperAdmin() ) && $trip['dispatch_status'] != 27){
+				print_viewonly_web($loclist, $this->toLocation, $this->machid, $this, $trip);
+				return;
+			} else if (!Auth::isSuperAdmin() && $trip['dispatch_status'] == 12) {
+				print_viewonly_web($loclist, $this->toLocation, $this->machid, $this, $trip);
+				return;
+			}
+		}
+
+
+		// Block reservations for x and u roles 
+		if ($_SESSION['role']=='x') {
+			CmnFns::do_error_box(
+				'The credit card or other billing information on file is no longer valid. Please call 888-PLNTTRN (756-8876) during business hours to update your information.',
+				'',
+				true);
+		} else if ($user->role=='u'&&$_SESSION['role']!='m') { 
+			CmnFns::do_error_box(
+				"To be able to make reservations, you must first confirm the email address by either clicking the link in the registration email, or copying/pasting it into your browser's address bar. $resend_url",
+				'',
+				true);
+		} else if ($user->role=='u'&&$_SESSION['role']=='m') { 
+			CmnFns::do_error_box(
+				"This user has an unconfirmed corporate account. They need to activate it by clicking the link in their registration email. If necessary, we can send the email again. $resend_url",
+				'',
+				true);
+		}
+
+		if ($user->fname == "Saturn" and $this->type == "r") {
+			CmnFns::do_error_box(
+				'Saturn reservations can only be booked through the Saturn system',
+				'',
+				true);
+		}
+
+		if ($user->role == 'x') {
+			CmnFns::do_error_box(
+				'This user\'s account is locked; no reservations may be made or altered. The customer should call 888-PLNTTRN (756-8876) during business hours and select the billing option to resolve the issue. Any upcoming trips can be canceled from the dispatch screen.',
+				'',
+				true);
+		}
+		if ($this->is_blackout == 1) {
+			CmnFns::do_error_box(
+				'This reservation has been deleted.',
+				'',
+				true);
+		}
+
+
+		begin_reserve_form($this->type == 'r', $this->is_blackout);	// Start form
+		start_left_cell();
+		print_res_header($this->type, $this->id);
+		print_resource_data($fromRs['name'], $toRs['name']);		// Print resource info
+		print_time_info_read_only($this, $rs, !$this->is_blackout,$this->specialItems);	// Print time information
+		if($this->memberid != '41e6d96e8b2ad') {
+			if (!$this->is_blackout) {
+				print_user_info($this->type, new User($this->memberid));	// Print user info
+			}
+			if (!empty($this->id))			// Print created/modified times (if applicable)
+				print_create_modify($this->created, $this->modified);
+
+			print_special_read_only($this->specialItems, $this->type, $user->role, $this);
+			$billtype = $user->groupid ? $this->db->get_billtype($user->groupid) : null;
+			$paymentArray = $this->db->getPaymentOptions($this->memberid);
+			print_group_hack_summary($this->summary, $this->type, $billtype, $this->dispNotes, $paymentArray, $user, $this, true);
+		} else {
+			print_special_read_only($this->specialItems, $this->type);
+			print_hack_summary($this->summary, $this->type);
+		}
+		//if (!empty($this->parentid) && ($this->type == 'm' || $this->type == 'd'))
+			//print_recur_checkbox($this->parentid);
+
+		//if ($this->type == 'm')
+			//print_del_checkbox();
+
+		// $hack is our array from group_hack_summary
+		$hack = $this->db->parseNotes($this->summary);
+
+		
+		print_buttons($this->type, $hack, $this->coupon, $user->groupid, $user->email, true);
+		print_hidden_fields($this);	// Print hidden form fields
+
+		//if (1) {		// Print out repeat reservation box, if applicable
+			//divide_table();
+			//$weeks = $this->create_week_array($conf['app']['recurringWeeks']);
+			//print_repeat_box(date('m', $this->date), date('Y', $this->date));
+		//}
+
+		end_right_cell();
+
+		end_reserve_form($this->id, $this->type);				// End form
+	}
+	
+	
 	function print_res()
   {
     if($_POST)

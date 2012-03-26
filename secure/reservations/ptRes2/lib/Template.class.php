@@ -83,6 +83,32 @@ class Template {
 <?php endif;
 	}
 
+	function printCSSHeader($bodyClass = ''){
+		global $conf;
+		global $languages;
+		global $lang;
+		global $charset;
+
+//		$path = $this->dir_path;
+//		echo "<?xml version=\"1.0\" encoding=\"$charset\"?" . ">\n";
+	?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<?php include $conf['app']['include_path'].'../templates/head.php' ?>
+<title><?php echo $this->title ?></title>
+<script type="text/javascript" src="functions.js"></script>
+<script type="text/javascript" src="jquery.boxy.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+</head>
+
+<body class="<?php echo $bodyClass ?>">
+<?php if(!$this->bodyOnly): ?>
+<div id="container">
+<div id="colwrap" class="group constrainer">
+<?php endif;
+	}
+
+
 	function printNavReservations(){
     global $conf;
 //    include dirname(__FILE__).'/../../../../templates/nav/reservations.php';
@@ -207,6 +233,7 @@ class Template {
 </html>
 	<?
 	}
+	
 	
 	/**
 	* Sets the link class variable to reference a new Link object

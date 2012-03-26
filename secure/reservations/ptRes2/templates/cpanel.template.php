@@ -364,6 +364,8 @@ function showReceiptsTable($res, $err) {
 	global $conf;
 	global $link;
 	$page = $res[0];
+	
+	$search = array_pop($res);	// Grab the $search flag that was pushed in DBEngine.class.php	
 //	showPage($page);
 /*
 ?>
@@ -399,10 +401,19 @@ include dirname(__FILE__).'/../../../../config/paths.php';
 ?>
 <table width="100%" border="0" cellspacing="1" cellpadding="0">
   <caption class="group">
-    <h2><?php print $_SESSION['currentName'] ?>'s Trips</h2>
+  
+    <h2><?php
+     if ($search) {
+     	echo "Search Results";
+     } else { 
+     	print $_SESSION['currentName'] . "'s Trips"; 
+	}?></h2>
     <a href="<?php echo $securePrefix ?>/export_receipts.php">View/export Monthly Reports</a>
   </caption>
   <tr>
+  	<?php if ($search) { // If a search was made, show a name column ?>
+  	<th>Name</th>
+  	<?php } ?>
     <th>Reservation</th>
     <th>Date</th>
     <th>Pickup</th>
@@ -487,14 +498,17 @@ include dirname(__FILE__).'/../../../../config/paths.php';
     $member = mysql_fetch_assoc(mysql_query("select * from login where memberid='".$rs['memberid']."'"));
 ?>
     <tr>
-      <td><a href="javascript:reserve('v','','','<?php echo $rs['resid'] ?>')">View</a> | <a href="survey.php?resid=<?php echo $rs['resid'] ?>">Send Feedback</a></td>
+    <?php if ($search) { // If a search was made, show the name of the person the trip was for ?>
+      <td><?php echo $rs['firstName'] . " " . $rs['lastName']; ?></td>
+    <?php } ?>
+      <td><a href="javascript:reserve('v','','','<?php echo $rs['resid'] ?>', '', '1')">View</a> | <a href="survey.php?resid=<?php echo $rs['resid'] ?>">Send Feedback</a></td>
       <td><?php echo date('m/d/Y', $rs['date']) ?></td>
       <td><?php echo date("h:i A", 60*$rs['startTime']) ?></td>
       <td>$<?php echo $rs['total_fare'] ?></td>
       <td><?php echo $rs['fromLocationName'] ?></td>
       <td><?php echo $rs['toLocationName'] ?></td>
       <td><a href="newReceipt.php?resid=<?php echo $rs['resid'] ?>">PDF</a> |
-          <a href="<?php echo "/dispatch/ptRes/emailReceipt.php?resid=".$rs['resid']."&email=".$member['email'] ?>">Email</a></td>
+          <a href="javascript:pop_email('<?php echo $rs['resid']?>', '<?php echo $member['email']?>')">Email</a></td> 
     </tr>
     
 

@@ -220,12 +220,16 @@ class Tools {
 	* Print an array as a select menu with one item already selected
 	* if name is passed in print the opening and closing select tags
 	*/
-	function print_dropdown($array, $match = null, $name = null, $class = null, $function = '', $id = null) {
+	function print_dropdown($array, $match = null, $name = null, $class = null, $function = '', $id = null, $disabled = false) {
 
 		$class = $class ? ' class="'.$class.'"' : '';
 		$id = $id ? ' id="'.$id.'"' : '';
-		
-		if ($name) echo "<select name=\"$name\"$id$class $function>\n";
+		if ($disabled) {
+			$disabled = " disabled";
+		} else {
+			$disabled = "";
+		}
+		if ($name) echo "<select name=\"$name\"$id$class $function$disabled>\n";
 		foreach ($array as $k => $v) {
 			$selected = $k == $match ? ' selected' : '';
 			echo "<option value=\"$k\"$selected>$v</option>\n";
