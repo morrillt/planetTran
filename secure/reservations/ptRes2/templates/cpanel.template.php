@@ -99,7 +99,7 @@ function showSchedulesTable($res, $err) {
 		  &#8250; Passenger Schedules
 		  </td>
 		  <td align="right" class="tableTitle">
-		  <input type="button" value="Create Passenger Schedule" onmouseup="schedule('c','','','','');" onmouseover="window.status='Create Passenger Schedule'; return true;" onmouseout="window.status=''; return true;">
+		  <input type="button"  value="Create Passenger Schedule" onmouseup="schedule('c','','','','');" onmouseover="window.status='Create Passenger Schedule'; return true;" onmouseout="window.status=''; return true;">
 		  <? //$link->doLink("javascript: schedule('c','','','', '');", translate('New Schedule'), '', '', translate('New Schedule', array($name, CmnFns::formatDate($ts))))?>
 		</td>
           <!--td class="tableTitle">
@@ -112,14 +112,14 @@ function showSchedulesTable($res, $err) {
       <div id="schedule" style="display: <?= getShowHide('schedule') ?>">
       <table width="100%" border="0" cellspacing="1" cellpadding="0">
         <tr class="rowHeaders">
-          <td width="20%">Passenger</td>
-	  <td width="20%">email</td>
-          <td width="20%">Company/Organization</td>
-          <td width="8%">Dept. Code</td>
-          <td width="11%">Phone</td>
+          <td width="40%">Passenger</td>
+	  <td width="40%">email</td>
+          <!-- <td width="20%">Company/Organization</td>-->
+          <!-- <td width="8%">Dept. Code</td>-->
+          <!-- <td width="11%">Phone</td>-->
           <!--td width="7%">View</td-->
-          <td width="7%">Modify</td>
-          <td width="7%">Delete</td>
+          <td width="10%">Modify</td>
+          <td width="10%">Delete</td>
         </tr>
        <!-- <tr class="cellColor" style="text-align: center">
           <td>
@@ -171,9 +171,9 @@ function showSchedulesTable($res, $err) {
 								. $rs['fname'] . '&lname=' . $rs['lname'] . '&active=view">'
 								. _wordwrap($rs['fname'] . ' ' . $rs['lname']) . '</a></td>'
 					. '          <td style="text-align:left;">' . _wordwrap($rs['email']) . '</td>'
-					. '          <td style="text-align:left;">' . _wordwrap($rs['institution']) . '</td>'
-					. '          <td style="text-align:left;">' . _wordwrap($rs['position']) . '</td>'
-					. '          <td style="text-align:left;">' . _wordwrap($rs['phone']) . '</td>'
+					//. '          <td style="text-align:left;">' . _wordwrap($rs['institution']) . '</td>'
+					//. '          <td style="text-align:left;">' . _wordwrap($rs['position']) . '</td>'
+					//. '          <td style="text-align:left;">' . _wordwrap($rs['phone']) . '</td>'
                     . '          <!--td>' . $link->getLink("javascript: schedule('v','','','','" . $rs['scheduleid'] . "');", translate('View'), '', '', 'View this schedule') . '</td-->'
                     . '          <td>' . $link->getLink("javascript: schedule('m','','','','" . $rs['scheduleid'] . "');", translate('Modify'), '', '', 'Modify this schedule') . '</td>';
 	if($rs['memberid'] == $_SESSION['sessionID']) {
@@ -500,8 +500,13 @@ include dirname(__FILE__).'/../../../../config/paths.php';
     <tr>
     <?php if ($search) { // If a search was made, show the name of the person the trip was for ?>
       <td><?php echo $rs['firstName'] . " " . $rs['lastName']; ?></td>
-    <?php } ?>
-      <td><a href="javascript:reserve('v','','','<?php echo $rs['resid'] ?>', '', '1')">View</a> | <a href="survey.php?resid=<?php echo $rs['resid'] ?>">Send Feedback</a></td>
+    <?php }
+    /* <a href="javascript:reserve('v','','','<?php echo $rs['resid'] ?>', '', '1')">View</a> |
+     * Temporarily removed the View link from the receipts view.
+     */ 
+     ?>
+    
+      <td><a href="survey.php?resid=<?php echo $rs['resid'] ?>">Send Feedback</a></td>
       <td><?php echo date('m/d/Y', $rs['date']) ?></td>
       <td><?php echo date("h:i A", 60*$rs['startTime']) ?></td>
       <td>$<?php echo $rs['total_fare'] ?></td>

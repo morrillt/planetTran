@@ -154,27 +154,31 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
           */
         ?>
       </div>
-    </div>
+    </div> 
 
-    <?php if($data['role'] === 'p' || $data['role'] === 'a'): ?>
-      <div class="row group">
-	<div class="labelish">
-	  <label for="role">Role</label>
-	</div>
-	<div class="inputs">
-	  <select name="role" id="role">
-	    <?php foreach(Account::getRoles() as $key => $name): ?>
-	      <option value="<?php echo $key ?>"<?php if($key == $data['role']) echo ' selected="selected"' ?>><?php echo $name ?></option>
-	    <?php endforeach; ?>
-	  </select>
-	</div>
-      </div>
-    <?php endif ?>
-
-    <div class="row group">
-      <div class="labelish">
-        <label for="position"><?php echo translate('Dept. Code') ?></label>
-      </div>
+    <?php 
+    	//if($data['role'] === 'm' || $data['role'] === 'a'): // wrong	 
+    	if($_SESSION['role']=='m' && $_SESSION['role'] !== 0):  // only role of M should have access to this - JL 3/26
+    ?>
+		<div class="row group">
+			<div class="labelish">
+			  <label for="role">Role</label>
+			</div>
+			<div class="inputs">
+			  <select name="role" id="role">
+			    <?php foreach(Account::getRoles() as $key => $name): ?>
+			      <option value="<?php echo $key ?>"<?php if($key == $data['role']) echo ' selected="selected"' ?>><?php echo $name ?></option>
+			    <?php endforeach; ?>
+			  </select>
+			</div>
+	    </div>
+	
+	    <div class="row group">
+	 		<div class="labelish">
+				<label for="position"><?php echo translate('Dept. Code') ?></label>
+	    </div>
+	
+	
       <div class="inputs">
         <?
           if(empty($positions[0]))
@@ -199,7 +203,8 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
           }
         ?>
       </div>
-    </div>
+    <?php endif ?>  
+
     <?php /*if(!$edit): ?>
       <div class="row group">
         <div class="labelish">
@@ -215,7 +220,10 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
     <?php endif; */
     // die(print_r($_SESSION)); ?>
 
-    <?php if(in_array($_SESSION['role'], array('v','m','a')) && $_SESSION['role'] !== 0): ?>
+    <?php 
+	// 	if(in_array($_SESSION['role'], array('v','m','a')) && $_SESSION['role'] !== 0): -- Old code.  Removed JL 3/26 
+    	if($_SESSION['role']=='m' && $_SESSION['role'] !== 0):  // only role of M should have access to this
+    ?>
       <div class="row group">
 	<div class="labelish">
 	  <label for="billing_group">Billing Group</label>
@@ -229,8 +237,6 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
 	  </select>
 	</div>
       </div>
-    <?php endif ?>
-    
     <!--div class="row group admin">
       <div class="labelish">
         <label for="price_type">Price Type</label>
@@ -257,17 +263,8 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
         </select>
       </div>
     </div>
-
-    <?php /*
-    <div class="row group admin">
-      <div class="labelish">
-        <label for="profile_notes">Profile Notes</label>
-      </div>
-      <div class="inputs">
-        <textarea name="profile_notes" id="profile_notes"><?php echo $data['profile_notes'] ?></textarea>
-      </div>
-    </div>
-    */ ?>
+    <?php endif ?>
+    
     <?php if(!$new): ?>
       <div class="row group admin">
         <div class="labelish">
@@ -275,6 +272,19 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
         </div>
       </div>
     <?php endif; ?>
+    
+    <?php /*
+		 <div class="row group admin">
+		 <div class="labelish">
+		 <label for="profile_notes">Profile Notes</label>
+		 </div>
+		 <div class="inputs">
+		 <textarea name="profile_notes" id="profile_notes"><?php echo $data['profile_notes'] ?></textarea>
+		 </div>
+		 </div>
+		 */
+ ?>
+
   </fieldset>
 
   <?php if(!$new): ?>
@@ -289,7 +299,7 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
         </div>
       </div>
     </fieldset>
-  <?php endif; ?>
+  <?php endif;?>
 
   <?php if(!$new): ?>
     <fieldset class="hr more_leading">
@@ -301,9 +311,12 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
           <select id="favourite_drivers">
             <option value="">Select favourite driver</option>
             <?php foreach(Account::getAllDrivers() as $driver): ?>
-              <?php if(!$driver['memberid']) continue; ?>
+              <?php
+				if (!$driver['memberid'])
+					continue;
+ ?>
               <option value="<?php echo $driver['memberid'] ?>"><?php echo $driver['fname'].' '.$driver['lname'] ?></option>
-            <?php endforeach; ?>
+            <?php endforeach;?>
           </select>
           <input type="hidden" id="driverAddUrl" value="<?php echo $securePrefix ?>/admin_update.php?fn=addFavDriver" />
           <input id="addFavDriver" type="button" value="Add" /><br />
@@ -311,111 +324,110 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
             <div>
               <?php echo $driver['fname'] ?> <?php echo $driver['lname'] ?> <span class="options"><a href="/pop/remove_driver.php?memberid=<?php echo $driver['memberid'] ?>" class="popover-delete parentDiv" title="Remove Favorite Driver?">Remove</a></span>
             </div>
-          <?php endforeach; ?>
+          <?php endforeach;?>
         </div>
       </div>
-
     </fieldset>
-  <?php endif; ?>
+  <?php endif;?>
 <?php /*
-  <fieldset class="hr group">
-    <?
-    // No more $ccmess, it's all in the drop down now
-    if($_GET['groupid'] != 1469 && $edit):
+	 <fieldset class="hr group">
+	 <?
+	 // No more $ccmess, it's all in the drop down now
+	 if($_GET['groupid'] != 1469 && $edit):
 
-      // Message for new registers only
-      $newcustmsg = $new ? ' (can be entered later)' : '';
-      ?>
+	 // Message for new registers only
+	 $newcustmsg = $new ? ' (can be entered later)' : '';
+	 ?>
 
-      <div class="row group">
-        <div class="labelish">
-          <label for="role"><?php echo translate('Payment Info'); echo $newcustmsg ?></label>
-        </div>
-        <div class="inputs">
-          Stored payment options<br/>
-          <?php $t->print_dropdown($paymentArray, null, 'paymentProfileId', null, '', 'paymentProfileId'); ?><br/>
-          <a href="javascript: paymentPopup('<?= $memberid ?>', 'add')">Add Payment Info</a><br>
-          <a href="javascript: paymentPopup('<?= $memberid ?>', 'edit')">Edit Payment Info</a><br>
-          <a href="javascript: paymentPopup('<?= $memberid ?>', 'delete')">Delete Payment Info</a><br>
-        </div>
-      </div>
-    <?php endif; ?>
+	 <div class="row group">
+	 <div class="labelish">
+	 <label for="role"><?php echo translate('Payment Info'); echo $newcustmsg ?></label>
+	 </div>
+	 <div class="inputs">
+	 Stored payment options<br/>
+	 <?php $t->print_dropdown($paymentArray, null, 'paymentProfileId', null, '', 'paymentProfileId'); ?><br/>
+	 <a href="javascript: paymentPopup('<?= $memberid ?>', 'add')">Add Payment Info</a><br>
+	 <a href="javascript: paymentPopup('<?= $memberid ?>', 'edit')">Edit Payment Info</a><br>
+	 <a href="javascript: paymentPopup('<?= $memberid ?>', 'delete')">Delete Payment Info</a><br>
+	 </div>
+	 </div>
+	 <?php endif; ?>
 
-  </fieldset>
+	 </fieldset>
 
-  <fieldset class="hr group">
-    <div class="row group">
-      <div class="labelish">
-        <label for="twitter_username"><?php echo translate('Twitter Username') ?></label>
-      </div>
-      <div class="inputs">
-        <input id="twitter_username" name="twitter_username" class="textbox" value="<?=isset($data['twitter_username']) ? $data['twitter_username']:''?>"/>
-      </div>
-    </div>
-  </fieldset>
-  <fieldset class="hr group">
-    <?php if($edit && isset($data['trip_credit']) && $data['trip_credit']): ?>
-      <div class="row group">
-        <div class="labelish">
-          <label><?php echo translate('Trip Credit') ?></label>
-        </div>
-        <div class="inputs">
-          $<?=number_format($data['trip_credit'])?>
-        </div>
-      </div>
-    <?php endif; ?>
-    <?php if($edit): ?>
-      <div class="row group">
-        <div class="labelish">
-          <label><?php echo translate('Favorite Drivers') ?></label>
-        </div>
-        <div class="inputs">
-          <?php
-            if($edit && $favs)
-            {
-              for($i = 0; $favs[$i]; $i++)
-              {
-                $cur = $favs[$i];
-                $lname = strtoupper(substr($cur['lname'], 0, 1));
-                $name = $cur['fname']." ".$lname;
-                echo "$name";
-                echo '<span class="options"><a href="delFav.php?del=1&driverid='.$cur['driverid'].'&name='.urlencode($name).'">Remove</a></span>';
-              }
-            }
-            else if($edit && !$favs)
-            {
-              echo 'You have no favorite drivers!';
-            }
-          ?>
-        </div>
-      </div>
-      <div class="row group">
-        <div class="inputs">* Please note, while we cannot guarantee being able to send a specific driver, we will certainly try!</div>
-      </div>
-    <?php endif; ?>
-  </fieldset>
- */ ?>
+	 <fieldset class="hr group">
+	 <div class="row group">
+	 <div class="labelish">
+	 <label for="twitter_username"><?php echo translate('Twitter Username') ?></label>
+	 </div>
+	 <div class="inputs">
+	 <input id="twitter_username" name="twitter_username" class="textbox" value="<?=isset($data['twitter_username']) ? $data['twitter_username']:''?>"/>
+	 </div>
+	 </div>
+	 </fieldset>
+	 <fieldset class="hr group">
+	 <?php if($edit && isset($data['trip_credit']) && $data['trip_credit']): ?>
+	 <div class="row group">
+	 <div class="labelish">
+	 <label><?php echo translate('Trip Credit') ?></label>
+	 </div>
+	 <div class="inputs">
+	 $<?=number_format($data['trip_credit'])?>
+	 </div>
+	 </div>
+	 <?php endif; ?>
+	 <?php if($edit): ?>
+	 <div class="row group">
+	 <div class="labelish">
+	 <label><?php echo translate('Favorite Drivers') ?></label>
+	 </div>
+	 <div class="inputs">
+	 <?php
+	 if($edit && $favs)
+	 {
+	 for($i = 0; $favs[$i]; $i++)
+	 {
+	 $cur = $favs[$i];
+	 $lname = strtoupper(substr($cur['lname'], 0, 1));
+	 $name = $cur['fname']." ".$lname;
+	 echo "$name";
+	 echo '<span class="options"><a href="delFav.php?del=1&driverid='.$cur['driverid'].'&name='.urlencode($name).'">Remove</a></span>';
+	 }
+	 }
+	 else if($edit && !$favs)
+	 {
+	 echo 'You have no favorite drivers!';
+	 }
+	 ?>
+	 </div>
+	 </div>
+	 <div class="row group">
+	 <div class="inputs">* Please note, while we cannot guarantee being able to send a specific driver, we will certainly try!</div>
+	 </div>
+	 <?php endif; ?>
+	 </fieldset>
+	 */
+ ?>
 
   <div align="center">
     <?php if($edit): ?>
       <input type="submit" name="update" value="<?= translate('Save') ?>" class="button" />
       <input type="button" name="cancel" value="<?= translate('Cancel') ?>" class="button" onclick="javascript: document.location='ctrlpnl.php';" />
-    <?php else: ?>
+    <?php else:?>
       <input type="submit" name="register" value="<?= translate('Register') ?>" class="button" />
       <input type="button" name="cancel" value="<?= translate('Cancel') ?>" class="button" onclick="javascript: document.location='index.php';" />
-    <?php endif; ?>
+    <?php endif;?>
   </div>
 </form>
 
-<?
-}
+<? }
 
-/**
-* Prints out a login form and any error messages
-* @param string $msg error messages to display for user
-* @param string $resume page to resume on after login
-*/
-function printLoginForm($msg = '', $resume = '') {
+	/**
+	* Prints out a login form and any error messages
+	* @param string $msg error messages to display for user
+	* @param string $resume page to resume on after login
+	*/
+	function printLoginForm($msg = '', $resume = '') {
 	global $conf;
 	$link = CmnFns::getNewLink();
 
@@ -423,7 +435,7 @@ function printLoginForm($msg = '', $resume = '') {
 	//echo '<script language="JavaScript" type="text/javascript">checkBrowser();</script>';
 
 	if (!empty($msg))
-		CmnFns::do_error_box($msg, '', false);
+	CmnFns::do_error_box($msg, '', false);
 ?>
 
     <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
@@ -434,8 +446,6 @@ function printLoginForm($msg = '', $resume = '') {
         <td colspan=4>
           <div id="main-content">
             <h1 class="page-header">Log In</h1>
-
-
 
             <div class="article">
 
@@ -462,7 +472,7 @@ function printLoginForm($msg = '', $resume = '') {
     </table>
     <div align="center" style="margin-bottom: 0;">
       <? $link->doLink('forgot_pwd.php', translate('Forgot your password?'), '', '', translate('Retreive lost password')) ?>
-      <? //$link->doLink('javascript: help();', translate('Help'), '', '', translate('Get online help')) ?>
+      <? //$link->doLink('javascript: help();', translate('Help'), '', '', translate('Get online help'))?>
     </div>
 <?
 }
