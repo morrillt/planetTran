@@ -220,12 +220,16 @@ class Tools {
 	* Print an array as a select menu with one item already selected
 	* if name is passed in print the opening and closing select tags
 	*/
-	function print_dropdown($array, $match = null, $name = null, $class = null, $function = '', $id = null) {
+	function print_dropdown($array, $match = null, $name = null, $class = null, $function = '', $id = null, $disabled = false) {
 
 		$class = $class ? ' class="'.$class.'"' : '';
 		$id = $id ? ' id="'.$id.'"' : '';
-		
-		if ($name) echo "<select name=\"$name\"$id$class $function>\n";
+		if ($disabled) {
+			$disabled = " disabled";
+		} else {
+			$disabled = "";
+		}
+		if ($name) echo "<select name=\"$name\"$id$class $function$disabled>\n";
 		foreach ($array as $k => $v) {
 			$selected = $k == $match ? ' selected' : '';
 			echo "<option value=\"$k\"$selected>$v</option>\n";
@@ -449,7 +453,7 @@ class Tools {
 
 	function car_select_details() {
 		return array(	'P'=>	array('name'=>'Standard (Prius)','select_name'=>'Standard (Prius)','seats'=>2,'suitcases'=>3,'price'=>0),
-				'V'=>	array('name'=>'PriusV','select_name'=>'PriusV (+$15)','seats'=>2,'suitcases'=>3,'price'=>15),
+				'V'=>	array('name'=>'Prius V','select_name'=>'Prius V (+$15)','seats'=>2,'suitcases'=>3,'price'=>15),
 				'C'=>	array('name'=>'Camry','select_name'=>'Camry (+$15)','seats'=>2,'suitcases'=>3,'price'=>15),
 				'L'=>	array('name'=>'Luxury (Lexus HS Sedan)','select_name'=>'Luxury (Lexus HS Sedan [+$30])','seats'=>2,'suitcases'=>3,'price'=>30),
 				'S'=>	array('name'=>'SUV (Highlander or Lexus)','select_name'=>'SUV (Highlander or Lexus [+$30])','seats'=>2,'suitcases'=>3,'price'=>30),

@@ -89,7 +89,7 @@ function print_form($vals = array(), $paymentProfile = array()) {
 	</style>
 	<?php /* <form name="auth" id="auth" action="<?=$action?>" method="post" onSubmit="return checkVals();">*/ ?>
 
-	<form name="auth" id="auth" action="<?=$action?>" method="post" >
+	<form name="auth" id="auth" action="<?=$action?>" onsubmit="ajaxFormSubmission(this, document.getElementById('outputDiv')); return false;" method="post" >
 	<input type="hidden" name="memberid" value="<?=$vals['memberid']?>">
 	<input type="hidden" name="customerProfileId" value="<?=$vals['customerProfileId']?>">
 	<input type="hidden" name="customerPaymentProfileId" value="<?=$vals['customerPaymentProfileId']?>">
@@ -101,21 +101,24 @@ function print_form($vals = array(), $paymentProfile = array()) {
 	  <td rowspan="1000" valign="top">
 	    <?php if(!$_GET['noedit']): ?>
 		<h5>Existing cards</h5>
-		<a class="popover-add" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=add"> Add Card </a>
+		<a class="popover-add" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=add&hidesubmit=<?php echo $_GET['hidesubmit'] ?>"> Add Card </a>
 		<?php foreach(Account::getCreditCards() as $paymentId => $description): ?>
 		  <p>
 		    <?php echo $description ?>
 		    <br>
 		    <span class="options">
-		      <a class="popover-edit" title="Edit Credit Card" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=edit&paymentProfileId=<?php echo $paymentId ?>">Edit</a>
+		      <a class="popover-edit" title="Edit Credit Card" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=edit&hidesubmit=<?php echo $_GET['hidesubmit'] ?>&paymentProfileId=<?php echo $paymentId ?>">Edit</a>
 		      |
-		      <a class="popover-delete" title="Delete Credit Card?" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=delete&paymentProfileId=<?php echo $paymentId ?>">Delete</a>
+		      <a class="popover-delete" title="Delete Credit Card?" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=delete&hidesubmit=<?php echo $_GET['hidesubmit'] ?>&paymentProfileId=<?php echo $paymentId ?>">Delete</a>
 		    </span>
 		  </p>
 		<?php endforeach; ?>
 	    <?php endif ?>
 	  </td>
-	  <td colspan="2"><h5>Card data</h5></td>
+	  <td colspan="2">
+	    <h5>Card data</h5>
+	    <div id="outputDiv"></div>
+	  </td>
 	</tr>
 	<?
 	foreach ($fields as $k=>$v) {
@@ -131,8 +134,10 @@ function print_form($vals = array(), $paymentProfile = array()) {
 	?>
 	<tr><td>Description</td><td><textarea name="description"><?=$vals['description']?></textarea></td></tr>
 	<tr><td>&nbsp;</td><td>
-  <input type="submit" value="Submit">
-  </td></tr>
+	<?php if(!$_GET['hidesubmit']): ?>
+	  <input type="submit" value="Submit">
+	<?php endif ?>
+	</td></tr>
 	</table></form>
 	<?
 }

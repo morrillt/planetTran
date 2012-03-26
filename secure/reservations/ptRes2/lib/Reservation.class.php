@@ -431,9 +431,11 @@ class Reservation {
 
 			// reverse from and to locations, set new time
 			// all other properties are identical
+			
 			$this->machid = $toLocation;
 			$this->toLocation = $machid;
 			$this->start = $start2;
+			
 			$this->end = $this->start + 15;
 			$this->date = $date2;
 			array_push($dates, $this->date);
@@ -699,10 +701,22 @@ class Reservation {
 			$date_text .= "Reservation #$showid on ";
 			$date_text .= CmnFns::formatDate($dates[$i]) . " $payinfo";
 		}
+		
+			$airports = get_airports_array();
+			
+			if($_POST['apts_from'] && $_POST['from_type'] == 2) {
+				$this->machid = $_POST['apts_from'];
+			}
+			if($_POST['apts_to'] && $_POST['to_type'] == 2) {
+				$this->toLocation = $_POST['apts_to'];
+			}
+		
 		$fromLocation = mysql_fetch_assoc(mysql_query("SELECT * FROM resources WHERE machid='".$this->machid."'"));
 		$toLocation = mysql_fetch_assoc(mysql_query("SELECT * FROM resources WHERE machid='".$this->toLocation."'"));
 		$stopLocation = mysql_fetch_assoc(mysql_query("SELECT * FROM resources WHERE machid='".$this->stopLoc."'"));
 		
+			
+			
 		$member = mysql_fetch_assoc(mysql_query("SELECT * FROM login WHERE memberid='".$this->memberid."'"));
 
 		if (!$this->word) $this->word = 'reservation';
@@ -719,6 +733,7 @@ class Reservation {
 		//print_r($stopLocation);
 		// print_r($toLocation);
 		// die(print_r($fromLocation));
+		
 		$address1 = $fromLocation['name']. ($fromLocation['schedule_id'] ? ' - '.$fromLocation['address1'] : ', ' ) .$fromLocation['city'].' '.$fromLocation['zip'].', '.$fromLocation['state'];
 		$address2 = $stopLocation['name']. ($stopLocation['schedule_id'] ? ' - '.$stopLocation['address1'] : ', ' ) .$stopLocation['city'].' '.$stopLocation['zip'].', '.$stopLocation['state'];
 		$address3 = $toLocation['name']. ($toLocation['schedule_id'] ? ' - '.$toLocation['address1'] : ', ' ) .$toLocation['city'].' '.$toLocation['zip'].', '.$toLocation['state'];
@@ -1240,6 +1255,123 @@ class Reservation {
 	/**
 	* Prints out the reservation table
 	*/
+	function print_res_read_only() {
+		global $conf;
+		
+		if (!empty($this->id))
+			$this->load_by_id();
+		else
+			$this->load_by_get();
+		$user = new User($this->memberid);
+		$resend_url = $conf['app']['weburi']."/resend.php?id=".$this->memberid;
+		$resend_url = "<br>&nbsp<br><a href=\"$resend_url\">Click here to send the confirmation email again.</a>";
+
+		// location information
+		$toRs = $this->db->get_resource_data($this->toLocation);
+		$fromRs = $this->db->get_resource_data($this->machid);
+		$rs = $this->db->get_resource_data($this->machid);
+
+		$loclist = $this->db->get_user_permissions($this->db->get_user_scheduleid($this->memberid));
+	
+		if ($this->type == 'm' || $this->type == 'd') {
+			$trip = $this->db->get_trip_data($this->id);
+	
+			//echo Auth::isSuperAdmin();
+
+			if ( (!Auth::has_permission(DISP_WRITE) && !Auth::isSuperAdmin() ) && $trip['dispatch_status'] != 27){
+				print_viewonly_web($loclist, $this->toLocation, $this->machid, $this, $trip);
+				return;
+			} else if (!Auth::isSuperAdmin() && $trip['dispatch_status'] == 12) {
+				print_viewonly_web($loclist, $this->toLocation, $this->machid, $this, $trip);
+				return;
+			}
+		}
+
+
+		// Block reservations for x and u roles 
+		if ($_SESSION['role']=='x') {
+			CmnFns::do_error_box(
+				'The credit card or other billing information on file is no longer valid. Please call 888-PLNTTRN (756-8876) during business hours to update your information.',
+				'',
+				true);
+		} else if ($user->role=='u'&&$_SESSION['role']!='m') { 
+			CmnFns::do_error_box(
+				"To be able to make reservations, you must first confirm the email address by either clicking the link in the registration email, or copying/pasting it into your browser's address bar. $resend_url",
+				'',
+				true);
+		} else if ($user->role=='u'&&$_SESSION['role']=='m') { 
+			CmnFns::do_error_box(
+				"This user has an unconfirmed corporate account. They need to activate it by clicking the link in their registration email. If necessary, we can send the email again. $resend_url",
+				'',
+				true);
+		}
+
+		if ($user->fname == "Saturn" and $this->type == "r") {
+			CmnFns::do_error_box(
+				'Saturn reservations can only be booked through the Saturn system',
+				'',
+				true);
+		}
+
+		if ($user->role == 'x') {
+			CmnFns::do_error_box(
+				'This user\'s account is locked; no reservations may be made or altered. The customer should call 888-PLNTTRN (756-8876) during business hours and select the billing option to resolve the issue. Any upcoming trips can be canceled from the dispatch screen.',
+				'',
+				true);
+		}
+		if ($this->is_blackout == 1) {
+			CmnFns::do_error_box(
+				'This reservation has been deleted.',
+				'',
+				true);
+		}
+
+
+		begin_reserve_form($this->type == 'r', $this->is_blackout);	// Start form
+		start_left_cell();
+		print_res_header($this->type, $this->id);
+		print_resource_data($fromRs['name'], $toRs['name']);		// Print resource info
+		print_time_info_read_only($this, $rs, !$this->is_blackout,$this->specialItems);	// Print time information
+		if($this->memberid != '41e6d96e8b2ad') {
+			if (!$this->is_blackout) {
+				print_user_info($this->type, new User($this->memberid));	// Print user info
+			}
+			if (!empty($this->id))			// Print created/modified times (if applicable)
+				print_create_modify($this->created, $this->modified);
+
+			print_special_read_only($this->specialItems, $this->type, $user->role, $this);
+			$billtype = $user->groupid ? $this->db->get_billtype($user->groupid) : null;
+			$paymentArray = $this->db->getPaymentOptions($this->memberid);
+			print_group_hack_summary($this->summary, $this->type, $billtype, $this->dispNotes, $paymentArray, $user, $this, true);
+		} else {
+			print_special_read_only($this->specialItems, $this->type);
+			print_hack_summary($this->summary, $this->type);
+		}
+		//if (!empty($this->parentid) && ($this->type == 'm' || $this->type == 'd'))
+			//print_recur_checkbox($this->parentid);
+
+		//if ($this->type == 'm')
+			//print_del_checkbox();
+
+		// $hack is our array from group_hack_summary
+		$hack = $this->db->parseNotes($this->summary);
+
+		
+		print_buttons($this->type, $hack, $this->coupon, $user->groupid, $user->email, true);
+		print_hidden_fields($this);	// Print hidden form fields
+
+		//if (1) {		// Print out repeat reservation box, if applicable
+			//divide_table();
+			//$weeks = $this->create_week_array($conf['app']['recurringWeeks']);
+			//print_repeat_box(date('m', $this->date), date('Y', $this->date));
+		//}
+
+		end_right_cell();
+
+		end_reserve_form($this->id, $this->type);				// End form
+	}
+	
+	
 	function print_res()
   {
     if($_POST)
@@ -1639,6 +1771,19 @@ if(!history) {
 
 
   $(function() {
+    
+    var opFields = $("#opFields");
+    
+    $("#passenger_name")
+      .append($('<option value="kk">Other</option>'))
+      .change(function() {
+	if($(this).val() == "kk") {
+	  opFields.show();
+	} else {
+	  opFields.hide();
+	}
+      })
+      .change();
 
     $("#child_seats_outgoing, #booster_seats_outgoing")
       .change(function(e) {
@@ -1667,6 +1812,7 @@ if(!history) {
 	.change()
       ;
       
+      /*
       $("[name=from_location],[name=to_location]")
 	.change(function() {
 	  if($(this).val().indexOf("airport-") != -1) {
@@ -1676,14 +1822,15 @@ if(!history) {
 	  }
 	})
 	.change()
-      ;      
+      ;
+      */
 	
       $("[name=apts_from],[name=apts_to],[name=stopLoc],[name=from_location],[name=to_location]")
 	.change(function() {
 	  var pi = $($(this).parents().filter('.intermediate_stop,.half_column')[0]);
 
 	  var name_val = $('option:selected', this).text().trim();
-	  if(name_val == "Saved locations") name_val = "";
+	  if(name_val == "Saved locations" || name_val == "Select an airport") name_val = "";
 	  $(pi.find("[name=from_name],[name=to_name],[name=stop_name]")[0]).val(name_val);
 	  $(pi.find("[name=from_address],[name=to_address],[name=stop_address]")[0]).val($('option:selected', this).attr("data-addr"));
 	  $(pi.find("[name=from_zip],[name=to_zip],[name=stop_zip]")[0]).val($('option:selected', this).attr("data-zip"));
@@ -1910,35 +2057,6 @@ if(!history) {
 
 	  </div>
 
-	  <div id="from_airport_wrap" class="from_airport_option">
-	    <div class="group">
-	      <!-- Conditionally shown based on radio selection above -->
-	      <div class="row group">
-		<select name="apts_from">
-		  <option value="">Select an airport</option>
-		  <?php echo get_airports_options() ?>
-		</select>
-	      </div>
-	      <div class="row group">
-		<select name="acode">
-		  <option value="">Select an airline</option>
-		  <?php foreach(Account::getAirlines() as $key => $v): ?> 
-		    <option value="<?php echo $key ?>" <?php if($key == $values['acode']) echo 'selected="selected"' ?>><?php echo $v ?></option>
-		  <?php endforeach; ?>
-		</select>
-	      </div>
-	      <span id="flight_details">
-		<div class="row  group">
-		  <label for="fnum">Flight #</label>
-		  <input name="fnum" value="<?php echo $values['fnum'] ?>" type="text" id="fnum" class="flight_no" />
-		</div>
-		<div class="row  group">
-		  <label for="fdets">Time/Other details</label>
-		  <input name="fdets" type="text" value="<?php echo $values['fdets'] ?>" id="fdets" class="flight_details" />
-		</div>
-	      </span>
-	    </div>
-	  </div>
 	  </fieldset>
 	  <!-- END LEFT COLUMN -->
 
@@ -1981,36 +2099,6 @@ if(!history) {
 		<input name="to_zip" type="text" id="quote_to_zipcode" value="<?php echo $values['to_zip'] ?>" />
 	      </div>
 	    </div><!-- /to_address -->
-	  </div>
-
-	  <div id="to_airport_wrap" class="to_airport_option">
-	    <div class="group">
-	      <!-- Conditionally shown based on radio selection above -->
-	      <div class="row group">
-		<select name="apts_to">
-		  <option value="">Select an airport</option>
-		  <?php echo get_airports_options() ?>
-		</select>
-	      </div>
-	      <div class="row group">
-		<select name="acode">
-		  <option value="">Select an airline</option>
-		  <?php foreach(Account::getAirlines() as $key => $v): ?> 
-		    <option value="<?php echo $key ?>" <?php if($key == $values['acode']) echo 'selected="selected"' ?>><?php echo $v ?></option>
-		  <?php endforeach; ?>
-		</select>
-	      </div>
-	      <span id="flight_details">
-		<div class="row  group">
-		  <label for="fnum">Flight #</label>
-		  <input name="fnum" value="<?php echo $values['fnum'] ?>" type="text" id="fnum" class="flight_no" />
-		</div>
-		<div class="row  group">
-		  <label for="fdets">Time/Other details</label>
-		  <input name="fdets" type="text" value="<?php echo $values['fdets'] ?>" id="fdets" class="flight_details" />
-		</div>
-	      </span>
-	    </div>
 	  </div>
 
 	  </fieldset>
@@ -2068,7 +2156,7 @@ if(!history) {
 	    <option value="pm" <?php if('pm' == $values['ampm']) echo 'selected="selected"' ?>>PM</option>
 	  </select>
 	  <label for="check_by_the_hour">
-	    <input name="wait" type="checkbox" <?php if($values['wait']) echo 'checked="checked"' ?> id="check_by_the_hour" />Book by the hour <span id="tip1" class="tip">[?]</span>
+	    <input name="wait" type="checkbox" <?php if($values['wait']) echo 'checked="checked"' ?> id="check_by_the_hour" />Book by the hour <span id="tip1" class="tip">(?)</span>
 	  </label>
 	  <div class="tooltip tip1">
 	    <p>Reserve by the hour (minimum of 90 minutes) to direct your driver for a period of time or to more than one intermediate stop. These trips are billed at the following rates:</p>
@@ -2089,58 +2177,63 @@ if(!history) {
 	  <fieldset id="pickup" class="half_column">
 
 	    <legend>From</legend>
-	    <a href="#" onclick="$(this).next().find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
-	    <select id="saved_locations_from" name="from_location" class="saved_locations">
-	      <option value="">Saved locations</option>
-	      <?php foreach(Account::getSavedLocations() as $location): ?>
-		<option <?php if($location['machid'] == $values['from_location'] || $location['machid'] === $_GET['from']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
-		      data-addr="<?php echo htmlspecialchars($location['address1']) ?>" data-zip="<?php echo htmlspecialchars($location['zip']) ?>"
-		      data-city="<?php echo htmlspecialchars($location['city'])?>" data-state="<?php echo htmlspecialchars($location['state']) ?>">
-		<?php echo $location['name'] ?></option>
-	      <?php endforeach; ?>
-	    </select>
+	      
+	    <div class="radio_buttons">
+	      <a href="#" onclick="$('#saved_locations_from, [name=apts_from]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
+	      
+	      <?php $fromApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_from']) || strpos($_REQUEST['from'], 'airport') !== false || 'from_airport_wrap' == $values['from_type'] ?>
+	      <input type="radio" name="from_type" <?php if(!$fromApt) echo 'checked="checked"' ?> value="1" id="from_address" class="from_toggle" /><label for="from_address">Address</label>
+	      <input type="radio" name="from_type" <?php if( $fromApt) echo 'checked="checked"' ?> value="2" id="from_airport" class="from_toggle" /><label for="from_airport">Airport</label>
+	      <?php /*<input type="radio" name="from_type" <?php if($values['from_type'] == 2) echo 'checked="checked"' ?> value="2" id="from_poi" class="from_toggle" /><label for="from_poi">Point of Interest</label> */ ?>
+	    </div>
 
-	  <div id="saved_locations_from_wrap">
 	    <!-- Conditionally shown instead of select tag above if logged out
 	      <a href="#">Log in to view saved locations</a>
 	    -->
 
-	    <div class="radio_buttons">
-	      <input type="radio" name="from_type" <?php if(empty($values['from_type']) || $values['from'] == 1) echo 'checked="checked"' ?> value="1" id="from_address" class="from_toggle" /><label for="from_address">Address</label>
-	      <input type="radio" name="from_type" <?php if($values['from'] == 'from_airport_wrap') echo 'checked="checked"' ?> value="2" id="from_airport" class="from_toggle" /><label for="from_airport">Airport</label>
-	      <?php /*<input type="radio" name="from_type" <?php if($values['from_type'] == 2) echo 'checked="checked"' ?> value="2" id="from_poi" class="from_toggle" /><label for="from_poi">Point of Interest</label> */ ?>
-	    </div>
-
 	    <div id="from_address_wrap" class="from_location_option">
-	      <!-- Conditionally and dynamically show this based on radio selection above -->
-	      <div class="row group">
-		<label for="from_name">Nickname</label><br />
-		<input name="from_name" type="text" id="from_name" value="<?php echo $values['from_name'] ?>" />
-	      </div>
-	      <div class="row group">
-		<label for="from_street_address">Street Address</label><br />
-		<input name="from_address" type="text" id="from_street_address" value="<?php echo $values['from_address'] ?>" />
-	      </div>
-	      <div class="row group">
-		<label for="from_city">City</label><br />
-		<input name="from_city" type="text" id="from_city" value="<?php echo $values['from_city'] ?>" />
-	      </div>
-	      <div class="row group">
-		<label for="from_state">State</label><br />
-		<input name="from_state" type="text" id="from_state" value="<?php echo $values['from_state'] ?>" />
-	      </div>
-	      <div class="row group">
-		<label for="from_zipcode">Zip Code <a href="/pop/zip.php" class="popover" title="Zip code lookup">(look up)</a></span></label><br />
-		<input name="from_zip" type="text" id="from_zipcode" value="<?php echo $values['from_zip'] ?>" />
-	      </div>
-	    </div><!-- /from_address -->
+	    
+	      <select id="saved_locations_from" name="from_location" class="saved_locations">
+		<option value="">Saved locations</option>
+		<?php foreach(Account::getSavedLocations() as $location): if(strstr($location['machid'], 'airport') !== false) continue ?>
+		  <option <?php if($location['machid'] == $values['from_location'] || $location['machid'] === $_GET['from']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
+			data-addr="<?php echo htmlspecialchars($location['address1']) ?>" data-zip="<?php echo htmlspecialchars($location['zip']) ?>"
+			data-city="<?php echo htmlspecialchars($location['city'])?>" data-state="<?php echo htmlspecialchars($location['state']) ?>">
+		  <?php echo $location['name'] ?></option>
+		<?php endforeach; ?>
+	      </select><br/><br/>
+	    
+	      <div id="saved_locations_from_wrap">
+		<!-- Conditionally and dynamically show this based on radio selection above -->
+		<div class="row group">
+		  <label for="from_name">Nickname</label><br />
+		  <input name="from_name" type="text" id="from_name" value="<?php echo $values['from_name'] ?>" />
+		</div>
+		<div class="row group">
+		  <label for="from_street_address">Street Address</label><br />
+		  <input name="from_address" type="text" id="from_street_address" value="<?php echo $values['from_address'] ?>" />
+		</div>
+		<div class="row group">
+		  <label for="from_city">City</label><br />
+		  <input name="from_city" type="text" id="from_city" value="<?php echo $values['from_city'] ?>" />
+		</div>
+		<div class="row group">
+		  <label for="from_state">State</label><br />
+		  <input name="from_state" type="text" id="from_state" value="<?php echo $values['from_state'] ?>" />
+		</div>
+		<div class="row group">
+		  <label for="from_zipcode">Zip Code <a href="/pop/zip.php" class="popover" title="Zip code lookup">(look up)</a></span></label><br />
+		  <input name="from_zip" type="text" id="from_zipcode" value="<?php echo $values['from_zip'] ?>" />
+		</div>
+	      </div><!-- /from_address -->
+	    </div>
 
 	    <div id="from_airport_wrap" class="from_location_option">
 	      <!-- Conditionally shown based on radio selection above -->
 	      <div class="row group">
 		<select name="apts_from">
 		  <option value="">Select an airport</option>
-		  <?php echo get_airports_options() ?>
+		  <?php echo get_airports_options($_REQUEST['apts_from'] ? $_REQUEST['apts_from'] : $_REQUEST['from']) ?>
 		</select>
 	      </div>
 	      <div class="row group">
@@ -2165,19 +2258,18 @@ if(!history) {
 	  <!-- Conditionally show the Meet and Greet only if it applies to the reservation per Step 1 (if Pickup or Stop location = Logan Airport) -->
 	  <div class="row group">
 	    <input name="greet" type="checkbox" id="meet_greet" <?php if($values['greet']) echo 'checked="checked"' ?>/>
-	    <label for="meet_greet">Logan airport meet and greet $30 <span class="tip">[?]</span></label>
+	    <label for="meet_greet">Logan airport meet and greet $30 <span class="tip">(?)</span></label>
 	    <div class="tooltip">Massport requires drivers to stay with their vehicles; select the meet and greet to be met at Baggage Claim and escorted to the car.</div>
-	  </div>
 	  </div>
 	  <div class="row group">
 	    <!-- Unchecked by default.  Checking this will launch the same popover per the "edit" link below -->
 	    <input name="stop" value="1" type="checkbox" id="intermediate_stop" <?php if($values['stop']) echo 'checked="checked"' ?> />
-	    <label for="intermediate_stop">Add an intermediate stop <span class="tip">[?]</span></label>
+	    <label for="intermediate_stop">Add an intermediate stop <span class="tip">(?)</span></label>
 	    <div class="tooltip">Intermediate Stop trips add $20 plus wait time over 10 minutes at your intermediate stop to the cost of the trip. Reserve by the Hour to make more than one Intermediate Stop.</div>
 
 	  <div class="intermediate_stop">
-	    The intermediate stop location
 	    <div id="stop_wrap">
+	      The intermediate stop location
 	      <select id="saved_locations_stop" name="stopLoc" class="saved_locations">
 		<option value="">Saved locations</option>
 		<?php foreach(Account::getSavedLocations() as $location): ?>
@@ -2259,57 +2351,62 @@ if(!history) {
 
 	    <legend>To</legend>
 
-	    <a href="#" onclick="$(this).next().find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
-	    <select id="saved_locations_to" name="to_location" class="saved_locations">
-	      <option value="">Saved locations</option>
-	      <?php foreach(Account::getSavedLocations() as $location): ?>
-		<option <?php if($location['machid'] == $values['to_location'] || $location['machid'] === $_GET['to']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
-		      data-addr="<?php echo htmlspecialchars($location['address1']) ?>" data-zip="<?php echo htmlspecialchars($location['zip']) ?>"
-		      data-city="<?php echo htmlspecialchars($location['city'])?>" data-state="<?php echo htmlspecialchars($location['state']) ?>"><?php echo $location['name'] ?></option>
-	      <?php endforeach; ?>
-	    </select>
+	    <div class="radio_buttons">
+	      <a href="#" onclick="$('#saved_locations_to, [name=apts_to]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
+	      
+	      <?php $toApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_to']) || strpos($_REQUEST['to'], 'airport') !== false || 'to_airport_wrap' == $values['to_type'] ?>
+	      <input type="radio" <?php if(!$toApt) echo 'checked="checked"' ?> name="to_type"  value="1" id="to_address" class="to_toggle" /><label for="to_address">Address</label>
+ 	      <input type="radio" <?php if( $toApt) echo 'checked="checked"' ?> name="to_type" value="2" id="to_airport" class="to_toggle" /><label for="to_airport">Airport</label>
+	      <?php /*<input type="radio" <?php if(2 == $values['to_type']) echo 'checked="checked"' ?> name="to_type" value="2" id="to_poi"  class="to_toggle" /><label for="to_poi">Point of Interest</label>*/ ?>
+	    </div>
 
-	  <div id="saved_locations_to_wrap">
 	    <!-- Conditionally show the following instead of the preceeding select tag if user is currently logged out
 	      <a href="#">Log in to view saved locations</a>
 	    -->
 
-	    <div class="radio_buttons">
-	      <input type="radio" <?php if(empty($values['to_type']) || 1 == $values['to_type']) echo 'checked="checked"' ?> name="to_type"  value="1" id="to_address" class="to_toggle" /><label for="to_address">Address</label>
- 	      <input type="radio" <?php if('to_airport_wrap' == $values['to_type']) echo 'checked="checked"' ?> name="to_type" value="2" id="to_airport" class="to_toggle" /><label for="to_airport">Airport</label>
-	      <?php /*<input type="radio" <?php if(2 == $values['to_type']) echo 'checked="checked"' ?> name="to_type" value="2" id="to_poi"  class="to_toggle" /><label for="to_poi">Point of Interest</label>*/ ?>
-	    </div>
 
 	    <div id="to_address_wrap" class="to_location_option">
-	      <!-- Conditionally shown based on radio selection above -->
-	      <div class="row group">
-		<label for="to_name">Nickname</label><br />
-		<input name="to_name" type="text" id="to_name" value="<?php echo $values['to_name'] ?>" />
-	      </div>
-	      <div class="row group">
-		<label for="to_street_address">Street Address</label><br />
-		<input name="to_address" type="text" id="to_street_addres" value="<?php echo $values['to_address'] ?>" />
-	      </div>
-	      <div class="row group">
-		<label for="to_city">City</label><br />
-		<input name="to_city" type="text" id="to_city" value="<?php echo $values['to_city'] ?>" />
-	      </div>
-	      <div class="row group">
-		<label for="to_state">State</label><br />
-		<input name="to_state" type="text" id="to_state" value="<?php echo $values['to_state'] ?>" />
-	      </div>
-	      <div class="row group">
-		<label for="to_zipcode">Zip Code <span class="popover"><a href="#">(look up)</a></span></label><br />
-		<input name="to_zip" type="text" id="to_zipcode" value="<?php echo $values['to_zip'] ?>" />
-	      </div>
-	    </div><!-- /to_address -->
-
+	    
+	      <select id="saved_locations_to" name="to_location" class="saved_locations">
+		<option value="">Saved locations</option>
+		<?php foreach(Account::getSavedLocations() as $location): if(strstr($location['machid'], 'airport') !== false) continue  ?>
+		  <option <?php if($location['machid'] == $values['to_location'] || $location['machid'] === $_GET['to']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
+			data-addr="<?php echo htmlspecialchars($location['address1']) ?>" data-zip="<?php echo htmlspecialchars($location['zip']) ?>"
+			data-city="<?php echo htmlspecialchars($location['city'])?>" data-state="<?php echo htmlspecialchars($location['state']) ?>"><?php echo $location['name'] ?></option>
+		<?php endforeach; ?>
+	      </select><br/><br/>
+	      
+	      <div id="saved_locations_to_wrap">
+		<!-- Conditionally shown based on radio selection above -->
+		<div class="row group">
+		  <label for="to_name">Nickname</label><br />
+		  <input name="to_name" type="text" id="to_name" value="<?php echo $values['to_name'] ?>" />
+		</div>
+		<div class="row group">
+		  <label for="to_street_address">Street Address</label><br />
+		  <input name="to_address" type="text" id="to_street_addres" value="<?php echo $values['to_address'] ?>" />
+		</div>
+		<div class="row group">
+		  <label for="to_city">City</label><br />
+		  <input name="to_city" type="text" id="to_city" value="<?php echo $values['to_city'] ?>" />
+		</div>
+		<div class="row group">
+		  <label for="to_state">State</label><br />
+		  <input name="to_state" type="text" id="to_state" value="<?php echo $values['to_state'] ?>" />
+		</div>
+		<div class="row group">
+		  <label for="to_zipcode">Zip Code <span class="popover"><a href="#">(look up)</a></span></label><br />
+		  <input name="to_zip" type="text" id="to_zipcode" value="<?php echo $values['to_zip'] ?>" />
+		</div>
+	      </div><!-- /to_address -->
+	    </div>
+	      
 	    <div id="to_poi_wrap" class="to_location_option">
 	      <!-- Conditionally shown based on radio selection above -->
 	      <div class="row group">
 		<select name="apts_to">
 		  <option value="">Select an airport</option>
-		  <?php echo get_airports_options() ?>
+		  <?php echo get_airports_options($_REQUEST['apts_to'] ? $_REQUEST['apts_to'] : $_REQUEST['to']) ?>
 		</select>
 	      </div>
 	      <div class="row group">
@@ -2331,38 +2428,6 @@ if(!history) {
 		</div>
 	      </span>
 	    </div><!-- /to_poi -->
-	  </div>
-
-	  <div id="to_airport_wrap" class="to_airport_option">
-	    <div class="group">
-	      <!-- Conditionally shown based on radio selection above -->
-	      <div class="row group">
-		<select name="apts_to">
-		  <option value="">Select an airport</option>
-		  <?php echo get_airports_options() ?>
-		</select>
-	      </div>
-	      <div class="row group">
-		<select name="acode">
-		  <option value="">Select an airline</option>
-		  <?php foreach(Account::getAirlines() as $key => $v): ?> 
-		    <option value="<?php echo $key ?>" <?php if($key == $values['acode']) echo 'selected="selected"' ?>><?php echo $v ?></option>
-		  <?php endforeach; ?>
-		</select>
-	      </div>
-	      <span id="flight_details">
-		<div class="row  group">
-		  <label for="fnum">Flight #</label>
-		  <input name="fnum" value="<?php echo $values['fnum'] ?>" type="text" id="fnum" class="flight_no" />
-		</div>
-		<div class="row  group">
-		  <label for="fdets">Time/Other details</label>
-		  <input name="fdets" type="text" value="<?php echo $values['fdets'] ?>" id="fdets" class="flight_details" />
-		</div>
-	      </span>
-	    </div>
-	  </div>
-
 	  
 	  </fieldset>
 	</div><!-- /group -->
@@ -2464,7 +2529,7 @@ if(!history) {
 	      </select>
 	    </div>
 	  </div>
-	  <div class="row group">
+	  <div class="row group" id="opFields">
 	    <div class="labelish">
 	      <label for="pname">Passenger contact data</label>
 	    </div>
@@ -2525,9 +2590,9 @@ if(!history) {
 	      </select>
 	      <!-- <a href="/pop/creditcards.php" class="popover-add" title="Add/modify credit cards">Add/Modify cards</a>-->
 	      <div id="payment_links_wrap">
-		<a href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=add" class="popover-add" title="Add Credit Card">Add credit card</a>
+		<a href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=add&hidesubmit=false" class="popover-add" title="Add Credit Card">Add credit card</a>
 		<?php foreach(Account::getCreditCards() as $paymentId => $description): ?>
-		  <a style="display: none;" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=edit&paymentProfileId=<?php echo $paymentId ?>" class="popover-edit" title="Edit Credit Card">Modify credit card</a>
+		  <a style="display: none;" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=edit&hidesubmit=false&paymentProfileId=<?php echo $paymentId ?>" class="popover-edit" title="Edit Credit Card">Modify credit card</a>
 		<?php endforeach; ?>
 	      </div>
 	    </div>
@@ -2918,8 +2983,8 @@ if(!history) {
 			$showDets = '&nbsp;';
 		$text .= $link;
 
-		$sf = '<br/><div align="center"><b>Traveling to the Bay Area?</b><br/>We are now serving <b>SFO, OAK, and SJC airports!</b>  Add these airports to your profile and you can make reservations now!</div><br/>&nbsp;<br/>';
 		if ($user->wants_html()) {
+			$sf = '<br/><div align="center"><b>Traveling to the Bay Area?</b><br/>We are now serving <b>SFO, OAK, and SJC airports!</b>  Add these airports to your profile and you can make reservations now!</div><br/>&nbsp;<br/>';
 			$msg = <<<EOT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -2994,6 +3059,7 @@ Please add customerservice@planettran.com to your address book to make sure that
 EOT;
 		}
 		else {
+			$sf = "\nTraveling to the Bay Area?\nWe are now serving <b>SFO, OAK, and SJC airports! Add these airports to your profile and you can make reservations now!";
 			$text = strip_tags($text);		// Strip out HTML tags
 			$msg = $text;
 
@@ -3553,18 +3619,23 @@ BODY2;
 	}
 }
 
-function get_airports_options()
+function get_airports_array()
 {
-  $apts = array('41b40be9091' => array("Boston Logan Int'l Airport", "Boston", "MA", "02128", "1 Harborside Dr"),
+  return array('airport-BOS' => array("Boston Logan Int'l Airport", "Boston", "MA", "02128", "1 Harborside Dr"),
 		'airport-MHT' => array("Manchester Int'l Airport", "Manchester", "NH", "03103", "1 Airport Road"),
 		'airport-PVD' => array("TF Green Int'l Airport", "Warwick", "RI", "02886", "544 Airport Road"),
 		'airport-SFO' => array("San Francisco Int'l Airport", "San Francisco", "CA", "94128", "806 South Airport Boulevard"),
 		'airport-OAK' => array("Oakland Int'l Airport", "Oakland", "CA", "94621", "1 Airport Drive"),
 		'airport-SJC' => array("San Jose Int'l Airport", "San Jose", "CA", "95110", "1701 Airport Boulevard"));
+}
+
+function get_airports_options($default=null)
+{
+  $apts = get_airports_array();
   $options = '';
   foreach($apts as $k=>$v)
   {
-    $options .= '<option data-addr="'.$v[4].'" data-zip="'.$v[3].'" data-state="'.$v[2].'" data-city="'.$v[1].'">'.$v[0].'</option>';
+    $options .= '<option '.($default == $k ? 'selected="true"':'').' value="'.$k.'" data-addr="'.$v[4].'" data-zip="'.$v[3].'" data-state="'.$v[2].'" data-city="'.$v[1].'">'.$v[0].'</option>';
   }
   return $options;
 }

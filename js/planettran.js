@@ -13,8 +13,27 @@ function zip_lookup(address, city, state, zip)
   var o = window.open(url,"checkaddr","width=" + w + ",height=" + h + ",scrollbars,resizable=no,status=no");
 }
 
-$(document).ready(function() {
+function ajaxFormSubmission(form, container)
+{
+  return;
+  form = $(form);
+  container = $(container);
+  
+    $.ajax({
+      url: form.attr("action"),
+      type: 'post',
+      data: form.serialize(),
+      success: function(r) {
+	container.html(r);
+      }
+    });
+  
+  return false;
+}
 
+$(document).ready(function() {
+  
+  
 //	/* Tooltips (based on jQuery Tools plugin) */
 //	$(".tip").tooltip({
 //
@@ -311,7 +330,7 @@ $(function() {
 
 
 
-function locationSwitcher(sel1, sel2){
+function locationSwitcher(sel1, sel2, fAnyway){
   $(sel2).hide();
   $(sel1).each(function(index){
     $this = $(this);
@@ -319,14 +338,14 @@ function locationSwitcher(sel1, sel2){
     $this
       .unbind('change')
       .change(function(){
-	$(sel2).hide();
 	if($(this).is(":checked"))
 	{
+	  $(sel2).hide();
 	  $($(sel2)[parseInt($(this).val())-1]).show();
 	}
       });
-    
-    if(!$(sel2).filter(':visible').length) $this.change();
+      
+    if(fAnyway || !$(sel2).filter(':visible').length) $this.change();
   });
 }
 function selectHiderHelper(selectSelector, hideSelector){
@@ -374,8 +393,8 @@ function paymentLinks(selector){
   });
 }
 $(function(){
-  locationSwitcher(".from_toggle", ".from_location_option");
-  locationSwitcher(".to_toggle", ".to_location_option");
+  locationSwitcher(".from_toggle", ".from_location_option", true);
+  locationSwitcher(".to_toggle", ".to_location_option", true);
   //selectHider("#saved_locations_from", "#saved_locations_from_wrap");
   //selectHider("#saved_locations_to", "#saved_locations_to_wrap");
   //selectHider("#saved_locations_stop", "#stop_address_wrap");

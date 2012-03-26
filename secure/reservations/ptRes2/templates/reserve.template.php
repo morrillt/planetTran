@@ -17,14 +17,14 @@
 * @param array $rs array of resource information
 */
 function print_res_header($type, $resid = null) {
-$resid = !empty($resid) ? " #".strtoupper(substr($resid, -6)) : '';
-$header = "View Reservation$resid";
-if($type == 'r') {
-$header = 'New Reservation';
-} else if ($type == 'd') {
-$header = "Delete Reservation$resid";
-} else if ($type == 'm') {
-$header = "Modify Reservation$resid";
+	$resid = !empty($resid) ? " #".strtoupper(substr($resid, -6)) : '';
+	$header = "View Reservation$resid";
+	if($type == 'r') {
+		$header = 'New Reservation';
+	} else if ($type == 'd') {
+		$header = "Delete Reservation$resid";
+	} else if ($type == 'm') {
+		$header = "Modify Reservation$resid";
 }
 ?>
 <tr><td colspan="1">
@@ -442,6 +442,127 @@ function print_time_info(&$rs, &$res, $print_min_max = true, $special = '') {
 		unset($rs);
 }
 
+function print_time_info_read_only(&$rs, &$res, $print_min_max = true, $special = '') {
+	global $conf;
+	$grt = strrchr($special, 'G');
+	$test = Auth::isSuperAdmin() ? 'none' : 'none';
+
+	$type = $rs->get_type();
+	$interval = 15;//$rs->sched['timeSpan'];
+	$startDay = 0;//$rs->sched['dayStart'];
+	$endDay	  = 720;//$rs->sched['dayEnd'];
+	list($acode, $fnum, $fdets) = explode("{`}", $rs->get_flightDets());
+	$flightDets = $acode . $fnum . " " . $fdets;
+?>
+
+	<table width="100%" border="0" cellspacing="0" cellpadding="1">
+     <tr class="tableBorder">
+      <td>
+       <table width="100%" border="0" cellspacing="1" cellpadding="2">
+        <tr>
+         <td colspan="3" class="cellColor">
+         <h5 align='center'>
+<?
+         $disabled = "";
+		 // Print message depending on viewing type
+         switch($type) {
+            case 'r' : $msg = "Please select the date, pickup time, and flight info";
+                break;
+            case 'm' : $msg = "Please change the date, pickup time, and flight info";
+                break;
+            default : $msg = "Reserved date, pickup time, and flight info";$disabled = "disabled=\"true\"";
+                break;
+        }
+        echo $msg;
+        // Blank out time field if creating reservation
+        if ($type == 'r')
+        	$showtime = '';
+        else
+        	$showtime = strftime('%m/%d/%Y', $rs->date+23);
+        	//$showtime = strftime('%m/%d/%Y', $rs->date);
+?>
+        </h5>
+        </td>
+       </tr>
+      <tr>
+       <td width="32%" class="formNames">Date
+	   <input <?=$disabled?> type="text" name="date" maxlength="10" size="10" value="<?=$showtime?>"></td>
+<?
+        // Show reserved time or select boxes depending on type
+        if ( ($type == 'r') || ($type == 'm') ) {
+        	echo '<td rowspan=2 class="formNames">';
+        	echo '<div style="text-align:right;float:right;clear:both;">';
+        	acode_dropdown();
+        	// replace blank values with DB values
+        	?><input name="acode" id="airline-fill" type="text" value="<?=$acode?>" size=2 maxlength=2></div>
+		<div><div style="text-align:left;float:left;">&nbsp;&nbsp;Checked bags? <input name="checkBags" type="checkbox" <?=($rs->get_checkBags() ? 'checked' : '')?>></div>
+		<div style="text-align:right;float:right;">Flight #: <input name="fnum" style="margin-top: 2px;" type="text" value ="<?=$fnum?>" size=2 maxlength=4></div></div>
+		<div style="text-align:right;float:right;clear:both;">Time/Other details:&nbsp;<input name="fdets" style="margin-top: 2px;" type="text" value="<?=$fdets?>" size=16 maxlength=100></div>
+		<div style="text-align: right; clear: both;" id="greetDiv">
+		Meet and Greet ($30; Logan only)<input name="greet" type="checkbox" <?=($grt ? 'checked' : '')?>>
+		<br>
+		<span id="greetMsg"></span>
+		</div>
+		<!-- <script type="text/javascript">
+		var a = document.getElementById('greetDiv');
+		a.style.display= '<?=$test?>';
+		meetGreetCheck('from');
+		</script> -->
+		</td></tr><tr>
+		<?
+
+            // Start time select box
+            $start = $rs->get_start() >= 720 ? $rs->get_start() - 720 : $rs->get_start();
+
+            echo '<td class="formNames">'. 'Pickup Time'
+                   . "<br/><select name=\"startTime\" class=\"textbox\">\n";
+
+            // If creating or modding, make the first option an empty string
+			if ($type == 'r' || $type == 'm')
+            	echo '<option value="" selected="selected"></option>';
+
+            // Start at startDay time, end 30 min before endDay
+            for ($i = $startDay; $i < $endDay; $i+=$interval) {
+                echo '<option value="' . $i . '"';
+                // If this is a modification, select correct time
+                //if ( ($rs->get_start() == $i) || ($i == 720 && $rs->get_start() == ''))
+
+                if (($start == $i) && ($start != ''))
+                    echo ' selected="selected" ';
+                echo '>' . CmnFns::formatTime($i, true) . '</option>';
+            }
+            echo "</select>\n";
+
+            // Start AM/PM box
+            //echo '<select name="ampm" class="textbox">';
+
+            // If creating or modding, make the first option an empty string
+	//		if ($type == 'r' || $type == 'm')
+            //	echo '<option value="" selected="selected"></option>';
+
+            echo '<br>AM<input type="radio" name="ampm" value="am" ';
+            if (($rs->get_start() < 720) && ($rs->get_start() != ''))
+                    echo 'checked';
+	    echo '>';	
+
+            echo '   PM<input type="radio" name="ampm" value="pm" ';
+	        if (($rs->get_start() >= 720) && ($rs->get_start() != ''))
+	               echo 'checked';
+            echo '>';
+            echo "</td>\n";
+
+            // End time select box
+
+        } else {
+            echo '<td class="formNames">' . 'Pickup Time' . '<br />' . CmnFns::formatTime($rs->get_start()) . "</td>\n";
+ 			echo '<td class="formNames">Airline, #, Time - Checked Bags?<br><input ' . $disabled . ' name="flightDets" class="textbox" value="'. $flightDets . '" size=25/><input ' . $disabled . ' name="checkBags" type="checkbox" '.($rs->get_checkBags() ? 'checked' : ''). '>';
+            echo "</td>\n";
+        }
+        // Close off table
+        echo "</tr>\n</table>\n</td>\n</tr>\n</table>\n<p>&nbsp;</p>\n";
+		unset($rs);
+}
+
 
 
 /**
@@ -536,9 +657,9 @@ function print_del_checkbox() {
 *  depending on what type needs to be printed out
 * @param string $type reservation viewing type
 */
-function print_buttons($type, $hack = array('email'=>''), $coupon = '', $groupid = 0, $email = '') {
-
-	$disabled = $type == 'd' ? 'disabled' : '';
+function print_buttons($type, $hack = array('email'=>''), $coupon = '', $groupid = 0, $email = '', $disabledFlag = false) {
+	
+	$disabled = ($type == 'd' || $disabledFlag) ? 'disabled' : '';
 	if (!$email) $email = "None";
 
 	// if it's a modification and already has a coupon, flag for that
@@ -573,14 +694,16 @@ function print_buttons($type, $hack = array('email'=>''), $coupon = '', $groupid
 
 	if($_SESSION['currentID'] != 'glb46685213d6c7d') {
 		?>Coupon code:&nbsp;&nbsp;<input type="text" name="coupon" style="margin-bottom: 5px;" size=20 value="<?=$coupon?>" <?=$disabled?>/>
+	<?php if (!$disabledFlag) { ?>
 	<a href="javascript: getCoupon()">Validate coupon</a>
 		<?
+	}
 	}
 
 	?>
 <br />
 	Confirmation email: <?=$email?><br>
-	Additional email to:&nbsp;<input type="text" name="confirmEmail" size="20" value="<?=$hack['email']?>"/> 
+	Additional email to:&nbsp;<input type="text" name="confirmEmail" size="20" value="<?=$hack['email']?>" <?=$disabled?>/> 
 
 	<?
 
@@ -772,12 +895,154 @@ function print_special($special, $type, $role, &$res) {
 <?
 }
 
+function print_special_read_only($special, $type, $role, &$res) {
+	global $conf;
+	$suv = strrchr($special, 'S');
+	$tod = strrchr($special, 'T');
+	$inf = strrchr($special, 'I');
+	$bst = strrchr($special, 'O');
+	$mul = strrchr($special, 'M');
+	$vip = strrchr($special, 'V');
+	$psl = strrchr($special, 'P');
+	$grt = strrchr($special, 'G');
+	$wat = strrchr($special, 'A');
+	$van = strrchr($special, 'N');
+	$vp2 = strrchr($special, 'E');
+	$crb = strrchr($special, 'C');
+	$fst = strrchr($special, 'F');
+	$lux = strrchr($special, 'L');
+	// $pax should be last
+	$pax = strpbrk($special, '123456789');
+	$pax = $pax ? $pax : 1;
+
+	$carSelected = $suv ? 'S' : ($van ? 'N' : ($lux ? 'L' : ''));
+	$seatSelected = $inf ? 'I' : ($tod ? 'T' : ($bst ? 'O' : ''));
+
+	include_once($conf['app']['include_path'].'reservations/ptRes2/lib/Tools.class.php');
+	$t = new Tools();
+	$carSelect = $t->car_select_array();
+	$seatSelect = $t->seat_select_array();
+	
+	if ($role == 'v')
+		$vip = true;
+	else if ($role == 'e')
+		$vip2 = $vip = true;
+?>
+   <table width="100%" border="0" cellspacing="0" cellpadding="1">
+    <tr class="tableBorder">
+     <td>
+      <table width="100%" border="0" cellspacing="1" cellpadding="0">
+       <tr>
+	    <td class="cellColor"><h5 align="center">Special Requests</h5></td>
+		</tr>
+		<tr>
+		<td class="cellColor" style="text-align: left;">
+		<?
+		echo '<div align="center">';
+		//echo 'SUV (4 pass)<input name="suv" type="checkbox" '.($suv ? 'checked' : ''). ' onChange="suvCheck(\'suv\')">&nbsp;&nbsp;';
+		//echo 'Toddler Seat<input name="toddler" type="checkbox" '.($tod ? 'checked' : ''). '>&nbsp;&nbsp;';
+		//echo 'Infant Seat<input name="infant" type="checkbox" '.($inf ? 'checked' : ''). '>&nbsp;&nbsp;';
+		//echo 'Multiple Stops<input name="multiple" type="checkbox" '.($mul ? 'checked' : ''). '>';
+		//echo 'Personal Trip<input name="personal" type="checkbox" '.($psl ? 'checked' : ''). '>&nbsp;&nbsp;';
+		//echo 'Van (9 pass)<input name="van" type="checkbox" '.($van ? 'checked' : ''). ' onChange="suvCheck(\'van\')">';
+		//if (Auth::isAdmin()) {
+		//	echo '&nbsp;&nbsp;VIP<input name="vip" type="checkbox" '.($vip ? 'checked' : ''). '>';
+			//echo '&nbsp;&nbsp;Curbside<input name="curbside" type="checkbox" '.($crb ? 'checked' : ''). '>';
+		//} else if ($vip) {
+		if ($vip)
+			echo '<input type="hidden" name="vip" value="true">';
+		//}
+		echo '<input type="hidden" name="estimate" id="estimate_value">';
+		echo ' Reserve by the Hour <input name="wait" type="checkbox" onClick="authWaitCheck()" '.($wat ? 'checked' : ''). ' disabled>&nbsp;&nbsp;';
+
+		// Authorized wait select
+		$waitvals = $t->get_authWaitTimes();
+		$waitDisplay = $wat ? 'inline' : 'none';
+		
+		echo '<div id="waitDiv" style="display: '.$waitDisplay.';">';
+		$t->print_dropdown($waitvals, $res->authWait, 'authWait', null, null, 'authWait');
+		echo '</div>';
+
+		// end centered div
+		echo '</div>';
+
+
+		if ($vip2)
+			echo '<input type="hidden" name="evip" value="on">';
+		if ($vip)
+			echo '<input type="hidden" name="vip" value="on">';
+		if ($fst)
+			echo '<input type="hidden" name="first_mod" value="1">';
+		
+	?>
+	<table width="100%" cellspacing=0 cellpadding=2>
+	<tr>
+		<td width="30%">
+		Number of passengers:
+		</td>
+		<td width="70%">
+		<select name="pax" disabled>
+		<?
+	
+		for ($i = 1; $i <= 9; $i++) {
+			$selected = $i == $pax ? ' selected' : '';
+			echo "<option value=\"$i\"$selected>$i</option>";
+		}	
+
+		?>
+		</select></td></tr>
+		<tr>
+		<td>Vehicle type: </td>
+		<td>
+		<?
+
+		$t->print_dropdown($carSelect, $carSelected, 'carTypeSelect', null, 'onChange="vanCheck()"', 'carTypeSelect', true);
+
+		?>
+		</td></tr>
+		<tr>
+		<td style="vertical-align: top;">Child seats: </td>
+		<td>
+		<?
+
+		//$t->print_dropdown($seatSelect, $seatSelected,'seatTypeSelect');
+		$seatSelect = array();
+		foreach(range(0,3) as $v)
+			$seatSelect[$v] = $v;
+
+		//CmnFns::diagnose($res);
+
+		$t->print_dropdown($seatSelect, $res->convertible_seats, 'convertible_seats', null, '', null, true);
+		echo ' Convertible seats<br>';
+		$t->print_dropdown($seatSelect, $res->booster_seats, 'booster_seats', null, '', null, true);
+		echo ' Booster seats';
+		
+
+		?>
+		</td></tr>
+
+		</table>
+		</td>
+	   </tr>
+      </table>
+     </td>
+    </tr>
+   </table>
+   <p>&nbsp;</p>
+<?
+}
+
 /**
 * Print out the reservation summary or a box to add/edit one
 * @param string $summary summary to edit
 * @param string $type type of reservation
 */
-function print_summary($summary, $type, $dispNotes = '', $autoBillOverride = 0) {
+function print_summary($summary, $type, $dispNotes = '', $autoBillOverride = 0, $disabled = false) {
+	if ($disabled) {
+		$disabledText = " disabled";
+	} else {
+		$disabledText = "";
+	}
 ?>
    <table width="100%" border="0" cellspacing="0" cellpadding="1">
     <tr class="tableBorder">
@@ -809,7 +1074,7 @@ function print_summary($summary, $type, $dispNotes = '', $autoBillOverride = 0) 
 			}
 			echo '<tr><td class="cellColor" align="center">';
 			if ($type=='r' || $type=='m') echo 'Add a note<br><textarea class="textbox" name="dispNotes" rows="2" cols="60"></textarea>';
-			echo '</td></tr><tr><td><input type="checkbox" name="autoBillOverride"' . ($autoBillOverride ? 'checked' : '') . ' >Override automated billing? (put negotiated amount or other rule in Customer Service Notes)</input>';
+			echo '</td></tr><tr><td><input type="checkbox" name="autoBillOverride"' . ($autoBillOverride ? 'checked' : '') . $disabledText . ' >Override automated billing? (put negotiated amount or other rule in Customer Service Notes)</input>';
 			}
 		?>
 		</td>
@@ -822,7 +1087,7 @@ function print_summary($summary, $type, $dispNotes = '', $autoBillOverride = 0) 
 <?
 }
 
-function print_group_hack_summary($summary,$type,$billtype=null,$dispNotes,$paymentArray, &$user, &$res) {
+function print_group_hack_summary($summary,$type,$billtype=null,$dispNotes,$paymentArray, &$user, &$res, $disabled = false) {
         $dets = explode("GROUP_DEL", $summary);
         $pname = $dets[0];
         $cphone = $dets[1];
@@ -917,7 +1182,7 @@ function print_group_hack_summary($summary,$type,$billtype=null,$dispNotes,$paym
    </table>
 	<p>&nbsp;</p>
 	<?
-  	 print_summary($notes, $type, $dispNotes, $res->get_autoBillOverride());
+  	 print_summary($notes, $type, $dispNotes, $res->get_autoBillOverride(), $disabled);
 
 
 	// Payment area
@@ -932,19 +1197,22 @@ function print_group_hack_summary($summary,$type,$billtype=null,$dispNotes,$paym
        </tr>
        <tr>
 	<td class="cellColor"><?
-
-	$t->print_dropdown($paymentArray, $res->paymentProfileId, 'paymentProfileId', null, '', 'paymentProfileId');
+	$t->print_dropdown($paymentArray, $res->paymentProfileId, 'paymentProfileId', null, '', 'paymentProfileId', $disabled);
 
 
 	//CmnFns::diagnose($paymentArray);
-	if (!isset($paymentArray['']) && count($paymentArray) > 0) {
+	if (!isset($paymentArray['']) && count($paymentArray) > 0 && (!$disabled)) {
 		?>
 		<a href="javascript: paymentPopup('<?=$memberid?>', 'edit')">Edit Payment Info</a>|
 		<a href="javascript: paymentPopup('<?=$memberid?>', 'delete')">Delete Payment Info</a><br>
 		<?
 	}
+	if (!$disabled) {
 	?>
 	<a href="javascript: paymentPopup('<?=$memberid?>', 'add')">Add Payment Info</a><br>
+	<?php 
+	}
+	?>
        </td></tr>
       </table>
      </td>

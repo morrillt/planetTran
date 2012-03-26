@@ -10,6 +10,22 @@ Author: Amitabh Handa, www.ahandadesign.com
 html, body, div, span, applet, object, iframe,h1, h2, h3, h4, h5, h6, p, blockquote, pre,a, abbr, acronym, address, big, cite, code,del, dfn, em, font, img, ins, kbd, q, s, samp,small, strike, strong, sub, sup, tt, var,b, u, i, center,dl, dt, dd, ol, ul, li,fieldset, form, label, legend,table, caption, tbody, tfoot, thead, tr, th, td {margin: 0;padding: 0;border: 0;outline: 0;font-size: 100%;vertical-align: baseline;background: transparent;}body {line-height: 1;}ol, ul {list-style: none;}blockquote, q {quotes: none;}/* remember to define focus styles! */:focus {outline: 0;}/* remember to highlight inserts somehow! */ins {text-decoration: none;}del {text-decoration: line-through;}/* tables still need 'cellspacing="0"' in the markup */table {border-collapse: collapse;border-spacing: 0;}
 
 
+/* Fixer Styles added by Chad Smith - Cheshire Software Solutions
+--------------------------------------------------------------------*/
+
+/*to fix "Create an Account" Link on login page*/
+form#res-form p a {
+	top: 0px !important;
+	right: 85px !important;
+}
+
+
+/*adjust "Create an Account" Link on login page for firefox only */
+@-moz-document url-prefix() {
+     form#res-form p a { top: 0px !important; right: 65px !important;}
+}
+
+
 /* Basic styles
 -------------------------------------------------------------------*/
 
@@ -1020,7 +1036,7 @@ ol#order_steps li.current {
 	}
 
 .radio_buttons {
-	margin: 10px 0;
+	margin: -20px 0 10px 0;
 	}
 
 .radio_buttons label {
@@ -1271,11 +1287,12 @@ table caption a {
 
 table tr th,
 table tr td {
-	padding: 4px 1.5%;
+	padding: 4px 3px;  /* Chad changed the second vale from 1.5% to 3px to resolve table content overflow*/
 	font-size: .8em;
 	text-align: left;
 	border-bottom: 1px solid #ccc;
 	border-right: 1px solid #ccc;
+
 	}
 	
 table tr th {

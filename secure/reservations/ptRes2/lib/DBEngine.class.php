@@ -232,7 +232,8 @@ class DBEngine {
 			. ' and t.dispatch_status <> 13'
 			. ' and t.dispatch_status <> 14';
 		}
-			
+		
+		
 		$query = 'SELECT res.resid as resid, res.date as date, sched.scheduleTitle as schedTitle, '
 			. 'login.fname as firstName, login.lname as lastName, '
 			. 'loc1.name as fromLocationName, '
@@ -286,6 +287,40 @@ class DBEngine {
 			$lowerLimit = 0;
 			$upperLimit = 30;
 		}
+		
+		$query_string = "";
+		$search = false;
+		
+		if($_SESSION['role']=='a' || $_SESSION['role']=='m' || $_SESSION['role']=='w' || $_SESSION['role']=='v') {	
+			// If user is allowed to search...
+			if(isset($_POST['firstName']) && !empty($_POST['firstName'])) { 
+				$query_string .= " AND login.fname like '%" . $_POST['firstName'] . "%'"; $search = true;
+			} if(isset($_POST['lastName']) && !empty($_POST['lastName'])) { 
+				$query_string .= " AND login.lname like '%" . $_POST['lastName'] . "%'"; $search = true;
+			} if(isset($_POST['group']) && !empty($_POST['group'])) { 
+				$query_string .= " AND login.groupid='".$_POST['group']."'"; $search = true;
+			} if(isset($_POST['email']) && !empty($_POST['email'])) { 
+				$query_string .= " AND login.email LIKE '%" . $_POST['email'] . "%' "; $search = true;
+			}
+			
+			// If any search queries are made, flag $search = true;
+		}
+		
+		if ($search) {
+			// If search queries are made, remove the memberid constraint, and don't db->execute with $values[].
+			$prepare = false;
+			$memberid = "";
+		} else {
+			// If no search was made, proceed like normal.
+			$prepare = true;
+			$memberid = "res.memberid=? AND ";
+		}
+		
+		
+
+		
+		
+		
 		$limit = ($page == 'ALL') ? '' : " LIMIT $lowerLimit, 30";
 		$query = "SELECT SQL_CALC_FOUND_ROWS res.resid as resid, res.date as date, sched.scheduleTitle as schedTitle, 
 		   	t.total_fare as total_fare, t.pay_status as pay_status, 
@@ -303,10 +338,11 @@ class DBEngine {
 			join login on login.memberid=res.memberid
 			left join codes c on t.driver=c.id
 			left join oti on oti.resid=res.resid and fromsystem='survey'
-					WHERE res.memberid=?
-					AND t.pay_status in (23, 25) 
+					WHERE $memberid 
+					t.pay_status in (23, 25) 
 					AND t.pay_type <> 36 
 					AND res.is_blackout <> 1
+					$query_string 
 					$dateLo $dateHi
 					ORDER BY date DESC, pickupTime ASC
 					$limit";
@@ -318,10 +354,16 @@ class DBEngine {
 		// Prepare query
 		$q = $this->db->prepare($query);
 		// Execute query
-		$result = $this->db->execute($q, $values);
+		if ($prepare) {
+			// If no search queries were made
+			$result = $this->db->execute($q, $values);
+		} else {
+			// If search was made, no $values to fill
+			$result = $this->db->execute($q);
+		}
 		$query = "SELECT FOUND_ROWS() as total";
 		$qresult = mysql_query($query);
-		$row = mysql_fetch_assoc($qresult);
+		$row =  mysql_fetch_assoc($qresult);
 		$row['upper'] = $upperLimit;
 		$row['lower'] = $lowerLimit;
 		$row['page'] = $int;
@@ -335,6 +377,8 @@ class DBEngine {
 			$return[] = $this->cleanRow($rs);
 		}
 		array_unshift($return, $row);
+		
+		array_push($return, $search);		// Push the value of the $search flag to the array. This is for display on receipts.php
 		$result->free();
 		return $return;
 	}
