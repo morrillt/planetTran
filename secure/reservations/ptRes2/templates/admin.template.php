@@ -846,7 +846,8 @@ function print_newschedule_edit($rs, $scheds, $type, &$pager, $login, $bill, $gr
 		$t->print_dropdown($paymentArray, null, 'paymentProfileId', null, '', 'paymentProfileId');
 		?>
 		<br>
-		<a href="javascript: paymentPopup('<?=isset($rs['memberid'])?$rs['memberid']:''?>', 'add')">Add Payment Info</a><br>
+		<?php //<a href="javascript: paymentPopup('<?=isset($rs['memberid'])?$rs['memberid']:''  ?/>   ', 'add')">Add Payment Info</a><br> ?>
+		<a class="popover-add spacious_top" title="Add Payment Info" href="AuthGateway.php?memberid=<?php echo $rs['memberid']; ?>&mode=add">Add Payment Info</a><br/>
 		<?
 		if (!isset($paymentArray[''])) {
 			?>

@@ -129,7 +129,11 @@ class User {
 	* @return boolean whether user wants the email or not
 	*/
 	function wants_email($type) {
-		return ($this->emails[$type] == 'y');
+		$return = false;
+		if ($this->emails[$type] == 'y') {
+			$return = true;
+		}
+		return $return;
 	}
 	
 	/**
@@ -138,7 +142,11 @@ class User {
 	* @return whether they want html email or not
 	*/
 	function wants_html() {
-		return ($this->emails['e_html'] == 'y');
+		$return = false;
+		if ($this->emails['e_html'] == 'y') {
+			$return = true;
+		}
+		return $return;
 	}
 	
 	/**
