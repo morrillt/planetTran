@@ -1540,7 +1540,7 @@ if(!history) {
 	  esubtotal += base_price;
 	  content = content + '<div class="line_item group">'+
 	    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
-	    '<span class="price" id="total_price">$'+base_price+'</span>'+
+	    '<span class="price" id="total_price">$'+base_price.toFixed(2)+'</span>'+
 	  '</div>';
 	  
 	  var meet_greet = $("#meet_greet");
@@ -1549,7 +1549,7 @@ if(!history) {
 	      
 	      content = content + '<div class="line_item group">'+
 		'<span class="line_description">Logan Airport meet and greet</span>'+
-		'<span class="price" id="total_price">$30</span>'+
+		'<span class="price" id="total_price">$30.00</span>'+
 	      '</div>';
 	  }
       setVehiclePrices(esubtotal);
@@ -1562,7 +1562,7 @@ if(!history) {
 	      
 	      content = content + '<div class="line_item group">'+
 		'<span class="line_description">Vehicle upgrade ('+vehicle.name+'):</span>'+
-		'<span class="price" id="total_price">$'+vehicle_price+'</span>'+
+		'<span class="price" id="total_price">$'+vehicle_price.toFixed(2)+'</span>'+
 	      '</div>';
 	    }
 	  }
@@ -1574,7 +1574,7 @@ if(!history) {
 	    
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">Children seats ('+children_seats.val()+'):</span>'+
-	      '<span class="price" id="total_price">$'+children_seats_price+'</span>'+
+	      '<span class="price" id="total_price">$'+children_seats_price.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 	  
@@ -1586,7 +1586,7 @@ if(!history) {
 	    
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">Booster seats ('+booster_seats.val()+'):</span>'+
-	      '<span class="price" id="total_price">$'+booster_seats_price+'</span>'+
+	      '<span class="price" id="total_price">$'+booster_seats_price.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 
@@ -1597,7 +1597,7 @@ if(!history) {
 	    
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">One intermediate stop:</span>'+
-	      '<span class="price" id="total_price">$'+intermediate_stop_price+'</span>'+
+	      '<span class="price" id="total_price">$'+intermediate_stop_price.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 	  
@@ -1627,7 +1627,7 @@ if(!history) {
 	  
 	  content = content + '<div class="line_item group total">'+
 	    '<span class="line_description">Estimate subtotal:</span>'+
-	    '<span class="price" id="total_price">$'+esubtotal+'</span>'+
+	    '<span class="price" id="total_price">$'+esubtotal.toFixed(2)+'</span>'+
 	  '</div>';
 	  
 	  if(coupon)
@@ -1640,7 +1640,7 @@ if(!history) {
 	  
 	  var total_fare_1 = parseFloat(data[0]);
 	  if(!total_fare) total_fare = esubtotal;
-	  var total_fare = esubtotal - coupon - base_price + total_fare_1;
+	  var total_fare = (esubtotal - coupon - base_price + total_fare_1).toFixed(2);
 
 	  content = content + '<div class="line_item group total">'+
 	    '<span class="line_description">Total estimated fare:</span>'+
