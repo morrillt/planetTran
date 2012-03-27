@@ -19,7 +19,6 @@ form#res-form p a {
 	right: 85px !important;
 }
 
-
 /*adjust "Create an Account" Link on login page for firefox only */
 @-moz-document url-prefix() {
      form#res-form p a { top: 0px !important; right: 65px !important;}
@@ -584,8 +583,22 @@ h1 {
 	margin: 1em 0 0;
 	font-size: 1.5em;
 	font-weight: normal;	
-	}
-
+}
+	
+h4 {
+	margin: 0 0 .65em;
+	font-size: 0.90em;
+	font-weight: normal;
+	color: #666666;
+}
+#emailPopup {
+	margin: 0 12px;
+	width: 300px;
+}
+#emailPopup * {
+	text-align: center;
+}
+	
 #main h2:first-child {
 	margin-top: 0;
 	}
@@ -1036,7 +1049,7 @@ ol#order_steps li.current {
 	}
 
 .radio_buttons {
-	margin: -20px 0 10px 0;
+	margin: 0px 0 10px 0;
 	}
 
 .radio_buttons label {
@@ -1499,16 +1512,23 @@ h1#hdr_my_locations {
 #footer {
 	margin-bottom: 20px;
 	padding: 0 0 15px;
-	}
-		
+}
+
 #footer2 {
 	margin: 10px auto 0;
 	text-align: center;
 	font-size: .9em;
 	color: #9a9b9a;
 	text-shadow: 1px 1px 1px #fff;
-	}		
-		
+}		
+
+#footerPopup {
+	width: 325px;
+	text-align: center;
+	font-size: .87em;
+	color: #9a9b9a;
+	text-shadow: 1px 1px 1px #fff;
+}
 
 /* Misc styles
 ----------------------------------------------*/
