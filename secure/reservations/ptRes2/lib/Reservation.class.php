@@ -1540,7 +1540,7 @@ if(!history) {
 	  esubtotal += base_price;
 	  content = content + '<div class="line_item group">'+
 	    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
-	    '<span class="price" id="total_price">$'+base_price+'</span>'+
+	    '<span class="price" id="total_price">$'+base_price.toFixed(2)+'</span>'+
 	  '</div>';
 	  
 	  var meet_greet = $("#meet_greet");
@@ -1549,10 +1549,10 @@ if(!history) {
 	      
 	      content = content + '<div class="line_item group">'+
 		'<span class="line_description">Logan Airport meet and greet</span>'+
-		'<span class="price" id="total_price">$30</span>'+
+		'<span class="price" id="total_price">$30.00</span>'+
 	      '</div>';
 	  }
-	  
+      setVehiclePrices(esubtotal);
 	  var cts = $("[name=carTypeSelect]:checked");
 	  if(cts.val() != "" && cts.val() != "P") {
 	    var vehicle = vehicles[cts.val()];
@@ -1562,7 +1562,7 @@ if(!history) {
 	      
 	      content = content + '<div class="line_item group">'+
 		'<span class="line_description">Vehicle upgrade ('+vehicle.name+'):</span>'+
-		'<span class="price" id="total_price">$'+vehicle_price+'</span>'+
+		'<span class="price" id="total_price">$'+vehicle_price.toFixed(2)+'</span>'+
 	      '</div>';
 	    }
 	  }
@@ -1574,7 +1574,7 @@ if(!history) {
 	    
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">Children seats ('+children_seats.val()+'):</span>'+
-	      '<span class="price" id="total_price">$'+children_seats_price+'</span>'+
+	      '<span class="price" id="total_price">$'+children_seats_price.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 	  
@@ -1586,7 +1586,7 @@ if(!history) {
 	    
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">Booster seats ('+booster_seats.val()+'):</span>'+
-	      '<span class="price" id="total_price">$'+booster_seats_price+'</span>'+
+	      '<span class="price" id="total_price">$'+booster_seats_price.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 
@@ -1597,7 +1597,7 @@ if(!history) {
 	    
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">One intermediate stop:</span>'+
-	      '<span class="price" id="total_price">$'+intermediate_stop_price+'</span>'+
+	      '<span class="price" id="total_price">$'+intermediate_stop_price.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 	  
@@ -1627,7 +1627,7 @@ if(!history) {
 	  
 	  content = content + '<div class="line_item group total">'+
 	    '<span class="line_description">Estimate subtotal:</span>'+
-	    '<span class="price" id="total_price">$'+esubtotal+'</span>'+
+	    '<span class="price" id="total_price">$'+esubtotal.toFixed(2)+'</span>'+
 	  '</div>';
 	  
 	  if(coupon)
@@ -1640,7 +1640,7 @@ if(!history) {
 	  
 	  var total_fare_1 = parseFloat(data[0]);
 	  if(!total_fare) total_fare = esubtotal;
-	  var total_fare = esubtotal - coupon - base_price + total_fare_1;
+	  var total_fare = (esubtotal - coupon - base_price + total_fare_1).toFixed(2);
 
 	  content = content + '<div class="line_item group total">'+
 	    '<span class="line_description">Total estimated fare:</span>'+
@@ -1886,6 +1886,25 @@ if(!history) {
       var nb = parseInt($($(this).parents().filter('[class*=step]')[0]).attr("class").replace("step", ""))+1;
       if(nb == 2)
       { 
+
+    //FINDME
+    var repeatAddressError = false;
+    if(!$("#intermediate_stop").is(":checked")) { 
+	    if($("#from_zipcode").val().toLowerCase().replace(/[^0-9]/g, "") == $("#to_zipcode").val().toLowerCase().replace(/[^0-9]/g, "")) {
+		    // matched zipcode
+	    	if($("#from_address").val().toLowerCase().replace(/[^0-9a-zA-Z]/g, "") == $("#to_address").val().toLowerCase().replace(/[^0-9a-zA-Z]/g, "")) {
+		    	// matched address
+			    repeatAddressError = true;
+		    } 
+	    }
+    }
+
+    if (repeatAddressError) {
+        // Error alert
+        alert("You cannot have the same starting and ending location without an intermediate stop");
+        return;
+    }
+    //ENDFINDME
 	if($("#reservation_date").val() == '') {
 	  alert('You have to choose a reservation date!');
 	  return;
@@ -2261,13 +2280,13 @@ if(!history) {
 	    <div id="from_airport_wrap" class="from_location_option">
 	      <!-- Conditionally shown based on radio selection above -->
 	      <div class="row group">
-		<select name="apts_from">
+		<select name="apts_from" style='width: 100%;'>
 		  <option value="">Select an airport</option>
 		  <?php echo get_airports_options($_REQUEST['apts_from'] ? $_REQUEST['apts_from'] : $_REQUEST['from']) ?>
 		</select>
 	      </div>
 	      <div class="row group">
-		<select name="acode_from">
+		<select name="acode_from" style='width: 100%;'>
 		  <option value="">Select an airline</option>
 		  <?php foreach(Account::getAirlines() as $key => $v): ?> 
 		    <option value="<?php echo $key ?>" <?php if($key == $values['acode']) echo 'selected="selected"' ?>><?php echo $v ?></option>
@@ -2436,13 +2455,13 @@ if(!history) {
 	    <div id="to_poi_wrap" class="to_location_option">
 	      <!-- Conditionally shown based on radio selection above -->
 	      <div class="row group">
-		<select name="apts_to">
+		<select name="apts_to" style='width: 100%;'>
 		  <option value="">Select an airport</option>
 		  <?php echo get_airports_options($_REQUEST['apts_to'] ? $_REQUEST['apts_to'] : $_REQUEST['to']) ?>
 		</select>
 	      </div>
 	      <div class="row group">
-		<select name="acode_to">
+		<select name="acode_to" style='width: 100%;'>
 		  <option value="">Select an airline</option>
 		  <?php foreach(Account::getAirlines() as $key => $v): ?> 
 		    <option value="<?php echo $key ?>" <?php if($key == $values['acode']) echo 'selected="selected"' ?>><?php echo $v ?></option>
