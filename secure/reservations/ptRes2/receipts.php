@@ -28,7 +28,7 @@ $t->startMain();
 <?php
 
 //show_form();
-if($_SESSION['role']=='a' || $_SESSION['role']=='m' || $_SESSION['role']=='w' || $_SESSION['role']=='v') {
+if($_SESSION['role']=='m') {
 	// If role is appropriate, allow for searching
 	echo '<form action="'. $_SERVER['PHP_SELF']. '" method="post">
 	<table>

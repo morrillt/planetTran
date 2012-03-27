@@ -216,6 +216,26 @@ class Template {
 	
 	
 	/**
+	* Print HTML footer popup
+	* This function prints out copyright notice
+	* and closes off HTML page
+	* @global $conf
+	*/
+	function printHTMLFooterPopup(){
+		global $conf;
+    if(!$this->bodyOnly): ?>
+        <?php if($this->secondary) include $conf['app']['include_path'].'../templates/secondary.php'; ?>
+      </div><!-- /colwrap -->
+      <?php include $conf['app']['include_path'].'../templates/popupFoot.php'; ?>
+    </div><!-- /container -->
+    <?php endif; ?>
+  </body>
+</html>
+	<?
+	}
+	
+	
+	/**
 	* Print HTML footer
 	* This function prints out a tech email
 	* link and closes off HTML page

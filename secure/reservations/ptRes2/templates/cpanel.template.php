@@ -566,7 +566,7 @@ function showTrainingTable($per, $err, $scheduleid) {
  }
 </script>
 
-  <h1 id="hdr_my_locations"><span class="imagetext">My Locations</h1>
+  <h1 id="hdr_my_locations"><span class="imagetext">My Locations</span></h1>
 
   <form name="aptSelect" action="<?=$_SERVER['PHP_SELF']?>" method="GET" style="margin:0;">
     <?php echo getApts() ?>

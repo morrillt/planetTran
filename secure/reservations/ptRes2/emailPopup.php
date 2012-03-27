@@ -20,13 +20,18 @@
 		$emailUrl = "../../dispatch/ptRes/emailReceipt.php";
 	}	
 ?>
+	<div id='emailPopup'>
 		<form id="addEmailCopy" action="<?php echo $emailUrl ?>" method="POST">
-				<LABEL for="email" align="middle"><h2>List of addresses to send copies of receipt. <br />Single or multiple comma separated addresses. <br />(ex: <i>address@example.com,address2@example.com</i>)</h2></LABEL>
-					<INPUT type="text" id="additionalEmail"><br />
+			<h1>Send Receipt Email</h1>
+				<LABEL for="email" align="middle"><h2>List of addresses to send copies of receipt.<br />
+				Single or multiple comma separated addresses. <br /></h2></LABEL>
+				<INPUT type="text" id="additionalEmail"><br />
+				<h4>(ex: <i>address@example.com,address2@example.com</i>)<br/><br/></h4>
 				<INPUT type="hidden" value="<?php echo $resid ?>">
 				<INPUT type="hidden" value="<?php echo $email ?>">
-				<INPUT type="submit" value="Send Receipt Email">
+				<INPUT type="submit" value="Send Receipt Email" style='width: 150px;'>
 		</form>
+	</div>
 	
-<?php $t->printHTMLFooter(); ?>
+<?php $t->printHTMLFooterPopup(); ?>
 
