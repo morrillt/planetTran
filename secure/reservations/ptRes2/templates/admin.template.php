@@ -423,7 +423,6 @@ function print_resource_edit($rs = null){
       $machid = $rs['machid'];
     }
   }
-//  print_r($rs);
 
     ?>
 <div class="popover_content">
@@ -836,7 +835,7 @@ function print_newschedule_edit($rs, $scheds, $type, &$pager, $login, $bill, $gr
           </td>
         </tr>
 	<?
-	if ($type=='c' || $type=='m') {
+	if ($type=='m') {
 	  ?>
 	  <tr bgcolor="#FFFFFF">
 		<td>
@@ -847,16 +846,14 @@ function print_newschedule_edit($rs, $scheds, $type, &$pager, $login, $bill, $gr
 		$t->print_dropdown($paymentArray, null, 'paymentProfileId', null, '', 'paymentProfileId');
 		?>
 		<br>
-		<a href="javascript: paymentPopup('<?=$memberid?>&amp;noedit=false', 'add')">Add Payment Info</a><br>
+		<a href="javascript: paymentPopup('<?=isset($rs['memberid'])?$rs['memberid']:''?>', 'add')">Add Payment Info</a><br>
 		<?
-
 		if (!isset($paymentArray[''])) {
 			?>
 		<!--a href="javascript: paymentPopup('<?=$memberid?>', 'edit')">Edit Payment Info</a><br>
 		<a href="javascript: paymentPopup('<?=$memberid?>', 'delete')">Delete Payment Info</a-->
 			<?
 		}
-
 		?>
 		<input type="hidden" name="password" value="password">
 		<input type="hidden" name="password2" value="password">

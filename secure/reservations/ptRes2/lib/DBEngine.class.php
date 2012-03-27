@@ -177,8 +177,8 @@ class DBEngine {
 			$query_string .= "AND l.groupid='".$_POST['group']."' ";
 		if(isset($_POST['email']) && !empty($_POST['email']))
 		{
-		  $query_string .= "AND l.email like ? ";
-		  $values[] = '%'.$_POST['email'].'%';
+		  $query_string .= "AND l.email like ?"; //\"".addslashes($_POST['email'])."\" ";
+		  $values[] = '%'.trim(str_replace('&#8203;', '', $_POST['email'])).'%';
 		}
 		if($query_string == '') {
 			return;
@@ -198,6 +198,8 @@ class DBEngine {
 			. $query_string
 			.'group by s.scheduleid '
 			.'ORDER by lname, fname';
+			
+		// die($query);
 
 		// Prepare query
 		$q = $this->db->prepare($query);
@@ -291,7 +293,7 @@ class DBEngine {
 		$query_string = "";
 		$search = false;
 		
-		if($_SESSION['role']=='a' || $_SESSION['role']=='m' || $_SESSION['role']=='w' || $_SESSION['role']=='v') {	
+		if($_SESSION['role']=='m') {	
 			// If user is allowed to search...
 			if(isset($_POST['firstName']) && !empty($_POST['firstName'])) { 
 				$query_string .= " AND login.fname like '%" . $_POST['firstName'] . "%'"; $search = true;
@@ -300,7 +302,7 @@ class DBEngine {
 			} if(isset($_POST['group']) && !empty($_POST['group'])) { 
 				$query_string .= " AND login.groupid='".$_POST['group']."'"; $search = true;
 			} if(isset($_POST['email']) && !empty($_POST['email'])) { 
-				$query_string .= " AND login.email LIKE '%" . $_POST['email'] . "%' "; $search = true;
+				$query_string .= " AND login.email LIKE '%" .$_POST['email']. "%' "; $search = true;
 			}
 			
 			// If any search queries are made, flag $search = true;
@@ -315,10 +317,6 @@ class DBEngine {
 			$prepare = true;
 			$memberid = "res.memberid=? AND ";
 		}
-		
-		
-
-		
 		
 		
 		$limit = ($page == 'ALL') ? '' : " LIMIT $lowerLimit, 30";

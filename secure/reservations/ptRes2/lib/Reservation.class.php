@@ -865,15 +865,15 @@ class Reservation {
 							</div>
 						</div>
 						<?php if($_POST['cphone']): ?>	
-						<div class="row group">
-						  <div class="labelish">
-						    <label for="override_auto_billing"><?php echo translate('Informations different than in profile') ?></label>
-						  </div>
+						  <div class="row group">
+						    <div class="labelish">
+						      <label for="override_auto_billing"><?php echo translate('Other passenger name and cell') ?></label>
+						    </div>
 
-						  <div class="inputs">
-						    <?php echo $_POST['pname'].' '.$_POST['cphone'] ?>
+						    <div class="inputs">
+						      <?php echo $_POST['pname'].' '.$_POST['cphone'] ?>
+						    </div>
 						  </div>
-						</div>
 						<?php endif ?>
 						<?php if($stopLocation['special']): ?>
 							<div class="row group">
@@ -1600,7 +1600,17 @@ if(!history) {
 	      '<span class="price" id="total_price">$'+intermediate_stop_price+'</span>'+
 	    '</div>';
 	  }
-
+	  
+	  var fareType = 0;
+	  if($("#check_by_the_hour").is(":checked")) {
+	    fareType = "Book by the hour";
+	  } else if(intermediate_stop.is(":checked")) {
+	    fareType = "Intermediate Stop";
+	  } else {
+	    fareType = "One way";
+	  }
+	  $("#fareType").text(fareType);
+	  
 	  var coupon = 0;
 	  if(parseFloat(data[3]))
 	  {
@@ -2182,8 +2192,10 @@ if(!history) {
 	      <a href="#" onclick="$('#saved_locations_from, [name=apts_from]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
 	      
 	      <?php $fromApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_from']) || strpos($_REQUEST['from'], 'airport') !== false || 'from_airport_wrap' == $values['from_type'] ?>
+	      <div style='float:right;'>
 	      <input type="radio" name="from_type" <?php if(!$fromApt) echo 'checked="checked"' ?> value="1" id="from_address" class="from_toggle" /><label for="from_address">Address</label>
 	      <input type="radio" name="from_type" <?php if( $fromApt) echo 'checked="checked"' ?> value="2" id="from_airport" class="from_toggle" /><label for="from_airport">Airport</label>
+	      </div>
 	      <?php /*<input type="radio" name="from_type" <?php if($values['from_type'] == 2) echo 'checked="checked"' ?> value="2" id="from_poi" class="from_toggle" /><label for="from_poi">Point of Interest</label> */ ?>
 	    </div>
 
@@ -2355,8 +2367,10 @@ if(!history) {
 	      <a href="#" onclick="$('#saved_locations_to, [name=apts_to]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
 	      
 	      <?php $toApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_to']) || strpos($_REQUEST['to'], 'airport') !== false || 'to_airport_wrap' == $values['to_type'] ?>
+	      <div style='float:right;'>
 	      <input type="radio" <?php if(!$toApt) echo 'checked="checked"' ?> name="to_type"  value="1" id="to_address" class="to_toggle" /><label for="to_address">Address</label>
  	      <input type="radio" <?php if( $toApt) echo 'checked="checked"' ?> name="to_type" value="2" id="to_airport" class="to_toggle" /><label for="to_airport">Airport</label>
+ 	      </div>
 	      <?php /*<input type="radio" <?php if(2 == $values['to_type']) echo 'checked="checked"' ?> name="to_type" value="2" id="to_poi"  class="to_toggle" /><label for="to_poi">Point of Interest</label>*/ ?>
 	    </div>
 
@@ -2447,7 +2461,8 @@ if(!history) {
 		<div class="vehicle_details">
 		  <label for="vehicle1" class="vehicle_name"><?php echo $v['name'] ?></label><br />
 		  Seats: <?php echo $v['seats'] ?> passengers<br />
-		  Holds: <?php echo $v['suitcases'] ?> suitcases
+		  Holds: <?php echo $v['suitcases'] ?> suitcases<br/>
+		  <?php if($v['extra']) echo $v['extra'] ?>
 		</div>
 		<div class="vehicle_price">$<?php echo (60+$v['price']) ?></div>
 	      </label>
@@ -2461,7 +2476,7 @@ if(!history) {
 	<strong>Details</strong>
 
 	<ul class="order_details">
-	  <li>Fare Type: One way</li>
+	  <li>Fare Type: <span id="fareType"></span></li>
 	  <li>Pickup location: Logan Int'l Airport</li>
 	  <li style="display: none">Pickup location: Logan Int'l Airport</li>
 	  <li>Drop-off location: Manchester Int'l Airport</li>
@@ -2529,14 +2544,22 @@ if(!history) {
 	      </select>
 	    </div>
 	  </div>
-	  <div class="row group" id="opFields">
-	    <div class="labelish">
-	      <label for="pname">Passenger contact data</label>
+	  <div id="opFields">
+	    <div class="row group">
+	      <div class="labelish">
+		<label for="pname">Other Passenger Name:</label>
+	      </div>
+	      <div class="inputs">
+		<input name="pname" type="text" id="pname" value="<?php echo $values['pname'] ?>" />
+	      </div>
 	    </div>
-	    <div class="inputs">
-	      Name: <input name="pname" type="text" id="pname" value="<?php echo $values['pname'] ?>" />
-	      <br/>
-	      Cell #: <input name="cphone" type="text" id="cphone" value="<?php echo $values['cphone'] ?>" />
+	    <div class="row group">
+	      <div class="labelish">
+		<label for="pname">Other Passenger Cell:</label>
+	      </div>
+	      <div class="inputs">
+		<input name="cphone" type="text" id="cphone" value="<?php echo $values['cphone'] ?>" />
+	      </div>
 	    </div>
 	  </div>
 	  <div class="row group">
@@ -2555,14 +2578,14 @@ if(!history) {
 	      <textarea name="special" id="special_instructions"><?php echo $values['special'] ?></textarea>
 	    </div>
 	  </div>
-	  <div class="row group admin">
+	  <!--div class="row group admin">
 	    <div class="labelish">
 	      <label for="customer_service_notes">Customer Service Notes</label>
 	    </div>
 	    <div class="inputs">
 	      <textarea name="summary" id="customer_service_notes"><?php echo $values['summary'] ?></textarea>
 	    </div>
-	  </div>
+	  </div-->
 
 	<div id="step_navigation">
 	  <input type="button" value="&laquo; Back to Step 2" class="button prev" />

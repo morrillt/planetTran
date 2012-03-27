@@ -452,11 +452,12 @@ class Tools {
 
 
 	function car_select_details() {
-		return array(	'P'=>	array('name'=>'Standard (Prius)','select_name'=>'Standard (Prius)','seats'=>2,'suitcases'=>3,'price'=>0,'img'=>'vehicle_preview_prius.jpg'),
-				'V'=>	array('name'=>'Prius V','select_name'=>'Prius V (+$15)','seats'=>2,'suitcases'=>3,'price'=>15,'img'=>'vehicle_preview_priusV.jpg'),
-				'C'=>	array('name'=>'Camry','select_name'=>'Camry (+$15)','seats'=>2,'suitcases'=>3,'price'=>15,'img'=>'vehicle_preview_camry.jpg'),
-				'L'=>	array('name'=>'Luxury (Lexus HS Sedan)','select_name'=>'Luxury (Lexus HS Sedan [+$30])','seats'=>2,'suitcases'=>3,'price'=>30,'img'=>'vehicle_preview_luxorylexus.jpg'),
-				'S'=>	array('name'=>'SUV (Highlander or Lexus)','select_name'=>'SUV (Highlander or Lexus [+$30])','seats'=>2,'suitcases'=>3,'price'=>30,'img'=>'vehicle_preview_highlander.jpg'),
+		return array(	'P'=>	array('name'=>'Standard (Prius)','select_name'=>'Standard (Prius)','seats'=>4,'suitcases'=>'3 large','price'=>0,'img'=>'vehicle_preview_prius.jpg'),
+				'V'=>	array('name'=>'Prius V','select_name'=>'Prius V (+$15)','seats'=>4,'suitcases'=>'4 large','price'=>15,'img'=>'vehicle_preview_priusV.jpg'),
+				'C'=>	array('name'=>'Camry','select_name'=>'Camry (+$15)','seats'=>4,'suitcases'=>'3 medium','price'=>15,'img'=>'vehicle_preview_camry.jpg'),
+				'S'=>	array('name'=>'SUV (Highlander or Lexus)','select_name'=>'SUV (Highlander or Lexus [+$30])','seats'=>4,'suitcases'=>'4 large','price'=>30,'img'=>'vehicle_preview_highlander.jpg'),
+				'L'=>	array('name'=>'Luxury (Lexus HS Sedan)','select_name'=>'Luxury (Lexus HS Sedan [+$30])','seats'=>3,'suitcases'=>'3 medium' ,'price'=>30,'img'=>'vehicle_preview_luxorylexus.jpg',
+					      'extra'=>'<strong>(Massachusetts only)</strong>'),
 				//'N'=>	'9-Passenger van ($75/hr, 2 hr minimum)'
 			);
 	}

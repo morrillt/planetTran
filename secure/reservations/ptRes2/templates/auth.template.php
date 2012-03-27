@@ -454,7 +454,6 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
                   <label for="res-email">Email address</label>
                   <input type="text" name="email" id="res-email" class="textbox" tabindex="1" />
                   <input type="image" name="login" value="Log In" class="image" src="/images/button-login-long.gif" tabindex="3" />
-                  <a style="float: left; clear: both;position:absolute;right: 85px;top:20px;" href="register2.php?billtype=<?= $_GET['billtype'] ?>&amp;biz=<?= $_GET['biz'] ?>&amp;groupid=<?= $_GET['groupid'] ?>" class="" style="float: right; margin: -10px 83px 0 0;" onmouseover="javascript: window.status='Register'; return true;" onmouseout="javascript: window.status=''; return true;">Create an account</a>
                 </p>
                 <p>
                   <label for="res-pass">Password</label>
@@ -472,6 +471,8 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
     </table>
     <div align="center" style="margin-bottom: 0;">
       <? $link->doLink('forgot_pwd.php', translate('Forgot your password?'), '', '', translate('Retreive lost password')) ?>
+      |
+      <a href="register2.php?billtype=<?= $_GET['billtype'] ?>&amp;biz=<?= $_GET['biz'] ?>&amp;groupid=<?= $_GET['groupid'] ?>" onmouseover="javascript: window.status='Register'; return true;" onmouseout="javascript: window.status=''; return true;">Create an account</a>
       <? //$link->doLink('javascript: help();', translate('Help'), '', '', translate('Get online help'))?>
     </div>
 <?
