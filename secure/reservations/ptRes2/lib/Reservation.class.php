@@ -1653,7 +1653,24 @@ if(!history) {
       });
       
     };
+    function setVehiclePrices(bprice){
+        $(function(){
+            var vpSuffix = '_vehicle_price';
+            var vuSuffix = '_vehicle_upgrade';
+            $('#base_estiamte_for_vehicles').text(bprice);
+            prius_price = bprice +parseFloat($('#P'+vuSuffix).text());
+            prius_v_price = bprice + parseFloat($('#W'+vuSuffix).text());
+            camry_v_price = bprice + parseFloat($('#Y'+vuSuffix).text());
+            lexus_price = bprice + parseFloat($('#L'+ vuSuffix).text());
+            highlander_price = bprice + parseFloat($('#S' + vuSuffix).text());
 
+            $('#P' + vpSuffix).text('$'+prius_price.toFixed(2));
+            $('#W' + vpSuffix).text('$'+prius_v_price.toFixed(2));
+            $('#Y' + vpSuffix).text('$'+camry_v_price.toFixed(2));
+            $('#L' + vpSuffix).text('$'+lexus_price.toFixed(2));
+            $('#S' + vpSuffix).text('$'+highlander_price.toFixed(2));
+        });
+    }
     function getAddresses()
     {
 	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport;
@@ -2453,6 +2470,7 @@ if(!history) {
       </div><!-- /step1 -->
       <div class="step2"><!-- step2 -->
 	  <h2>Select a vehicle:</h2>
+        <div style="display:none" id="base_estiamte_for_vehicles">60</div>
 
 	  <?php $tools = new Tools();
 	      foreach($tools->car_select_details() as $k=>$v): ?>
@@ -2465,7 +2483,8 @@ if(!history) {
 		  Holds: <?php echo $v['suitcases'] ?> suitcases<br/>
 		  <?php if($v['extra']) echo $v['extra'] ?>
 		</div>
-		<div class="vehicle_price">$<?php echo (60+$v['price']) ?></div>
+        <div style="display:none"  id="<?=$v['vehicle_type']?>_vehicle_upgrade"><?=$v['price']?></div>
+		<div  id="<?=$v['vehicle_type']?>_vehicle_price" class="vehicle_price"></div>
 	      </label>
 	      <div class="vehicle_chooser">
 		<input type="radio" name="carTypeSelect" id="vehicle<?php echo $k ?>" value="<?php echo $k.'' ?>" <?php if($k == $values['carTypeSelect'] || (!$values['carTypeSelect'] && $k=="P")) echo 'checked="checked"' ?>/>
@@ -2586,7 +2605,7 @@ if(!history) {
 	    <div class="inputs">
 	      <textarea name="summary" id="customer_service_notes"><?php echo $values['summary'] ?></textarea>
 	    </div>
-	  </div>
+	  </div-->
 
 	<div id="step_navigation">
 	  <input type="button" value="&laquo; Back to Step 2" class="button prev" />
