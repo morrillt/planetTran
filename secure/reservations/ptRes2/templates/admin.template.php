@@ -835,7 +835,7 @@ function print_newschedule_edit($rs, $scheds, $type, &$pager, $login, $bill, $gr
           </td>
         </tr>
 	<?
-	if ($type=='c' || $type=='m') {
+	if ($type=='m') {
 	  ?>
 	  <tr bgcolor="#FFFFFF">
 		<td>
@@ -848,14 +848,12 @@ function print_newschedule_edit($rs, $scheds, $type, &$pager, $login, $bill, $gr
 		<br>
 		<a href="javascript: paymentPopup('<?=isset($rs['memberid'])?$rs['memberid']:''?>', 'add')">Add Payment Info</a><br>
 		<?
-
 		if (!isset($paymentArray[''])) {
 			?>
 		<!--a href="javascript: paymentPopup('<?=$memberid?>', 'edit')">Edit Payment Info</a><br>
 		<a href="javascript: paymentPopup('<?=$memberid?>', 'delete')">Delete Payment Info</a-->
 			<?
 		}
-
 		?>
 		<input type="hidden" name="password" value="password">
 		<input type="hidden" name="password2" value="password">

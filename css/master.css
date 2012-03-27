@@ -19,7 +19,6 @@ form#res-form p a {
 	right: 85px !important;
 }
 
-
 /*adjust "Create an Account" Link on login page for firefox only */
 @-moz-document url-prefix() {
      form#res-form p a { top: 0px !important; right: 65px !important;}
@@ -1050,7 +1049,7 @@ ol#order_steps li.current {
 	}
 
 .radio_buttons {
-	margin: -20px 0 10px 0;
+	margin: 0px 0 10px 0;
 	}
 
 .radio_buttons label {
