@@ -159,7 +159,7 @@ body {
 	list-style:none;
 	position: relative;
 	
-	font-family: TitilliumText22LRegular, helvetica, sans-serif;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 
 }
 
@@ -218,13 +218,13 @@ body {
 }
 
 #content #title h1 {
-	font-family: TitilliumText22LLight, helvetica, sans-serif;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	font-size: 36px;
 	color: #000000;
 }
 
 #content #title p {
-	font-family: TitilliumText22LRegular, helvetica, sans-serif;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	line-height: 160%;
 	font-size: 14px;
 	width: 400px;
@@ -244,7 +244,7 @@ body {
 	text-decoration:none;
 	background-image:url(../images/reservenow_button.png);
 	background-position:left top;
-	font-family: TitilliumText22LRegular, helvetica, sans-serif;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	letter-spacing: .5px;
 	font-size:18px;
 	padding:12px 0 0 0;
@@ -258,7 +258,7 @@ body {
 }
 
 #content #account_links {
-	font-family: TitilliumText22LMedium, helvetica, sans-serif;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	font-size: 14px;
 	line-height: 160%;
 	color: #949599;
@@ -288,7 +288,7 @@ body {
 	width: 849px;
 	height: 140px;
 	padding-top: 14px;
-	font-family: TitilliumText22LRegular, helvetica, sans-serif;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	line-height: 130%;
 	letter-spacing: 1px;
 	}
