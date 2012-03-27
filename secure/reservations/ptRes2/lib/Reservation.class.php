@@ -1602,14 +1602,15 @@ if(!history) {
 	  }
 	  
 	  var fareType = 0;
+	  var tripType = 0;
 	  if($("#check_by_the_hour").is(":checked")) {
 	    fareType = "Book by the hour";
-	  } else if(intermediate_stop.is(":checked")) {
+ 	  } else if(intermediate_stop.is(":checked")) {
 	    fareType = "Intermediate Stop";
 	  } else {
 	    fareType = "One way";
 	  }
-	  $("#fareType").text(fareType);
+	  $("#fareTypes").text(fareType);
 	  
 	  var coupon = 0;
 	  if(parseFloat(data[3]))
@@ -2585,7 +2586,7 @@ if(!history) {
 	    <div class="inputs">
 	      <textarea name="summary" id="customer_service_notes"><?php echo $values['summary'] ?></textarea>
 	    </div>
-	  </div-->
+	  </div>
 
 	<div id="step_navigation">
 	  <input type="button" value="&laquo; Back to Step 2" class="button prev" />
