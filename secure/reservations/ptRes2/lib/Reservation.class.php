@@ -1552,7 +1552,7 @@ if(!history) {
 		'<span class="price" id="total_price">$30</span>'+
 	      '</div>';
 	  }
-	  
+      setVehiclePrices(esubtotal);
 	  var cts = $("[name=carTypeSelect]:checked");
 	  if(cts.val() != "" && cts.val() != "P") {
 	    var vehicle = vehicles[cts.val()];
