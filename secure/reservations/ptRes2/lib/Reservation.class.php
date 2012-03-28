@@ -1998,7 +1998,7 @@ $(function(){
 	var ad = getAddresses();
 
 	if(!ad.from_address || !ad.from_city || !ad.from_zip || !ad.from_state ||
-	    !ad.to_address || !ad.to_state || !ad.to_zip || !ad.to_state) {
+	    !ad.to_address || !ad.to_state || !ad.to_zip || !ad.to_state || ad.to_location !="asDirectedLoc" ) {
 	  alert('You have to type in full addresses!');
 	  return;
 	}
