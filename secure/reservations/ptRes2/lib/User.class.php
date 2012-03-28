@@ -130,7 +130,8 @@ class User {
 	*/
 	function wants_email($type) {
 		$return = false;
-		if ($this->emails[$type] == 'y') {
+		$value = $this->emails['e_html']; 
+		if ($value == 'y' || $value == '1') {
 			$return = true;
 		}
 		return $return;
@@ -143,7 +144,8 @@ class User {
 	*/
 	function wants_html() {
 		$return = false;
-		if ($this->emails['e_html'] == 'y') {
+		$value = $this->emails['e_html']; 
+		if ($value == 'y' || $value == '1') {
 			$return = true;
 		}
 		return $return;
