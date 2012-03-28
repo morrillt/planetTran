@@ -253,10 +253,13 @@ function showReservationTable($res, $err) {
                 <td><?php 
 					/*
 					 * $time and date returned as string from CmnFns.  
+					 * - update... issues with every function I've used.  even manual math.
+					 * - I get significantly different results from CmnFns::formatDate and Time 
+					 * - on the QA server vs my QA.  Need to figure this out...
 					 */
 					echo date('m/d/Y', $value['date']) . " " . date("h:i A", 60*$value['pickupTime']);
 					//echo $value['pickupTime'];
-                	//$time = CmnFns::formatTime($value['startTime']);   
+                	//$time = CmnFns::formatTime($value['pickupTime']);   
 					//$date = CmnFns::formatDate($value['date']);
                 	//echo $date . " " . $time;
 				  	?>
@@ -581,11 +584,11 @@ function showTrainingTable($per, $err, $scheduleid) {
   <table id="locsTable" cellpadding="0" cellspacing="0" class='forceWordWrap' width='580px'>
     <thead>
       <tr>
-        <th width='152px'><div>Nickname</div></th>
-        <th width='136px'><div>Address</div></th>
+        <th width='150px'><div>Nickname</div></th>
+        <th width='135px'><div>Address</div></th>
         <th width='55px'><div>City</div></th>
         <th width='20px'><div>State</div></th>
-        <th width='27px'><div>Zip</div></th>
+        <th width='30px'><div>Zip</div></th>
         <th width='60px'><div>Options</div></th>
       </tr>
     </thead>
@@ -601,11 +604,11 @@ function showTrainingTable($per, $err, $scheduleid) {
         $class = ' class="alt"'.($i % 2);
         ?>
         <tr>
-          <td width='152px'><div><?php echo $rs['name'] ?></div></td>
-          <td width='136px'><div><?php echo $rs['address1'].' '.$rs['address2'] ?></div></td>
+          <td width='150px'><div><?php echo $rs['name'] ?></div></td>
+          <td width='135px'><div><?php echo $rs['address1'].' '.$rs['address2'] ?></div></td>
           <td width='55px'><div><?php echo $rs['city'] ?></div></td>
           <td width='20px'><div><?php echo $rs['state'] ?></div></td>
-          <td width='27px'><div><?php echo $rs['zip'] ?></div></td>
+          <td width='30px'><div><?php echo $rs['zip'] ?></div></td>
           <td width='60px'><div>
             <?php if(!empty($rs['scheduleid'])): ?>
               <a href="/pop/add_location.php?machid=<?php echo $machid ?>" class="popover-edit" title="Edit Location">Edit</a>
