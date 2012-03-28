@@ -395,6 +395,8 @@ function paymentLinks(selector){
 $(function(){
   locationSwitcher(".from_toggle", ".from_location_option", true);
   locationSwitcher(".to_toggle", ".to_location_option", true);
+  locationSwitcher(".quote_from_toggle", ".from_location_option1", true);
+  locationSwitcher(".quote_to_toggle", ".to_location_option1", true);
   //selectHider("#saved_locations_from", "#saved_locations_from_wrap");
   //selectHider("#saved_locations_to", "#saved_locations_to_wrap");
   //selectHider("#saved_locations_stop", "#stop_address_wrap");

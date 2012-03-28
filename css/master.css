@@ -1124,7 +1124,8 @@ div.step2 fieldset label {
 	display: block;
 	position: relative;
 	float: left;
-	width: 40%;
+	width: 37%;
+	
 	}
 	
 span.vehicle_name {
@@ -1133,7 +1134,7 @@ span.vehicle_name {
 	
 .vehicle_price	{
 	margin: 0 0 10px;
-	padding: 15px 0 0 15px;
+	padding: 15px 5px;
 	color: #505050;
 	font-size: 2.5em;
 	float: left;

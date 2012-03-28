@@ -28,10 +28,22 @@
                     </ul>
                 </div>
                 <!-- START LEFT COLUMN -->
+                
+                
+                
                 <fieldset id="pickup" class="half_column">
 
                     <legend>From</legend>
-                    <a href="#" onclick="$(this).next().find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
+                    
+                <div class="radio_buttons">
+                    <a href="#" onclick="$('#quote_saved_locations_from, [name=apts_to]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
+                    <div style='float:right;'>
+		              <input type="radio" name="quote_from_type" value="1" id="quote_from_address" class="quote_from_toggle" checked="checked" /><label for="from_address">Address</label>
+		              <input type="radio" name="quote_from_type" value="2" id="quote_from_airport" class="quote_from_toggle" /><label for="from_airport">Airport</label>
+		            </div>
+                </div>
+                
+                <div id="from_address_wrap1" class="from_location_option1">
                     <select id="quote_saved_locations_from" name="from_location" class="saved_locations">
                         <option value="">Saved locations</option>
                         <?php foreach(Account::getSavedLocations() as $location): ?>
@@ -44,8 +56,6 @@
                     </select>
 
                     <div id="saved_locations_from_wrap1">
-
-                        <div id="from_address_wrap1" class="from_location_option1">
                             <div class="row group">
                                 <label for="from_street_address">Street Address</label><br />
                                 <input name="from_address" type="text" id="quote_from_street_address" value="<?php echo $values['from_address'] ?>" />
@@ -61,10 +71,19 @@
                             <div class="row group">
                                 <label for="from_zipcode">Zip Code <a href="/pop/zip.php" class="popover" title="Zip code lookup">(look up)</a></span></label><br />
                                 <input name="from_zip" type="text" id="quote_from_zipcode" value="<?php echo $values['from_zip'] ?>" />
-                            </div>
                         </div><!-- /from_address -->
-
                     </div>
+                </div>
+                
+                <div id="from_airport_wrap" class="from_location_option1">
+			          <!-- Conditionally shown based on radio selection above -->
+			          <div class="row group">
+			              <select name="apts_from" style='width: 100%;'>
+			                  <option value="">Select an airport</option>
+			                  <?php echo get_airports_options($_REQUEST['apts_from'] ? $_REQUEST['apts_from'] : ($_REQUEST['from'] ? $_REQUEST['from'] : $values['from_location'])) ?>
+			              </select>
+			          </div>
+			      </div><!-- /from_poi -->
 
                 </fieldset>
                 <!-- END LEFT COLUMN -->
@@ -75,7 +94,15 @@
 
                     <legend>To</legend>
 
-                    <a href="#" onclick="$(this).next().find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
+                <div class="radio_buttons">
+                    <a href="#" onclick="$('#quote_saved_locations_to, [name=apts_to]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
+                    <div style='float:right;'>
+		              <input type="radio" name="quote_to_type" value="1" id="quote_to_address" class="quote_to_toggle" checked="checked" /><label for="from_address">Address</label>
+		              <input type="radio" name="quote_to_type" value="2" id="quote_to_airport" class="quote_to_toggle" /><label for="from_airport">Airport</label>
+		            </div>
+                </div>
+
+				<div id="to_address_wrap1" class="to_location_option1">                
                     <select id="quote_saved_locations_to" name="to_location" class="saved_locations">
                         <option value="">Saved locations</option>
                         <?php foreach(Account::getSavedLocations() as $location): ?>
@@ -89,7 +116,6 @@
 
                     <div id="saved_locations_to_wrap1">
 
-                        <div id="to_address_wrap1" class="to_location_option1">
                             <!-- Conditionally shown based on radio selection above -->
                             <div class="row group">
                                 <label for="to_street_address">Street Address</label><br />
@@ -107,9 +133,18 @@
                                 <label for="to_zipcode">Zip Code <span class="popover"><a href="#">(look up)</a></span></label><br />
                                 <input name="to_zip" type="text" id="quote_to_zipcode" value="<?php echo $values['to_zip'] ?>" />
                             </div>
-                        </div><!-- /to_address -->
                     </div>
-
+				</div>
+				
+				<div id="to_poi_wrap" class="to_location_option1">
+		          <!-- Conditionally shown based on radio selection above -->
+		          <div class="row group">
+		              <select name="apts_to" style='width: 100%;'>
+		                  <option value="">Select an airport</option>
+		                  <?php echo get_airports_options($_REQUEST['apts_to'] ? $_REQUEST['apts_to']  : ($_REQUEST['to'] ? $_REQUEST['to'] : $values['to_location'])) ?>
+		              </select>
+		          </div>
+		      </div><!-- /to_poi -->
                 </fieldset>
 
             </div><!-- /group -->
@@ -132,5 +167,5 @@
     </ol>
 </div>
 
-<!--</div>
-</div>-->
+<!-- </div>
+</div> -->
