@@ -236,12 +236,27 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
 	$specialItems .= isset($_POST['pax']) ? $_POST['pax'] : '';
 	$paymentProfileId = $_POST['paymentProfileId'];
 
-	$split = '{`}';
-	if ($_POST['acode'] || $_POST['fnum'] || $_POST['fdets']) {
-		$flightDets = strtoupper($_POST['acode']) . $split
-					. $_POST['fnum'] . $split
-					. $_POST['fdets'];
-	}
+    //jjb
+    //Changed to Comments this should handle the from an to flight info
+//	$split = '{`}';
+//	if ($_POST['acode'] || $_POST['fnum'] || $_POST['fdets']) {
+//		$flightDets = strtoupper($_POST['acode']) . $split
+//					. $_POST['fnum'] . $split
+//					. $_POST['fdets'];
+//	}
+    $flightDets="";
+    $arr =  array(strtoupper($_POST['acode_from']),
+        $_POST['fnum_from'],
+        $_POST['fdets_from'],
+        strtoupper($_POST['acode_to']),
+        $_POST['fnum_to'],
+        $_POST['fdets_to']);
+
+    foreach($arr as $v){
+        $flightDets .= $v .'{`}';
+    }
+
+
 
 	$regionID = get_service_region($_POST['fromLoc']);
 	$vehicle_type = ($_POST['carTypeSelect'] == '') ? 'P' : $_POST['carTypeSelect'];
@@ -258,9 +273,9 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
 	$estimate = $_POST['estimate'];
 	$estimate = 0; // FIXME: this function actually never worked
 
-  if($_POST['from_location']){
+  if($_POST['from_type']==1 && $_POST['from_location']){
     $fromLoc = $_POST['from_location'];
-  } elseif($_POST['apts_from']) {
+  } elseif($_POST['from_type']==2 && $_POST['apts_from']) {
     $toLoc = $_POST['apts_from'];
   } else {
 
@@ -277,9 +292,9 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
     $fromLoc = add_resource($fromLocation, true);
   }
 
-  if($_POST['to_location']){
+  if($_POST['from_type']==1 && $_POST['to_location']){
     $toLoc = $_POST['to_location'];
-  } elseif($_POST['apts_to']) {
+  } elseif($_POST['from_type']==2 && $_POST['apts_to']) {
     $toLoc = $_POST['apts_to'];
   } else {
 

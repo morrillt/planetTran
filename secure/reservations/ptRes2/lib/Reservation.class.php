@@ -441,13 +441,13 @@ class Reservation {
 			array_push($dates, $this->date);
 
 
-			if ($_POST['flightnumber2']) {
-				$split = '{`}';
-				$acode = substr($_POST['flightnumber2'], 0, 2);
-				$fnum = substr($_POST['flightnumber2'], 2);
-				$flightDets = strtoupper($acode).$split.$fnum.$split;
-				$this->flightDets = $flightDets;
-			}
+//			/*if ($_POST['flightnumber2']) {
+//				$split = '{`}';
+//				$acode = substr($_POST['flightnumber2'], 0, 2);
+//				$fnum = substr($_POST['flightnumber2'], 2);
+//				$flightDets = strtoupper($acode).$split.$fnum.$split;
+//				$this->flightDets = $flightDets;
+//			}*/
 
 			if (!$this->has_errors()) {
 				$this->id = $this->db->add_res($this, $is_parent);
@@ -1390,9 +1390,12 @@ class Reservation {
 
       $start = ($this->start > 779) ? $this->start - 720 : $this->start;
       $values = array(
-        'acode' => $splitted[0],
-        'fnum' => $splitted[1],
-        'fdets' => $splitted[2],
+        'acode_from' => $splitted[0],
+        'fnum_from' => $splitted[1],
+        'fdets_from' => $splitted[2],
+          'acode_to' => $splitted[3],
+          'fnum_to' => $splitted[4],
+          'fdets_to' => $splitted[5],
 
         'date' => date('m/d/Y', $this->date),
         'start_hour' => floor($start / 60),
@@ -2334,18 +2337,18 @@ if(!history) {
 		<select name="acode_from" style='width: 100%;'>
 		  <option value="">Select an airline</option>
 		  <?php foreach(Account::getAirlines() as $key => $v): ?> 
-		    <option value="<?php echo $key ?>" <?php if($key == $values['acode']) echo 'selected="selected"' ?>><?php echo $v ?></option>
+		    <option value="<?php echo $key ?>" <?php if($key == $values['acode_from']) echo 'selected="selected"' ?>><?php echo $v ?></option>
 		  <?php endforeach; ?>
 		</select>
 	      </div>
 	      <span id="flight_details">
 		<div class="row  group">
 		  <label for="fnum">Flight #</label>
-		  <input name="fnum_from" value="<?php echo $values['fnum'] ?>" type="text" id="fnum" class="flight_no" />
+		  <input name="fnum_from" value="<?php echo $values['fnum_from'] ?>" type="text" id="fnum" class="flight_no" />
 		</div>
 		<div class="row  group">
 		  <label for="fdets">Time/Other details</label>
-		  <input name="fdets_from" type="text" value="<?php echo $values['fdets'] ?>" id="fdets" class="flight_details" />
+		  <input name="fdets_from" type="text" value="<?php echo $values['fdets_from'] ?>" id="fdets" class="flight_details" />
 		</div>
 	      </span>
 	    </div><!-- /from_poi -->
@@ -2509,18 +2512,18 @@ if(!history) {
 		<select name="acode_to" style='width: 100%;'>
 		  <option value="">Select an airline</option>
 		  <?php foreach(Account::getAirlines() as $key => $v): ?> 
-		    <option value="<?php echo $key ?>" <?php if($key == $values['acode']) echo 'selected="selected"' ?>><?php echo $v ?></option>
+		    <option value="<?php echo $key ?>" <?php if($key == $values['acode_to']) echo 'selected="selected"' ?>><?php echo $v ?></option>
 		  <?php endforeach; ?>
 		</select>
 	      </div>
 	      <span id="flight_details">
 		<div class="row  group">
 		  <label for="fnum">Flight #</label>
-		  <input name="fnum_to" value="<?php echo $values['fnum'] ?>" type="text" id="fnum" class="flight_no" />
+		  <input name="fnum_to" value="<?php echo $values['fnum_to'] ?>" type="text" id="fnum" class="flight_no" />
 		</div>
 		<div class="row  group">
 		  <label for="fdets">Time/Other details</label>
-		  <input name="fdets_to" type="text" value="<?php echo $values['fdets'] ?>" id="fdets" class="flight_details" />
+		  <input name="fdets_to" type="text" value="<?php echo $values['fdets_to'] ?>" id="fdets" class="flight_details" />
 		</div>
 	      </span>
 	    </div><!-- /to_poi -->
