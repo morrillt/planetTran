@@ -43,6 +43,12 @@ if ((!isset($_GET['read_only']) || !$_GET['read_only']) && $conf['app']['readOnl
 	}
 }
 
+// For static display of receipts.
+$read_only == false;
+if ($_GET['read_only'] == 1) {
+	$read_only = true;
+}
+
 $t = new Template();
 
 if (isset($_POST['submit']) && strstr($_SERVER['HTTP_REFERER'], $_SERVER['PHP_SELF'])) {
@@ -72,11 +78,17 @@ if (isset($_POST['submit']) && strstr($_SERVER['HTTP_REFERER'], $_SERVER['PHP_SE
 }
 else {
 	$res_info = getResInfo();
-	$t->set_title($res_info['title']);
-	$t->printHTMLHeader('silo_reservations sn3 mn1');
-	$t->printNavReservations();
-	$t->startMain();
-	present_reservation($res_info['resid']);
+	if (!$read_only) {
+		$t->set_title($res_info['title']);
+		$t->printHTMLHeader('silo_reservations sn3 mn1');
+		$t->printNavReservations();
+		$t->startMain();
+	} else {
+		?>
+		<link href="/css/master.css" media="screen" rel="stylesheet" type="text/css" />
+		<?php
+	}
+	present_reservation($res_info['resid'], $read_only);
 }
 
 // End main table
@@ -89,7 +101,7 @@ $t->printHTMLFooter();
 * Processes a reservation request (add/del/edit)
 * @param string $fn function to perform
 */
-function process_reservation($fn) {
+function process_reservation($fn) {   // Why is this lower_under when the entire app is lowerCamel? Consistency please.  -JL  
 	$success = false;
 	global $Class;
 	$delimiter = 'DELIMITER';
@@ -248,6 +260,8 @@ function process_reservation($fn) {
 
   if($_POST['from_location']){
     $fromLoc = $_POST['from_location'];
+  } elseif($_POST['apts_from']) {
+    $toLoc = $_POST['apts_from'];
   } else {
 
     $fromLocation = array();
@@ -265,6 +279,8 @@ function process_reservation($fn) {
 
   if($_POST['to_location']){
     $toLoc = $_POST['to_location'];
+  } elseif($_POST['apts_to']) {
+    $toLoc = $_POST['apts_to'];
   } else {
 
     $toLocation = array();
@@ -320,12 +336,16 @@ function process_reservation($fn) {
 *  were passed in through the query string
 * @param none
 */
-function present_reservation($resid) {
+function present_reservation($resid, $read_only = false) {
 	global $Class;
 
 	// Get info about this reservation
 	$res = new $Class($resid);
-	$res->print_res();
+	if ($read_only) {
+		$res->print_res_read_only();
+	} else {
+		$res->print_res();
+	}
 }
 
 

@@ -574,6 +574,7 @@ class Reservation {
 
 		$this->machid = $fromLoc;
 		$this->toLocation = $toLoc;
+		
 		$this->type = 'm';
 		$this->summary = $summary;
 		$this->flightDets = $flightDets;
@@ -1886,10 +1887,43 @@ if(!history) {
       var nb = parseInt($($(this).parents().filter('[class*=step]')[0]).attr("class").replace("step", ""))+1;
       if(nb == 2)
       { 
+
+    //FINDME
+    var repeatAddressError = false;
+    if(!$("#intermediate_stop").is(":checked")) { 
+	    if($("#from_zipcode").val().toLowerCase().replace(/[^0-9]/g, "") == $("#to_zipcode").val().toLowerCase().replace(/[^0-9]/g, "")) {
+		    // matched zipcode
+	    	if($("#from_address").val().toLowerCase().replace(/[^0-9a-zA-Z]/g, "") == $("#to_address").val().toLowerCase().replace(/[^0-9a-zA-Z]/g, "")) {
+		    	// matched address
+			    repeatAddressError = true;
+		    } 
+	    }
+    }
+
+    if (repeatAddressError) {
+        // Error alert
+        alert("You cannot have the same starting and ending location without an intermediate stop");
+        return;
+    }
+    //ENDFINDME
 	if($("#reservation_date").val() == '') {
 	  alert('You have to choose a reservation date!');
 	  return;
 	}
+	
+	var ad = getAddresses();
+
+	if(!ad.from_address || !ad.from_city || !ad.from_zip || !ad.from_state ||
+	    !ad.to_address || !ad.to_state || !ad.to_zip || !ad.to_state) {
+	  alert('You have to type in full addresses!');
+	  return;
+	}
+	
+	if($('#intermediate_stop').is(":checked") && (!ad.stop_address || !ad.stop_state || !ad.stop_zip || !ad.stop_state)) {
+	  alert('You have to type in full addresses!');
+	  return;
+	}
+	
 	$.ajax({
 	  url:  'ajaxquote.php',
 	  type: 'POST',
@@ -2209,7 +2243,7 @@ if(!history) {
 	    <div class="radio_buttons">
 	      <a href="#" onclick="$('#saved_locations_from, [name=apts_from]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
 	      
-	      <?php $fromApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_from']) || strpos($_REQUEST['from'], 'airport') !== false || 'from_airport_wrap' == $values['from_type'] ?>
+	      <?php $fromApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_from']) || strpos($_REQUEST['from'], 'airport') !== false || strpos($values['from_location'], 'airport') !== false || 'from_airport_wrap' == $values['from_type'] ?>
 	      <div style='float:right;'>
 	      <input type="radio" name="from_type" <?php if(!$fromApt) echo 'checked="checked"' ?> value="1" id="from_address" class="from_toggle" /><label for="from_address">Address</label>
 	      <input type="radio" name="from_type" <?php if( $fromApt) echo 'checked="checked"' ?> value="2" id="from_airport" class="from_toggle" /><label for="from_airport">Airport</label>
@@ -2261,13 +2295,13 @@ if(!history) {
 	    <div id="from_airport_wrap" class="from_location_option">
 	      <!-- Conditionally shown based on radio selection above -->
 	      <div class="row group">
-		<select name="apts_from">
+		<select name="apts_from" style='width: 100%;'>
 		  <option value="">Select an airport</option>
-		  <?php echo get_airports_options($_REQUEST['apts_from'] ? $_REQUEST['apts_from'] : $_REQUEST['from']) ?>
+		  <?php echo get_airports_options($_REQUEST['apts_from'] ? $_REQUEST['apts_from'] : ($_REQUEST['from'] ? $_REQUEST['from'] : $values['from_location'])) ?>
 		</select>
 	      </div>
 	      <div class="row group">
-		<select name="acode_from">
+		<select name="acode_from" style='width: 100%;'>
 		  <option value="">Select an airline</option>
 		  <?php foreach(Account::getAirlines() as $key => $v): ?> 
 		    <option value="<?php echo $key ?>" <?php if($key == $values['acode']) echo 'selected="selected"' ?>><?php echo $v ?></option>
@@ -2384,7 +2418,7 @@ if(!history) {
 	    <div class="radio_buttons">
 	      <a href="#" onclick="$('#saved_locations_to, [name=apts_to]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
 	      
-	      <?php $toApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_to']) || strpos($_REQUEST['to'], 'airport') !== false || 'to_airport_wrap' == $values['to_type'] ?>
+	      <?php $toApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_to']) || strpos($_REQUEST['to'], 'airport') !== false || strpos($values['to_location'], 'airport') !== false || 'to_airport_wrap' == $values['to_type'] ?>
 	      <div style='float:right;'>
 	      <input type="radio" <?php if(!$toApt) echo 'checked="checked"' ?> name="to_type"  value="1" id="to_address" class="to_toggle" /><label for="to_address">Address</label>
  	      <input type="radio" <?php if( $toApt) echo 'checked="checked"' ?> name="to_type" value="2" id="to_airport" class="to_toggle" /><label for="to_airport">Airport</label>
@@ -2436,13 +2470,13 @@ if(!history) {
 	    <div id="to_poi_wrap" class="to_location_option">
 	      <!-- Conditionally shown based on radio selection above -->
 	      <div class="row group">
-		<select name="apts_to">
+		<select name="apts_to" style='width: 100%;'>
 		  <option value="">Select an airport</option>
-		  <?php echo get_airports_options($_REQUEST['apts_to'] ? $_REQUEST['apts_to'] : $_REQUEST['to']) ?>
+		  <?php echo get_airports_options($_REQUEST['apts_to'] ? $_REQUEST['apts_to']  : ($_REQUEST['to'] ? $_REQUEST['to'] : $values['to_location'])) ?>
 		</select>
 	      </div>
 	      <div class="row group">
-		<select name="acode_to">
+		<select name="acode_to" style='width: 100%;'>
 		  <option value="">Select an airline</option>
 		  <?php foreach(Account::getAirlines() as $key => $v): ?> 
 		    <option value="<?php echo $key ?>" <?php if($key == $values['acode']) echo 'selected="selected"' ?>><?php echo $v ?></option>
