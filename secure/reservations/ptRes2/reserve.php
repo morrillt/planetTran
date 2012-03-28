@@ -276,7 +276,7 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
   if($_POST['from_type']==1 && $_POST['from_location']){
     $fromLoc = $_POST['from_location'];
   } elseif($_POST['from_type']==2 && $_POST['apts_from']) {
-    $toLoc = $_POST['apts_from'];
+      $fromLoc = $_POST['apts_from'];
   } else {
 
     $fromLocation = array();
@@ -292,9 +292,9 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
     $fromLoc = add_resource($fromLocation, true);
   }
 
-  if($_POST['from_type']==1 && $_POST['to_location']){
+  if($_POST['to_type']==1 && $_POST['to_location']){
     $toLoc = $_POST['to_location'];
-  } elseif($_POST['from_type']==2 && $_POST['apts_to']) {
+  } elseif($_POST['to_type']==2 && $_POST['apts_to']) {
     $toLoc = $_POST['apts_to'];
   } else {
 
