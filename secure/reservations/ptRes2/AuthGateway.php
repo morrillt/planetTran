@@ -12,6 +12,7 @@ $tool = new Tools();
 
 $paymentProfileId = $_GET['paymentProfileId'];
 $memberid = $_GET['memberid'];
+$scheduleid = $_GET['scheduleid'];  // used in getting member ID for that schedule
 
 //get metadata about card if it exists
 
@@ -97,30 +98,32 @@ function print_form($vals = array(), $paymentProfile = array()) {
 
 	<table width="100%" cellspacing=0 cellpadding=3>
 	<tr>
-	  
+	  <!-- 
 	  <td rowspan="1000" valign="top">
-	    <?php if(!$_GET['noedit']): ?>
+	    <?php //if(!$_GET['noedit']): ?>
 		<h5>Existing cards</h5>
-		<a class="popover-add" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=add&hidesubmit=<?php echo $_GET['hidesubmit'] ?>"> Add Card </a>
-		<?php foreach(Account::getCreditCards() as $paymentId => $description): ?>
+		<a class="popover-add" href="AuthGateway.php?js=select&memberid=<?php //echo $memberid; //$_SESSION['currentID'] ?>&mode=add&hidesubmit=<?php //echo //$_GET['hidesubmit'] ?>"> Add Card </a>
+		<?php //foreach(Account::getCreditCards() as $paymentId => $description): ?>
 		  <p>
-		    <?php echo $description ?>
+		    <?php //echo $description ?>
 		    <br>
 		    <span class="options">
-		      <a class="popover-edit" title="Edit Credit Card" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=edit&hidesubmit=<?php echo $_GET['hidesubmit'] ?>&paymentProfileId=<?php echo $paymentId ?>">Edit</a>
+		      <a class="popover-edit" title="Edit Credit Card" href="AuthGateway.php?js=select&memberid=<?php //echo $memberid; //$_SESSION['currentID'] ?>&mode=edit&hidesubmit=<?php //echo $_GET['hidesubmit'] ?>&paymentProfileId=<?php echo $paymentId ?>">Edit</a>
 		      |
-		      <a class="popover-delete" title="Delete Credit Card?" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=delete&hidesubmit=<?php echo $_GET['hidesubmit'] ?>&paymentProfileId=<?php echo $paymentId ?>">Delete</a>
+		      <a class="popover-delete" title="Delete Credit Card?" href="AuthGateway.php?js=select&memberid=<?php //echo $memberid; // $_SESSION['currentID'] ?>&mode=delete&hidesubmit=<?php //echo $_GET['hidesubmit'] ?>&paymentProfileId=<?php echo $paymentId ?>">Delete</a>
 		    </span>
 		  </p>
-		<?php endforeach; ?>
-	    <?php endif ?>
+		<?php //endforeach; ?>
+	    <?php //endif ?>
 	  </td>
+	  -->
 	  <td colspan="2">
 	    <h5>Card data</h5>
 	    <div id="outputDiv"></div>
 	  </td>
 	</tr>
 	<?
+	
 	foreach ($fields as $k=>$v) {
 		$required =  ($k != 'billCompany') ? " *" : '';
 		echo "<tr><td>$v$required</td><td>";
