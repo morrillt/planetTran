@@ -1,233 +1,139 @@
-<?php  
+<?php
 include_once('lib/db/AdminDB.class.php');
-$d = new AdminDB();
-$wrapper = "wrapper.pl";
-/*
-if (!$_GET['fromID'] || !$_GET['toID']) {
-	echo "Please select both a pickup and a dropoff location to get a quote.";
-	die;
-}
-*/
+include_once('../../../../BusinessLogic/Estimates/Estimate.php');
 
-$groupid = isset($_GET['groupid']) ? $_GET['groupid'] : 0;
+global $d;
 
-$from = $d->get_resource_data($_GET['fromID']);
-$to = $d->get_resource_data($_GET['toID']);
-$stop = $d->get_resource_data($_GET['stopID']);
-$discount = $d->getDiscount($groupid);
-if ($groupid == 8) $discount = 0;
-$groupmsg = "";
-if ($groupid) $groupmsg = " and includes any discounts on this account";
+get_estimate($_REQUEST);
 
-//$fromquote = apt_or_zip($from['machid'], $from['zip']);
-//$toquote = apt_or_zip($to['machid'], $to['zip']);
+function get_estimate($col){
+    global $d;
+    $d = new AdminDB();
+    $e = new Estimate();
 
-$location1 = implode(" ",array_filter(array($_REQUEST['from_address'], $_REQUEST['from_city'], $_REQUEST['from_state'], $_REQUEST['from_zip']?', '.$_REQUEST['from_zip']:'')));
-$location2 = implode(" ",array_filter(array($_REQUEST['to_address'],   $_REQUEST['to_city'],   $_REQUEST['to_state'],       $_REQUEST['to_zip']?', '.$_REQUEST['to_zip']:'')));
-$location3 = implode(" ",array_filter(array($_REQUEST['stop_address'], $_REQUEST['stop_city'], $_REQUEST['stop_state'], $_REQUEST['stop_zip']?', '.$_REQUEST['stop_zip']:'')));
+    $fromId = ($col['fromID']?$_GET['fromID']:0);
+    $toId = ($col['toID']?$_GET['toID']:0);
+    $stopId = ($col['stopID']?$_GET['stopID']:0);
+    $from = null;
+    $to = null;
+    $stop = null;
 
-/*
-if(isset($_GET['stopID']) && $_GET['stopID'] !='')
-{
-	if($region_location1 == $region_location2 && $region_location1 == $region_location3)
-	{
-		$regioncode = $region_location1;
-	}
-	else
-	{
-		$fare = 0;
-		echo $fare . '|' . $location1 . '|' . $location2;
-		return;
-	}
-}
-elseif($region_location1 == $region_location2)
-{
-	$regioncode = $region_location1;
-}		
-else
-{
-		$fare = 0;
-		echo $fare . '|' . $location1 . '|' . $location2;
-		return;
-}
+    loadResourceById(&$e,$fromId);
 
-$air_code = apt_or_zip($from['machid'],'');
-if($air_code==''){
-    $air_code = apt_or_zip($to['machid'],'');
-}
-*/
-//$regioncode = get_service_region($from['zip'], $to['zip'], $air_code,$from['state'], $to['state']);
+    loadResourceById(&$e,$toId);
 
-$memberid=(isset($_SESSION['currentID']) ? $_SESSION['currentID'] : $_SESSION['sessionID']);
-$convertible_seats=0;
-$booster_seats=0;
-$meet_greet =0;
-//Groupid is set above
-//$groupid='';
-$coupon='';
-$vehicle_type='P';
-$trip_type='P';
+    loadResourceById(&$e,$stopId);
 
-if(isset($_REQUEST['memberid'])&& ! empty($_REQUEST['memberid'])){
-	$memberid = $_REQUEST['memberid'];
-}
-if(isset($_REQUEST['convertible_seats'])&& ! empty($_REQUEST['convertible_seats'])){
-	$convertible_seats = $_REQUEST['convertible_seats'];
-}
-if(isset($_REQUEST['booster_seats'])&& ! empty($_REQUEST['booster_seats'])){
-	$booster_seats=$_REQUEST['booster_seats'];
-}
-if(isset($_REQUEST['meet_greet '])&& ! empty($_REQUEST['meet_greet '])){
-	$meet_greet =$_REQUEST['meet_greet'];
-}
-if(isset($_REQUEST['groupid'])&& ! empty($_REQUEST['groupid'])){
-	$groupid = $_REQUEST['groupid'];
-}
-if(isset($_REQUEST['coupon'])&& ! empty($_REQUEST['coupon'])){
-	$coupon = $_REQUEST['coupon'];
-}
-if(isset($_REQUEST['vehicle_type'])&& ! empty($_REQUEST['vehicle_type'])){
-	$vehicle_type = $_REQUEST['vehicle_type'];
-}
-if(isset($_REQUEST['trip_type'])&& ! empty($_REQUEST['trip_type'])){
-	$trip_type = $_REQUEST['trip_type'];
-}
+    loadCollectionIn(&$e, $col);
 
-$variable = 'address1=' . $location1 . '&address2=' . $location2 .'&address3=' . $location3. '&wait_time=0&amenities='.$convertible_seats.','.$booster_seats.','.$meet_greet.'&memberid='.$memberid.'&groupid='.$groupid.'&coupon='.$coupon.'&origin=w&vehicle_type='.$vehicle_type.'&trip_type='.$trip_type.'&region=' . $regioncode;
-// 'address1=32837&address2=60185&address3=&wait_time=0&amenities=0,0,0&memberid=glb4e0bb288a1149&groupid=0&coupon=&origin=w&vehicle_type=P&trip_type=P&region='
-// 'address1=Consulate Dr Orlando FL, 32837&address2=Broad Way Northville NY, 12134&address3=&wait_time=0&amenities=0,0,0&memberid=glb4e0bb288a1149&groupid=0&coupon=&origin=w&vehicle_type=P&trip_type=P&region='
+    setEstimateRegion(&$e);
 
-// die($variable);
 
-$script = get_script();
-/*
-if(0 && $script == 0) //users with gourpid will be taken old price policy.
-{
-    
-    $fromZip = trim($from['zip']);
-    $toZip = trim($to['zip']);
-    
-	/*
-	if($fromZip == '02128')
-		$fromZip = 'BOS';
-	elseif($fromZip == '03103')   
-		$fromZip = 'MHT';
-	elseif($fromZip == '94621')   
-		$fromZip = 'OAK';
-	elseif($fromZip == '94128')   
-		$fromZip = 'SFO';
-	elseif($fromZip == '95110')   
-		$fromZip = 'SJC';
-	elseif($fromZip == '02886')   
-		$fromZip = 'PVD';
-    *       
 
-	if($toZip == '02128')
-		$toZip = 'BOS';
-	elseif($toZip == '03103')   
-		$toZip = 'MHT';
-	elseif($toZip == '94621')   
-		$toZip = 'OAK';
-	elseif($toZip == '94128')   
-		$toZip = 'SFO';
-	elseif($toZip == '95110')   
-		$toZip = 'SJC';
-	elseif($toZip == '02886')   
-		$toZip = 'PVD';
-		
-	   
-    //echo "perl $wrapper '$fromZip' '$toZip' 1";
-    
-    exec("perl $wrapper '$fromZip' '$toZip' 1", $a);
-    $fare = $a[0];
+    $estVal = $e->getEstimate();
 
-    $fare = round($fare - $fare * $discount);
+    if($estVal->fare > 0 && $estVal->fare < 29)
+        $estVal->fare = 29;
 
-}
-else
-*/
-	// die(EscapeShellArg($variable));
-	$out = exec('/home/planet/scripts/estimate.pl'.' '.EscapeShellArg($variable));  
-	parse_str($out);
-// }
-
-if($fare > 0 && $fare < 29)
-	$fare = 29;
-
-echo $fare . '|' . $location1 . '|' . $location2 . '|' . ($coupon_amount?$coupon_amount:0) . '|' . ($base_fare?$base_fare:0);
-
-/*
-exec("perl wrapper.pl $fromquote $toquote 1", $a, $b);
-$fare = $a[0];
-$fare = round($fare - $fare * $discount);
-*/
-
-/*
-if (!$fare)
-	echo "We were unable to automatically generate a quote for those two locations. If either are lacking a zip code, please add one and try again. Please call 1-888-PLN-TTRN (756-8876) for assistance.";
-else
-	echo "Your fare estimate is \$$fare$groupmsg. This figure is based on the distance to your zip code; actual fares may vary.";
- 
-*/
-
-/***********************************************/
-function apt_or_zip($machid, $zip) {
-	if (strpos($machid, 'airport') !== false)
-		$return = substr($machid, -3);
-	else if (stripos($machid, 'logan') !== false)
-		$return = 'BOS';
-	else if ($machid == '41b40be9091cb')
-		$return = 'BOS';
-	else
-		$return = $zip;
-
-	return escapeshellarg($return);
-}
-
-function get_script() {
-    $id=(isset($_SESSION['currentID']) ? $_SESSION['currentID'] : $_SESSION['sessionID']);
-	$query = "select script from login where memberid='".$id."'";
-	$qresult = mysql_query($query);
-	$row = mysql_fetch_assoc($qresult);
-	return $row['script'];
-}
-
-function generate_location($addrID)
-{
-		
-	$address1 = trim($addrID['address1']);
-	$address2 = trim($addrID['address2']);
-	$zip = trim($addrID['zip']);
-
-	$address = '';
-	
-	if($address1 == '' && $address2 != '')
-		$address = $address2;
-	elseif($address1 != '' && $address2 == '')
-		$address = $address1;
-	elseif($address1 != '' && $address2 != '')
-		$address = $address1 . " " . $address2;	 
-	
-	if(trim($addrID['city']) != '')	
-		$city = ($address == "" ? "" : ", ") . trim($addrID['city']);
-	else
-		$city = '';
-		
-	if(trim($addrID['state']) != '')	
-		$state = (($address . $city) == "" ? "" : ", ") . trim($addrID['state']);
-	else
-		$state = '';
-		
-	return $address . $city . $state . ", " . $zip;	 
+    echo $estVal->fare . '|' . $e->fromAddress->getOneLineAddress() . '|' . $e->toAddress->getOneLineAddress() . '|' .  $estVal->couponAmount . '|' .  $estVal->baseFare;
 
 }
 
-function get_region($from, $to){
-    if($from['state']=='MA'){
-        return 1;
+function setEstimateRegion(&$e){
+    if($e->stopAddress->isValid()){
+        if($e->fromAddress->region == $e->toAddress->region && $e->fromAddress->region  == $e->stopAddress->region )
+        {
+            $e->regionCode = $e->fromAddress->region;
+        }
+        else
+        {
+            $fare = 0;
+            echo $fare . '|' . $e->fromAddress->getOneLineAddress() . '|' . $e->toAddress->getOneLineAddress();
+            return;
+        }
     }
-    
+    elseif($e->fromAddress->region  == $e->toAddress->region )
+    {
+        $e->regionCode = $e->fromAddress->region;
+    }
+    else
+    {
+        $fare = 0;
+        echo $fare . '|' . $e->fromAddress->getOneLineAddress() . '|' . $e->toAddress->getOneLineAddress();
+        return;
+    }
+
 }
+function loadResourceById(Estimate &$e, $machId){
+    global $d;
+    if($machId){
+        $e->fromAddress->machid = $machId;
+        $res = $d->get_resource_data($machId);
+        EstimateConverter::getAddressFromResource(&$e->fromAddress, $res);
+    }
+}
+
+function loadCollectionIn(Estimate &$e, $col){
+    $e->groupid = $groupId = isset($col['groupid']) ? $col['groupid'] : 0;
+
+    $e->fromAddress->street = $col['from_address'];
+    $e->fromAddress->city = $col['from_city'];
+    $e->fromAddress->state = $col['from_state'];
+    $e->fromAddress->zip = $col['from_zip'];
+    $e->toAddress->street = $col['to_address'];
+    $e->toAddress->city = $col['to_city'];
+    $e->toAddress->state = $col['to_state'];
+    $e->toAddress->zip = $col['to_zip'];
+    $e->stopAddress->street = $col['stop_address'];
+    $e->stopAddress->city = $col['stop_city'];
+    $e->stopAddress->state = $col['stop_state'];
+    $e->stopAddress->zip = $col['stop_zip'];
+
+
+    if(isset($col['memberid'])&& ! empty($col['memberid'])){
+        $e->memberid = $col['memberid'];
+    }
+    if(isset($col['convertible_seats'])&& ! empty($col['convertible_seats'])){
+        $e->convertibleSeats = $col['convertible_seats'];
+    }
+    if(isset($col['booster_seats'])&& ! empty($col['booster_seats'])){
+        $e->boosterSeats=$col['booster_seats'];
+    }
+    if(isset($col['meet_greet '])&& ! empty($col['meet_greet '])){
+        $e->meetGreet =$col['meet_greet'];
+    }
+    if(isset($col['groupid'])&& ! empty($col['groupid'])){
+        $e->groupid = $col['groupid'];
+    }
+    if(isset($col['coupon'])&& ! empty($col['coupon'])){
+        $e->coupon = $col['coupon'];
+    }
+    if(isset($col['vehicle_type'])&& ! empty($col['vehicle_type'])){
+        $e->vehicleType = $col['vehicle_type'];
+    }
+    if(isset($col['trip_type'])&& ! empty($col['trip_type'])){
+        $e->tripType = $col['trip_type'];
+    }
+
+    if($e->tripType=='H' && isset($col['wait_time'])&& ! empty($col['wait_time'])){
+        $e->waitTime = $col['wait_time'];
+    }
+}
+
+function apt_or_zip($machid, $zip) {
+    if (strpos($machid, 'airport') !== false)
+        $return = substr($machid, -3);
+    else if (stripos($machid, 'logan') !== false)
+        $return = 'BOS';
+    else if ($machid == '41b40be9091cb')
+        $return = 'BOS';
+    else
+        $return = $zip;
+
+    return escapeshellarg($return);
+}
+
+
 function get_service_region($from_zip, $to_zip, $airport_code, $from_state, $to_state){
     if($from_state=="MA" || $to_state=="MA"){
         return 1;
@@ -242,10 +148,10 @@ function get_service_region($from_zip, $to_zip, $airport_code, $from_state, $to_
     }
     $region = 1;
     if ($from_zip == "CA" || $to_zip== "CA" ||
-            $from_zip == "NV" || $to_zip== "NV" ||
-            $from_zip == "AZ" || $to_zip== "AZ" ||
-            $from_zip == "OR" || $to_zip == "OR" ||
-            $airport_code == "SFO" || $airport_code=="SJC" || $airport_code == "OAK"){
+        $from_zip == "NV" || $to_zip== "NV" ||
+        $from_zip == "AZ" || $to_zip== "AZ" ||
+        $from_zip == "OR" || $to_zip == "OR" ||
+        $airport_code == "SFO" || $airport_code=="SJC" || $airport_code == "OAK"){
         $region=2;
     }
     return $region;
@@ -258,10 +164,10 @@ function get_service_region2($res){
     $airport = apt_or_zip($res['machid'],'');
     $region = 1;
     if ($state == "CA" ||
-            $state == "NV" ||
-            $state == "AZ" ||
-            $state == "OR" ||
-            $airport == "SFO" || $airport=="SJC" || $airport == "OAK"){
+        $state == "NV" ||
+        $state == "AZ" ||
+        $state == "OR" ||
+        $airport == "SFO" || $airport=="SJC" || $airport == "OAK"){
         $region=2;
     }
     return $region;
@@ -272,12 +178,11 @@ function get_service_region3 ($state,$zip)
     $airport = $zip;
     $region = 1;
     if ($state == "CA" ||
-            $state == "NV" ||
-            $state == "AZ" ||
-            $state == "OR" ||
-            $airport == "SFO" || $airport=="SJC" || $airport == "OAK"){
+        $state == "NV" ||
+        $state == "AZ" ||
+        $state == "OR" ||
+        $airport == "SFO" || $airport=="SJC" || $airport == "OAK"){
         $region=2;
     }
     return $region;
 }
-
