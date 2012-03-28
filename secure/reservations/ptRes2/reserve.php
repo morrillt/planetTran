@@ -158,7 +158,7 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
 
 //	$startTime = $_POST['ampm'] == 'pm' ? $_POST['startTime'] + 720 : $_POST['startTime'];
   $startMinutes = $_POST['start_hour'] * 60 + $_POST['start_minutes'];
-	$startTime = ($_POST['ampm'] == 'pm' ? $startMinutes + 720 : $startMinutes) * 60;
+	$startTime = ($_POST['ampm'] == 'pm' ? $startMinutes + 720 : $startMinutes);
 
 	$dates = split('/', $_POST['date']);
 	if ($_POST['fn'] != 'delete')
