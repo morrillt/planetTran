@@ -1480,6 +1480,49 @@ if(!history) {
   }
 }
 
+$(function(){
+    function disableToLocation(){
+        $('#to_address').click();
+        $('#saved_locations_to').append($('<option selected="selected"> </option>').val('asDirectedLoc').html('As Directed'));
+        $('#saved_locations_to').attr("disabled", true);
+        $("#to_address_wrap :input").attr("disabled", true);
+        $('#dropoff').find('a').hide();
+        $('#to_airport').attr("disabled", true);
+        $('#to_address').attr("disabled", true);
+        removeClearClick();
+    }
+    function enableToLocation(){
+        $('#saved_locations_to').attr("disabled", false);
+        $("#to_address_wrap :input").attr("disabled", false);
+        $('#saved_locations_to').find('option:selected').remove();
+        $('#dropoff').find('a').show();
+        $('#to_airport').attr("disabled", false);
+        $('#to_address').attr("disabled", false);
+        addClearClick();
+    }
+    function addClearClick(){
+        $('div.radio_buttons a').click(function(){
+            $('#saved_locations_to, [name=apts_to]', $('div.radio_buttons a').parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;
+        });
+    }
+    function removeClearClick(){
+        $('div.radio_buttons a').click(function(){
+        });
+    }
+    var chkByTheHour = $('#check_by_the_hour').is(':checked');
+    if(chkByTheHour){
+        disableToLocation();
+    }
+    $('#check_by_the_hour').click(function() {
+        if(this.checked){
+            disableToLocation();
+        } else {
+            enableToLocation();
+        }
+    });
+
+});
+
 (function($){
 
   $.fn.serializeObject = function() {
@@ -1528,7 +1571,17 @@ if(!history) {
       <?php endforeach ?>
       X: {}
     };
-  
+
+    $('#check_by_the_hour').toggle(function(){
+        $('#saved_locations_to').enabled(false);
+
+    },function(){
+        $('#saved_locations_to').enabled(true);
+    });
+
+
+
+
     function refresh_estimate()
     {
       
