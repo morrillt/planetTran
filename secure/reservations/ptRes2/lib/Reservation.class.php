@@ -574,6 +574,7 @@ class Reservation {
 
 		$this->machid = $fromLoc;
 		$this->toLocation = $toLoc;
+		
 		$this->type = 'm';
 		$this->summary = $summary;
 		$this->flightDets = $flightDets;
@@ -1540,7 +1541,7 @@ if(!history) {
 	  esubtotal += base_price;
 	  content = content + '<div class="line_item group">'+
 	    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
-	    '<span class="price" id="total_price">$'+base_price+'</span>'+
+	    '<span class="price" id="total_price">$'+base_price.toFixed(2)+'</span>'+
 	  '</div>';
 	  
 	  var meet_greet = $("#meet_greet");
@@ -1549,10 +1550,10 @@ if(!history) {
 	      
 	      content = content + '<div class="line_item group">'+
 		'<span class="line_description">Logan Airport meet and greet</span>'+
-		'<span class="price" id="total_price">$30</span>'+
+		'<span class="price" id="total_price">$30.00</span>'+
 	      '</div>';
 	  }
-	  
+	  setVehiclePrices(esubtotal);
 	  var cts = $("[name=carTypeSelect]:checked");
 	  if(cts.val() != "" && cts.val() != "P") {
 	    var vehicle = vehicles[cts.val()];
@@ -1562,7 +1563,7 @@ if(!history) {
 	      
 	      content = content + '<div class="line_item group">'+
 		'<span class="line_description">Vehicle upgrade ('+vehicle.name+'):</span>'+
-		'<span class="price" id="total_price">$'+vehicle_price+'</span>'+
+		'<span class="price" id="total_price">$'+vehicle_price.toFixed(2)+'</span>'+
 	      '</div>';
 	    }
 	  }
@@ -1574,7 +1575,7 @@ if(!history) {
 	    
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">Children seats ('+children_seats.val()+'):</span>'+
-	      '<span class="price" id="total_price">$'+children_seats_price+'</span>'+
+	      '<span class="price" id="total_price">$'+children_seats_price.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 	  
@@ -1586,7 +1587,7 @@ if(!history) {
 	    
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">Booster seats ('+booster_seats.val()+'):</span>'+
-	      '<span class="price" id="total_price">$'+booster_seats_price+'</span>'+
+	      '<span class="price" id="total_price">$'+booster_seats_price.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 
@@ -1597,19 +1598,20 @@ if(!history) {
 	    
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">One intermediate stop:</span>'+
-	      '<span class="price" id="total_price">$'+intermediate_stop_price+'</span>'+
+	      '<span class="price" id="total_price">$'+intermediate_stop_price.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 	  
 	  var fareType = 0;
+	  var tripType = 0;
 	  if($("#check_by_the_hour").is(":checked")) {
 	    fareType = "Book by the hour";
-	  } else if(intermediate_stop.is(":checked")) {
+ 	  } else if(intermediate_stop.is(":checked")) {
 	    fareType = "Intermediate Stop";
 	  } else {
 	    fareType = "One way";
 	  }
-	  $("#fareType").text(fareType);
+	  $("#fareTypes").text(fareType);
 	  
 	  var coupon = 0;
 	  if(parseFloat(data[3]))
@@ -1626,7 +1628,7 @@ if(!history) {
 	  
 	  content = content + '<div class="line_item group total">'+
 	    '<span class="line_description">Estimate subtotal:</span>'+
-	    '<span class="price" id="total_price">$'+esubtotal+'</span>'+
+	    '<span class="price" id="total_price">$'+esubtotal.toFixed(2)+'</span>'+
 	  '</div>';
 	  
 	  if(coupon)
@@ -1639,7 +1641,7 @@ if(!history) {
 	  
 	  var total_fare_1 = parseFloat(data[0]);
 	  if(!total_fare) total_fare = esubtotal;
-	  var total_fare = esubtotal - coupon - base_price + total_fare_1;
+	  var total_fare = (esubtotal - coupon - base_price + total_fare_1).toFixed(2);
 
 	  content = content + '<div class="line_item group total">'+
 	    '<span class="line_description">Total estimated fare:</span>'+
@@ -1652,7 +1654,24 @@ if(!history) {
       });
       
     };
+    function setVehiclePrices(bprice){
+        $(function(){
+            var vpSuffix = '_vehicle_price';
+            var vuSuffix = '_vehicle_upgrade';
+            $('#base_estiamte_for_vehicles').text(bprice);
+            prius_price = bprice +parseFloat($('#P'+vuSuffix).text());
+            prius_v_price = bprice + parseFloat($('#W'+vuSuffix).text());
+            camry_v_price = bprice + parseFloat($('#Y'+vuSuffix).text());
+            lexus_price = bprice + parseFloat($('#L'+ vuSuffix).text());
+            highlander_price = bprice + parseFloat($('#S' + vuSuffix).text());
 
+            $('#P' + vpSuffix).text('$'+prius_price.toFixed(2));
+            $('#W' + vpSuffix).text('$'+prius_v_price.toFixed(2));
+            $('#Y' + vpSuffix).text('$'+camry_v_price.toFixed(2));
+            $('#L' + vpSuffix).text('$'+lexus_price.toFixed(2));
+            $('#S' + vpSuffix).text('$'+highlander_price.toFixed(2));
+        });
+    }
     function getAddresses()
     {
 	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport;
@@ -1872,6 +1891,20 @@ if(!history) {
 	  alert('You have to choose a reservation date!');
 	  return;
 	}
+	
+	var ad = getAddresses();
+
+	if(!ad.from_address || !ad.from_city || !ad.from_zip || !ad.from_state ||
+	    !ad.to_address || !ad.to_state || !ad.to_zip || !ad.to_state) {
+	  alert('You have to type in full addresses!');
+	  return;
+	}
+	
+	if($('#intermediate_stop').is(":checked") && (!ad.stop_address || !ad.stop_state || !ad.stop_zip || !ad.stop_state)) {
+	  alert('You have to type in full addresses!');
+	  return;
+	}
+	
 	$.ajax({
 	  url:  'ajaxquote.php',
 	  type: 'POST',
@@ -2191,7 +2224,7 @@ if(!history) {
 	    <div class="radio_buttons">
 	      <a href="#" onclick="$('#saved_locations_from, [name=apts_from]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
 	      
-	      <?php $fromApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_from']) || strpos($_REQUEST['from'], 'airport') !== false || 'from_airport_wrap' == $values['from_type'] ?>
+	      <?php $fromApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_from']) || strpos($_REQUEST['from'], 'airport') !== false || strpos($values['from_location'], 'airport') !== false || 'from_airport_wrap' == $values['from_type'] ?>
 	      <div style='float:right;'>
 	      <input type="radio" name="from_type" <?php if(!$fromApt) echo 'checked="checked"' ?> value="1" id="from_address" class="from_toggle" /><label for="from_address">Address</label>
 	      <input type="radio" name="from_type" <?php if( $fromApt) echo 'checked="checked"' ?> value="2" id="from_airport" class="from_toggle" /><label for="from_airport">Airport</label>
@@ -2245,7 +2278,7 @@ if(!history) {
 	      <div class="row group">
 		<select name="apts_from">
 		  <option value="">Select an airport</option>
-		  <?php echo get_airports_options($_REQUEST['apts_from'] ? $_REQUEST['apts_from'] : $_REQUEST['from']) ?>
+		  <?php echo get_airports_options($_REQUEST['apts_from'] ? $_REQUEST['apts_from'] : ($_REQUEST['from'] ? $_REQUEST['from'] : $values['from_location'])) ?>
 		</select>
 	      </div>
 	      <div class="row group">
@@ -2366,7 +2399,7 @@ if(!history) {
 	    <div class="radio_buttons">
 	      <a href="#" onclick="$('#saved_locations_to, [name=apts_to]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
 	      
-	      <?php $toApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_to']) || strpos($_REQUEST['to'], 'airport') !== false || 'to_airport_wrap' == $values['to_type'] ?>
+	      <?php $toApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_to']) || strpos($_REQUEST['to'], 'airport') !== false || strpos($values['to_location'], 'airport') !== false || 'to_airport_wrap' == $values['to_type'] ?>
 	      <div style='float:right;'>
 	      <input type="radio" <?php if(!$toApt) echo 'checked="checked"' ?> name="to_type"  value="1" id="to_address" class="to_toggle" /><label for="to_address">Address</label>
  	      <input type="radio" <?php if( $toApt) echo 'checked="checked"' ?> name="to_type" value="2" id="to_airport" class="to_toggle" /><label for="to_airport">Airport</label>
@@ -2420,7 +2453,7 @@ if(!history) {
 	      <div class="row group">
 		<select name="apts_to">
 		  <option value="">Select an airport</option>
-		  <?php echo get_airports_options($_REQUEST['apts_to'] ? $_REQUEST['apts_to'] : $_REQUEST['to']) ?>
+		  <?php echo get_airports_options($_REQUEST['apts_to'] ? $_REQUEST['apts_to']  : ($_REQUEST['to'] ? $_REQUEST['to'] : $values['to_location'])) ?>
 		</select>
 	      </div>
 	      <div class="row group">
@@ -2452,6 +2485,7 @@ if(!history) {
       </div><!-- /step1 -->
       <div class="step2"><!-- step2 -->
 	  <h2>Select a vehicle:</h2>
+        <div style="display:none" id="base_estiamte_for_vehicles">60</div>
 
 	  <?php $tools = new Tools();
 	      foreach($tools->car_select_details() as $k=>$v): ?>
@@ -2464,7 +2498,8 @@ if(!history) {
 		  Holds: <?php echo $v['suitcases'] ?> suitcases<br/>
 		  <?php if($v['extra']) echo $v['extra'] ?>
 		</div>
-		<div class="vehicle_price">$<?php echo (60+$v['price']) ?></div>
+        <div style="display:none"  id="<?=$v['vehicle_type']?>_vehicle_upgrade"><?=$v['price']?></div>
+		<div  id="<?=$v['vehicle_type']?>_vehicle_price" class="vehicle_price"></div>
 	      </label>
 	      <div class="vehicle_chooser">
 		<input type="radio" name="carTypeSelect" id="vehicle<?php echo $k ?>" value="<?php echo $k.'' ?>" <?php if($k == $values['carTypeSelect'] || (!$values['carTypeSelect'] && $k=="P")) echo 'checked="checked"' ?>/>
