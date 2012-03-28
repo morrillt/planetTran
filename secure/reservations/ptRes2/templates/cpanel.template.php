@@ -250,12 +250,17 @@ function showReservationTable($res, $err) {
             <?php //echo '<pre>'; print_r($value); echo '</pre>'; ?>
               <tr>
                 <td><?php echo substr($value['resid'], strlen($value['resid'])-6) ?></td>
-                <td><?php echo sprintf('%s @ %02d:%02d %s',
-                  date('m/d/Y', $value['date']),
-                  strftime('%I ', mktime(floor($value['pickupTime'] / 60))),
-                  strftime('%M ', mktime(0, $value['pickupTime'] % 60)),
-                  strftime('%p', $value['date'])
-                ) ?></td>
+                <td><?php 
+					/*
+					 * $time and date returned as string from CmnFns.  
+					 */
+					echo date('m/d/Y', $value['date']) . " " . date("h:i A", 60*$value['pickupTime']);
+					//echo $value['pickupTime'];
+                	//$time = CmnFns::formatTime($value['startTime']);   
+					//$date = CmnFns::formatDate($value['date']);
+                	//echo $date . " " . $time;
+				  	?>
+				</td>
                 <td><?php echo $value['fromLocationName'] ?></td>
                 <td><?php echo $value['toLocationName'] ?></td>
                 <td></td>
@@ -573,15 +578,15 @@ function showTrainingTable($per, $err, $scheduleid) {
   </form>
   <p class="align_right"><a href="/pop/add_location.php" class="popover-add" title="Add New Location">+ Add Location</a></p>
 
-  <table id="locsTable" cellpadding="0" cellspacing="0">
+  <table id="locsTable" cellpadding="0" cellspacing="0" class='forceWordWrap' width='580px'>
     <thead>
       <tr>
-        <th style='width: 150px;'>Nickname</th>
-        <th>Address</th>
-        <th>City</th>
-        <th>State</th>
-        <th>Zip</th>
-        <th>Options</th>
+        <th width='152px'><div>Nickname</div></th>
+        <th width='136px'><div>Address</div></th>
+        <th width='55px'><div>City</div></th>
+        <th width='20px'><div>State</div></th>
+        <th width='27px'><div>Zip</div></th>
+        <th width='60px'><div>Options</div></th>
       </tr>
     </thead>
     <tbody>
@@ -596,18 +601,18 @@ function showTrainingTable($per, $err, $scheduleid) {
         $class = ' class="alt"'.($i % 2);
         ?>
         <tr>
-          <td width='150px' style='display: block;' ><div style='display: block; word-wrap: break-word;'><?php echo $rs['name'] ?></div></td>
-          <td><?php echo $rs['address1'].' '.$rs['address2'] ?></td>
-          <td><?php echo $rs['city'] ?></td>
-          <td><?php echo $rs['state'] ?></td>
-          <td><?php echo $rs['zip'] ?></td>
-          <td>
+          <td width='152px'><div><?php echo $rs['name'] ?></div></td>
+          <td width='136px'><div><?php echo $rs['address1'].' '.$rs['address2'] ?></div></td>
+          <td width='55px'><div><?php echo $rs['city'] ?></div></td>
+          <td width='20px'><div><?php echo $rs['state'] ?></div></td>
+          <td width='27px'><div><?php echo $rs['zip'] ?></div></td>
+          <td width='60px'><div>
             <?php if(!empty($rs['scheduleid'])): ?>
               <a href="/pop/add_location.php?machid=<?php echo $machid ?>" class="popover-edit" title="Edit Location">Edit</a>
               |
             <?php endif; ?>
 	    <a href="/pop/delete_location.php?machid=<?php echo $machid ?>" class="popover-delete parentTr" title="Delete Location?">Delete</a>
-          </td>
+          </div></td>
         </tr>
       <?php endfor; ?>
     </tbody>

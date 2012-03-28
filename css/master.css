@@ -871,6 +871,31 @@ form#email_phone_prefs .inputs {
 	width: 50%;
 	}
 
+/* My Locations: word-wrapping and width setting
+---------------------------------------------*/
+
+.forceWordWrap { 
+	/*display: block;*/
+}
+
+table.forceWordWrap tr td { 
+	display: block;
+	float: left;
+	height: 13px;
+	overflow: hidden;
+}
+table.forceWordWrap tr td div {
+	display: block;
+	word-wrap: break-word;
+}
+
+table.forceWordWrap tr th { 
+	display: block;
+	float: left;
+}
+table.forceWordWrap tr th div {
+	display: block;
+}
 
 /* Reservations: tabs and steps navigation
 ----------------------------------------------*/
