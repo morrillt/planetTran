@@ -576,7 +576,7 @@ function showTrainingTable($per, $err, $scheduleid) {
   <table id="locsTable" cellpadding="0" cellspacing="0">
     <thead>
       <tr>
-        <th>Nickname</th>
+        <th style='width: 150px;'>Nickname</th>
         <th>Address</th>
         <th>City</th>
         <th>State</th>
@@ -596,7 +596,7 @@ function showTrainingTable($per, $err, $scheduleid) {
         $class = ' class="alt"'.($i % 2);
         ?>
         <tr>
-          <td><?php echo $rs['name'] ?></td>
+          <td width='150px' style='display: block;' ><div style='display: block; word-wrap: break-word;'><?php echo $rs['name'] ?></div></td>
           <td><?php echo $rs['address1'].' '.$rs['address2'] ?></td>
           <td><?php echo $rs['city'] ?></td>
           <td><?php echo $rs['state'] ?></td>
