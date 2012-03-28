@@ -1924,6 +1924,13 @@ if(!history) {
 	  return;
 	}
 	
+	if(( $('#from_airport').is(":checked") && (!$('[name=fnum_from]').val() || !$('[name=acode_from]  option:selected').attr("value") ))
+	 || ($('#to_airport').is(":checked") && (!$('[name=fnum_to]').val() || !$('[name=acode_to]  option:selected').attr("value") ))) {
+	  alert('You have to type in flight number and airline!');
+	  return;
+	}
+
+	
 	$.ajax({
 	  url:  'ajaxquote.php',
 	  type: 'POST',
