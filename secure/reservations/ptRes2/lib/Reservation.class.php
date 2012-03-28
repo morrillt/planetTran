@@ -2574,7 +2574,7 @@ if(!history) {
 	  <li>Drop-off location: Manchester Int'l Airport</li>
 	</ul-->
 
-	<p class="order_note">Prices are based on drop-off and pickup locations, and do not reflect additional options or discounts that are shown when making an actual reservation.</p>
+	<p class="order_note">Prices are based on dropoff and pickup locations shown. Airport fees and applicable discounts are included in estimated fare.</p>
 
 
 	<div id="step_navigation">
