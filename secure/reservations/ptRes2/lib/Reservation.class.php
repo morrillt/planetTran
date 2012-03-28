@@ -1553,7 +1553,7 @@ if(!history) {
 		'<span class="price" id="total_price">$30.00</span>'+
 	      '</div>';
 	  }
-	  setVehiclePrices(esubtotal);
+      setVehiclePrices(esubtotal);
 	  var cts = $("[name=carTypeSelect]:checked");
 	  if(cts.val() != "" && cts.val() != "P") {
 	    var vehicle = vehicles[cts.val()];
@@ -1887,6 +1887,25 @@ if(!history) {
       var nb = parseInt($($(this).parents().filter('[class*=step]')[0]).attr("class").replace("step", ""))+1;
       if(nb == 2)
       { 
+
+    //FINDME
+    var repeatAddressError = false;
+    if(!$("#intermediate_stop").is(":checked")) { 
+	    if($("#from_zipcode").val().toLowerCase().replace(/[^0-9]/g, "") == $("#to_zipcode").val().toLowerCase().replace(/[^0-9]/g, "")) {
+		    // matched zipcode
+	    	if($("#from_address").val().toLowerCase().replace(/[^0-9a-zA-Z]/g, "") == $("#to_address").val().toLowerCase().replace(/[^0-9a-zA-Z]/g, "")) {
+		    	// matched address
+			    repeatAddressError = true;
+		    } 
+	    }
+    }
+
+    if (repeatAddressError) {
+        // Error alert
+        alert("You cannot have the same starting and ending location without an intermediate stop");
+        return;
+    }
+    //ENDFINDME
 	if($("#reservation_date").val() == '') {
 	  alert('You have to choose a reservation date!');
 	  return;
@@ -2276,13 +2295,13 @@ if(!history) {
 	    <div id="from_airport_wrap" class="from_location_option">
 	      <!-- Conditionally shown based on radio selection above -->
 	      <div class="row group">
-		<select name="apts_from">
+		<select name="apts_from" style='width: 100%;'>
 		  <option value="">Select an airport</option>
 		  <?php echo get_airports_options($_REQUEST['apts_from'] ? $_REQUEST['apts_from'] : ($_REQUEST['from'] ? $_REQUEST['from'] : $values['from_location'])) ?>
 		</select>
 	      </div>
 	      <div class="row group">
-		<select name="acode_from">
+		<select name="acode_from" style='width: 100%;'>
 		  <option value="">Select an airline</option>
 		  <?php foreach(Account::getAirlines() as $key => $v): ?> 
 		    <option value="<?php echo $key ?>" <?php if($key == $values['acode']) echo 'selected="selected"' ?>><?php echo $v ?></option>
@@ -2451,13 +2470,13 @@ if(!history) {
 	    <div id="to_poi_wrap" class="to_location_option">
 	      <!-- Conditionally shown based on radio selection above -->
 	      <div class="row group">
-		<select name="apts_to">
+		<select name="apts_to" style='width: 100%;'>
 		  <option value="">Select an airport</option>
 		  <?php echo get_airports_options($_REQUEST['apts_to'] ? $_REQUEST['apts_to']  : ($_REQUEST['to'] ? $_REQUEST['to'] : $values['to_location'])) ?>
 		</select>
 	      </div>
 	      <div class="row group">
-		<select name="acode_to">
+		<select name="acode_to" style='width: 100%;'>
 		  <option value="">Select an airline</option>
 		  <?php foreach(Account::getAirlines() as $key => $v): ?> 
 		    <option value="<?php echo $key ?>" <?php if($key == $values['acode']) echo 'selected="selected"' ?>><?php echo $v ?></option>
