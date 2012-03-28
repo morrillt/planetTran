@@ -1919,7 +1919,7 @@ if(!history) {
 	  return;
 	}
 	
-	if($('#intermediate_stop').is(":checked") && (!ad.stop_address || !ad.stop_state || !ad.stop_zip || !ad.stop_state)) {
+	if($('#intermediate_stop').is(":checked") && (!ad.stop_addr || !ad.stop_state || !ad.stop_zip || !ad.stop_state)) {
 	  alert('You have to type in full addresses!');
 	  return;
 	}
