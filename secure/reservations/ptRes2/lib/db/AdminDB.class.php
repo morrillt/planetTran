@@ -475,7 +475,23 @@ class AdminDB extends DBEngine {
 		//array_push($values, $rs['type']);//accuracy
 		// array_push($values, 0);//stub for auto id field
 		$this->assign_resource($id, $assignid);
-		$q = mysql_fetch_assoc(mysql_query("select * from " . $this->get_table('resources') . ' WHERE (scheduleid=\''.$rs['scheduleid'].'\') or scheduleid is null or scheduleid = \'\' and location=\''.addslashes($rs['location']).'\''));
+
+
+        $address1 = addslashes(trim($rs['address1']));
+        $city = addslashes(trim($rs['city']));
+        $zip = addslashes(trim($rs['zip']));
+        $state = addslashes(trim($rs['state']));
+
+        $sTable =$this->get_table('resources');
+        $sql = "select * from $sTable
+             WHERE (scheduleid='{$rs['scheduleid']}')
+             and address1 ='$address1'
+             and city ='$city'
+             and state ='$state'
+             and zip ='$zip'
+        ";
+
+		$q = mysql_fetch_assoc(mysql_query($sql));
 		if($q) return $q['machid'];
 		$q = $this->db->prepare('INSERT INTO ' . $this->get_table('resources') . ' (machid,scheduleid,name,location,'.
 											     'rphone,notes,minRes,maxRes,'.
