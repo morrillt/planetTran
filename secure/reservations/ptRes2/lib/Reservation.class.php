@@ -1672,12 +1672,23 @@ if(!history) {
             $('#S' + vpSuffix).text('$'+highlander_price.toFixed(2));
         });
     }
+    
+    
     function getAddresses()
     {
-	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport;
+	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport,aptFrom,aptTo;
 	
+
+	aptFrom = $("#from_airport");
 	customFrom = $("#saved_locations_from");
-	if(customFrom.val() == "") {
+	if(aptFrom.is(":checked")) {
+	  customFromO = $('[name=apts_from]').find("option:selected");
+	  fromAddr  = customFromO.attr("data-addr");
+	  fromCity  = customFromO.attr("data-city");
+	  fromState = customFromO.attr("data-state");
+	  fromZip   = customFromO.attr("data-zip");
+	  fromNick  = customFromO.text();
+	} else if(customFrom.val() == "") {
 	  fromAddr  = $("#from_street_address").val();
 	  fromCity  = $("#from_city").val();
 	  fromState = $("#from_state").val();
@@ -1692,8 +1703,16 @@ if(!history) {
 	  fromNick  = customFromO.text();
 	}
 
+	aptTo = $("#to_airport");
 	customTo = $("#saved_locations_to");
-	if(customTo.val() == "") {
+	if(aptTo.is(":checked")) {
+	  customToO = $('[name=apts_to]').find("option:selected");
+	  toAddr  = customToO.attr("data-addr");
+	  toCity  = customToO.attr("data-city");
+	  toState = customToO.attr("data-state");
+	  toZip   = customToO.attr("data-zip");
+	  toNick    = customToO.text();
+	} else if(customTo.val() == "") {
 	  toAddr  = $("#to_street_addres").val();
 	  toCity  = $("#to_city").val();
 	  toState = $("#to_state").val();
@@ -1750,7 +1769,6 @@ if(!history) {
 	};
     };
 
-
     function getCQAddresses()
     {
 	$("#get_a_quote_button").attr("disabled", 1);
@@ -1802,6 +1820,11 @@ if(!history) {
   $(function() {
     
     var opFields = $("#opFields");
+    $('#from_address').change(function() { $('[name=from_location]').change(); });
+    $('#from_airport').change(function() { $('[name=apts_from]').change(); });
+    $('#to_address').change(function()   { $('[name=to_location]').change(); });
+    $('#to_airport').change(function()   { $('[name=apts_to]').change(); });
+  
     
     $("#passenger_name")
       .append($('<option value="kk">Other</option>'))
