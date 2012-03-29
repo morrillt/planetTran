@@ -14,7 +14,6 @@ else if ($_SESSION['role'] != 'a' && !Auth::isAdmin())
     Auth::print_login_msg();
 
 
-
 $mode = CmnFns::getOrPost('mode');
 $export = CmnFns::getOrPost('export');
 
@@ -35,27 +34,26 @@ if ($export) {
 	die(0);
 }
 
-$temp = new Template('Reports');
+$temp = new Template('Reports', false);
 $temp->printHTMLHeader();
 ?>
-<div style="margin: 20px;">
-<div style="text-align: center;"><img src="images/planettran_logo_new.jpg" border=0></div>
+<!--<div style="margin: 20px;">-->
+<!--<div style="text-align: center;"><img src="images/planettran_logo_new.jpg" border=0></div>-->
 <?
 
-
+$temp->printNavReservations();
+$temp->startMain();
 print_table($res);
-
 print_ccc_table($res);
+$temp->endMain();
+$temp->printHTMLFooter();
 
-
-echo '</div>';
+// echo '</div>';
 
 $time_end = microtime(true);
 $total_time = round($time_end - $time_start, 3);
-
 //echo "Page printed in $total_time seconds.";
 
-$temp->printHTMLFooter();
 /*********************************************************************/
 function print_table($res) {
 	global $t;
@@ -102,7 +100,7 @@ function print_table($res) {
 	<form name="groupSel" action="<?=$_SERVER['PHP_SELF']?>" method="get" style="margin: 0;">
 	Switch month:
 	<?
-	
+
 	$t->print_dropdown($months, $month, 'date', null, 'onChange=submitThis()'); 
 
 	if (Auth::isAdmin()) {
@@ -111,8 +109,8 @@ function print_table($res) {
 	}
 
 	?>
-	 | <a href="reports.php?export=1<?=$exportStr?>">Export results as spreadsheet</a>
 	</form>
+        <a href="reports.php?export=1<?=$exportStr?>">Export Results</a>
 	</div>
 	<?
 
@@ -158,7 +156,7 @@ function print_ccc_table($res) {
 	CCC Summary
 	</div>
 	<div>
-	<a href="reports.php?export=1&mode=ccc<?=$exportStr?>">Export results as spreadsheet</a>
+	<a href="reports.php?export=1&mode=ccc<?=$exportStr?>">Export Results</a>
 	</div>
 	<table width="50%" cellspacing=1 cellpadding=2 style="background-color: #EEF;">
 	  <tr style="font-weight: bold; background-color: #EFE;">
