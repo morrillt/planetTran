@@ -1480,88 +1480,9 @@ if(!history) {
   }
 }
 
-$(function(){
-    function disableToLocation(){
-        $('#to_address').click();
-        $('#saved_locations_to').append($('<option selected="selected"> </option>').val('asDirectedLoc').html('As Directed'));
-        $('#saved_locations_to').attr("disabled", true);
-        $("#to_address_wrap :input").attr("disabled", true);
-        $('#dropoff').find('a').hide();
-        $('#to_airport').attr("disabled", true);
-        $('#to_address').attr("disabled", true);
-        removeClearClick();
-    }
-    function enableToLocation(){
-        $('#saved_locations_to').attr("disabled", false);
-        $("#to_address_wrap :input").attr("disabled", false);
-        $('#saved_locations_to').find('option:selected').remove();
-        $('#dropoff').find('a').show();
-        $('#to_airport').attr("disabled", false);
-        $('#to_address').attr("disabled", false);
-        addClearClick();
-    }
-    function addClearClick(){
-        $('div.radio_buttons a').click(function(){
-            $('#saved_locations_to, [name=apts_to]', $('div.radio_buttons a').parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;
-        });
-    }
-    function removeClearClick(){
-        $('div.radio_buttons a').click(function(){
-        });
-    }
-    var chkByTheHour = $('#check_by_the_hour').is(':checked');
-    if(chkByTheHour){
-        disableToLocation();
-    }
-    $('#check_by_the_hour').click(function() {
-        if(this.checked){
-            disableToLocation();
-        } else {
-            enableToLocation();
-        }
-    });
 
-});
 
-(function($){
 
-  $.fn.serializeObject = function() {
-    if ( !this.length ) { return false; }
-
-    var $el = this,
-      data = {},
-      lookup = data; //current reference of data
-
-      $el.find(':input[type!="checkbox"][type!="radio"], input:checked').each(function() {
-        // data[a][b] becomes [ data, a, b ]
-        var named = this.name.replace(/\[([^\]]+)?\]/g, ',$1').split(','),
-            cap = named.length - 1,
-            i = 0;
-
-        // Ensure that only elements with valid `name` properties will be serialized
-        if ( named[ 0 ] ) {
-          for ( ; i < cap; i++ ) {
-              // move down the tree - create objects or array if necessary
-              lookup = lookup[ named[i] ] = lookup[ named[i] ] ||
-                  ( named[i+1] == "" ? [] : {} );
-          }
-
-          // at the end, psuh or assign the value
-          if ( lookup.length != undefined ) {
-               lookup.push( $(this).val() );
-          }else {
-                lookup[ named[ cap ] ] = $(this).val();
-          }
-
-          // assign the reference back to root
-          lookup = data;
-
-        }
-      });
-
-    return data;
-  };
-})(jQuery);
 
     var vehicles = {
       <?php
@@ -1571,14 +1492,6 @@ $(function(){
       <?php endforeach ?>
       X: {}
     };
-
-    $('#check_by_the_hour').toggle(function(){
-        $('#saved_locations_to').enabled(false);
-
-    },function(){
-        $('#saved_locations_to').enabled(true);
-    });
-
 
 
 
@@ -1715,6 +1628,90 @@ $(function(){
       });
 
     };
+
+    (function($){
+
+    $.fn.serializeObject = function() {
+        if ( !this.length ) { return false; }
+
+        var $el = this,
+            data = {},
+            lookup = data; //current reference of data
+
+        $el.find(':input[type!="checkbox"][type!="radio"], input:checked').each(function() {
+            // data[a][b] becomes [ data, a, b ]
+            var named = this.name.replace(/\[([^\]]+)?\]/g, ',$1').split(','),
+                cap = named.length - 1,
+                i = 0;
+
+            // Ensure that only elements with valid `name` properties will be serialized
+            if ( named[ 0 ] ) {
+                for ( ; i < cap; i++ ) {
+                    // move down the tree - create objects or array if necessary
+                    lookup = lookup[ named[i] ] = lookup[ named[i] ] ||
+                        ( named[i+1] == "" ? [] : {} );
+                }
+
+                // at the end, psuh or assign the value
+                if ( lookup.length != undefined ) {
+                    lookup.push( $(this).val() );
+                }else {
+                    lookup[ named[ cap ] ] = $(this).val();
+                }
+
+                // assign the reference back to root
+                lookup = data;
+
+            }
+        });
+
+        return data;
+    };
+})(jQuery);
+$(function(){
+    var toAddClearOnClick = $('#clear_to_address').attr('onclick');
+    function disableToLocation(){
+        removeClearClick();
+        $('#saved_locations_to').append($('<option id="opt_as_direct" selected="selected"> </option>').val('asDirectedLoc').html('As Directed'));
+        $('#saved_locations_to').attr("disabled", true);
+        $("#to_address_wrap :input").attr("disabled", true);
+        $('#dropoff').find('a').hide();
+        $('#to_airport').attr("disabled", true);
+        $('#to_address').attr("disabled", true);
+
+    }
+    function enableToLocation(){
+        addClearClick();
+        $('div.radio_buttons a').click();
+        $('#saved_locations_to').attr("disabled", false);
+        $("#to_address_wrap :input").attr("disabled", false);
+        $('#saved_locations_to').find('option#opt_as_direct').remove();
+        $('#dropoff').find('a').show();
+        $('#to_airport').attr("disabled", false);
+        $('#to_address').attr("disabled", false);
+
+    }
+    function addClearClick(){
+        $('#clear_to_address').attr('onclick',toAddClearOnClick).bind('click');
+        $('#clear_to_address').click();
+    }
+    function removeClearClick(){
+        $('#clear_to_address').click();
+        $('#clear_to_address').attr('onclick','return false;').unbind('click');
+    }
+    var chkByTheHour = $('#check_by_the_hour').is(':checked');
+    if(chkByTheHour){
+        disableToLocation();
+    }
+    $('#check_by_the_hour').click(function() {
+        if(this.checked){
+            disableToLocation();
+        } else {
+            enableToLocation();
+        }
+    });
+
+});
     function setVehiclePrices(bprice){
         $(function(){
             var vpSuffix = '_vehicle_price';
@@ -1733,8 +1730,6 @@ $(function(){
             $('#S' + vpSuffix).text('$'+highlander_price.toFixed(2));
         });
     }
-
-
     function getAddresses()
     {
 	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport,aptFrom,aptTo;
@@ -1772,10 +1767,10 @@ $(function(){
     if(isHourlyTrip){
         toLocation = customTo.find("option:selected").val();
         customToO = customTo.find("option:selected");
-        toAddr    = customToO.attr("data-addr");
-        toCity    = customToO.attr("data-city");
-        toState   = customToO.attr("data-state");
-        toZip     = customToO.attr("data-zip");
+        toAddr    = "";
+        toCity    = "";
+        toState   = "";
+        toZip     = "";
         toNick    = customToO.text();
     } else if(aptTo.is(":checked")) {
         toLocation = $('[name=apts_to]').find("option:selected").val();
@@ -1849,7 +1844,6 @@ $(function(){
 
 	};
     };
-
     function getCQAddresses()
     {
 	$("#get_a_quote_button").attr("disabled", 1);
@@ -2234,7 +2228,7 @@ $(function(){
       <legend>From</legend>
 
       <div class="radio_buttons">
-          <a href="#" onclick="$('#saved_locations_from, [name=apts_from]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
+          <a href="#" id="clear_from_address" onclick="$('#saved_locations_from, [name=apts_from]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
 
           <?php $fromApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_from']) || strpos($_REQUEST['from'], 'airport') !== false || strpos($values['from_location'], 'airport') !== false || 'from_airport_wrap' == $values['from_type'] ?>
           <div style='float:right;'>
@@ -2377,7 +2371,7 @@ $(function(){
       <legend>To</legend>
 
       <div class="radio_buttons">
-          <a href="#" onclick="$('#saved_locations_to, [name=apts_to]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
+          <a href="#" id="clear_to_address" onclick="$('#saved_locations_to, [name=apts_to]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
 
           <?php $toApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_to']) || strpos($_REQUEST['to'], 'airport') !== false || strpos($values['to_location'], 'airport') !== false || 'to_airport_wrap' == $values['to_type'] ?>
           <div style='float:right;'>
