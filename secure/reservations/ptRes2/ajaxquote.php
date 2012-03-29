@@ -1,4 +1,7 @@
 <?php
+
+session_start();
+
 include_once('lib/db/AdminDB.class.php');
 include_once('../../../../BusinessLogic/Estimates/Estimate.php');
 
@@ -89,10 +92,12 @@ function loadCollectionIn(Estimate &$e, $col){
     $e->stopAddress->state = $col['stop_state'];
     $e->stopAddress->zip = $col['stop_zip'];
 
+    $e->memberid = $_SESSION['currentID'];
+    $e->groupid = $_SESSION['curGroup'];
 
-    if(isset($col['memberid'])&& ! empty($col['memberid'])){
-        $e->memberid = $col['memberid'];
-    }
+    // if(isset($col['memberid'])&& ! empty($col['memberid'])){
+    //     $e->memberid = $col['memberid'];
+    // }
     if(isset($col['convertible_seats'])&& ! empty($col['convertible_seats'])){
         $e->convertibleSeats = $col['convertible_seats'];
     }
@@ -102,9 +107,9 @@ function loadCollectionIn(Estimate &$e, $col){
     if(isset($col['meet_greet '])&& ! empty($col['meet_greet '])){
         $e->meetGreet =$col['meet_greet'];
     }
-    if(isset($col['groupid'])&& ! empty($col['groupid'])){
-        $e->groupid = $col['groupid'];
-    }
+    //if(isset($col['groupid'])&& ! empty($col['groupid'])){
+    //    $e->groupid = $col['groupid'];
+    //}
     if(isset($col['coupon'])&& ! empty($col['coupon'])){
         $e->coupon = $col['coupon'];
     }

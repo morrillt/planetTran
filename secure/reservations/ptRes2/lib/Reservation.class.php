@@ -1468,6 +1468,28 @@ class Reservation {
 }
 </style>
 <script>
+    
+    function doClear(relativeTo)
+    {
+      relativeTo = $(relativeTo);
+      $('select', relativeTo.parent().parent())
+	.not('[name*=stop]')
+        .find('option')
+            .removeAttr('selected')
+            .end()
+        .find('option:first-child')
+            .attr('selected',true)
+            .end()
+        .change();
+        
+      $('input[type=text]', relativeTo.parent().parent())
+	  .not('[name*=stop]')
+          .val('')
+          .end();
+      return false;  
+    }
+    
+    
 if(typeof String.prototype.trim !== 'function') {
   String.prototype.trim = function() {
     return this.replace(/^\s+|\s+$/g, '');
@@ -1481,14 +1503,12 @@ if(!history) {
 }
 
 
-
-
-
     var vehicles = {
       <?php
 	$tools = new Tools();
 	foreach($tools->car_select_details() as $k=>$v): ?>
-	<?php echo $k ?>: {name: '<?php echo addslashes($v['name']) ?>', price: <?php echo addslashes($v['price']) ?> },
+	<?php echo $k ?>: {name: '<?php echo addslashes($v['name']) ?>',
+                           price: <?php echo addslashes($v['price']) ?> },
       <?php endforeach ?>
       X: {}
     };
@@ -1497,6 +1517,30 @@ if(!history) {
 
     function refresh_estimate()
     {
+
+	var intermediate_stop = $("#intermediate_stop");
+          
+        var fareType = 0;
+        var tripType = 'P';
+        if($("#check_by_the_hour").is(":checked")) {
+          fareType = "Book by the hour";
+          tripType = 'H';
+        } else if(intermediate_stop.is(":checked")) {
+          fareType = "Intermediate Stop";
+          tripType = 'I';
+        } else {
+          fareType = "One way";
+        }
+        $("#fareTypes").text(fareType);
+
+        var ad = getAddresses();
+        $("[name=toID]")  .val(ad.to_location);
+        $("[name=fromID]").val(ad.from_location);
+        $("[name=stopID]").val(ad.stop_location);
+        $("[name=meet_greet]").val($("[name=greet]").is(":checked") ? "1" : "0");
+        $("[name=trip_type]").val(tripType);
+        $("[name=vehicle_type]").val($("[name=carTypeSelect]:checked").attr("data-vehicleTypeMapping"));
+
 
       $.ajax({
 	url:  'ajaxquote.php',
@@ -1575,19 +1619,6 @@ if(!history) {
 	    '</div>';
 	  }
 
-	  var fareType = 0;
-	  var tripType = 'P';
-	  if($("#check_by_the_hour").is(":checked")) {
-	    fareType = "Book by the hour";
-         tripType = 'H';
- 	  } else if(intermediate_stop.is(":checked")) {
-	    fareType = "Intermediate Stop";
-        tripType = 'I';
-	  } else {
-	    fareType = "One way";
-	  }
-
-	  $("#fareTypes").text(fareType);
 
 	  var coupon = 0;
 	  if(parseFloat(data[3]))
@@ -1631,9 +1662,9 @@ if(!history) {
 
     };
 
-(function($){
+    (function($){
 
-$.fn.serializeObject = function() {
+    $.fn.serializeObject = function() {
     if ( !this.length ) { return false; }
 
     var $el = this,
@@ -1668,16 +1699,15 @@ $.fn.serializeObject = function() {
     });
 
     return data;
-};
+    };
 })(jQuery);
-
 $(function(){
     var toAddClearOnClick = $('#clear_to_address').attr('onclick');
     function disableToLocation(){
         removeClearClick();
         $('#saved_locations_to').append($('<option id="opt_as_direct" selected="selected"> </option>').val('asDirectedLoc').html('As Directed'));
         $('#saved_locations_to').attr("disabled", true);
-        $("#to_address_wrap :input").attr("disabled", true);
+        $("div.to_location_option :input").attr("disabled", true);
         $('#dropoff').find('a').hide();
         $('#to_airport').attr("disabled", true);
         $('#to_address').attr("disabled", true);
@@ -1686,8 +1716,8 @@ $(function(){
     function enableToLocation(){
         addClearClick();
         $('div.radio_buttons a').click();
-        $('#saved_locations_to').attr("disabled", false);
-        $("#to_address_wrap :input").attr("disabled", false);
+        $('saved_locations_to').attr("disabled", false);
+        $("div.to_location_option :input").attr("disabled", false);
         $('#saved_locations_to').find('option#opt_as_direct').remove();
         $('#dropoff').find('a').show();
         $('#to_airport').attr("disabled", false);
@@ -1706,13 +1736,18 @@ $(function(){
     if(chkByTheHour){
         disableToLocation();
     }
-    $('#check_by_the_hour').change(function() {
+    
+    $('#check_by_the_hour')
+      .change(function() {
         if(this.checked){
             disableToLocation();
+	      $("#authWait").show();
         } else {
             enableToLocation();
+	      $("#authWait").show();
         }
-    });
+      })
+      .change();
 
     $('#submit_reservation').click(function(){
         if(getCurrentStep()==4 && $('#payment_method').val()!=''){
@@ -1760,6 +1795,7 @@ $(function(){
             $('#S' + vpSuffix).text('$'+highlander_price.toFixed(2));
         });
     }
+    
     function getAddresses()
     {
 	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport,aptFrom,aptTo;
@@ -1768,8 +1804,8 @@ $(function(){
 	aptFrom = $("#from_airport");
 	customFrom = $("#saved_locations_from");
 	if(aptFrom.is(":checked")) {
-	  customFromO = $('[name=apts_from]').find("option:selected");
-      //  fromLocation = customFromO.val();
+	  customFromO = $('#steps_main [name=apts_to]').find("option:selected");
+	  fromLocation = customFromO.attr("value");
 	  fromAddr  = customFromO.attr("data-addr");
 	  fromCity  = customFromO.attr("data-city");
 	  fromState = customFromO.attr("data-state");
@@ -1782,9 +1818,8 @@ $(function(){
 	  fromZip   = $("#from_zipcode").val();
 	  fromNick  = $("#from_name").val();
 	} else {
-
 	  customFromO = customFrom.find("option:selected");
-      //  fromLocation =customFromO.val();
+	  fromLocation = customFromO.attr("value");
 	  fromAddr  = customFromO.attr("data-addr");
 	  fromCity  = customFromO.attr("data-city");
 	  fromState = customFromO.attr("data-state");
@@ -1796,16 +1831,16 @@ $(function(){
 	customTo = $("#saved_locations_to");
      isHourlyTrip = $('#check_by_the_hour').is(':checked');
     if(isHourlyTrip){
-        toLocation = customTo.find("option:selected").val();
         customToO = customTo.find("option:selected");
-        toAddr    = "";
-        toCity    = "";
-        toState   = "";
-        toZip     = "";
+        toLocation = customToO.attr("value");
+        toAddr    = customToO.attr("data-addr");
+        toCity    = customToO.attr("data-city");
+        toState   = customToO.attr("data-state");
+        toZip     = customToO.attr("data-zip");
         toNick    = customToO.text();
     } else if(aptTo.is(":checked")) {
-        toLocation = $('[name=apts_to]').find("option:selected").val();
-        customToO = $('[name=apts_to]').find("option:selected");
+        customToO = $('#steps_main [name=apts_to]').find("option:selected");
+        toLocation = customToO.attr("value");
         toAddr  = customToO.attr("data-addr");
         toCity  = customToO.attr("data-city");
         toState = customToO.attr("data-state");
@@ -1818,8 +1853,8 @@ $(function(){
         toZip   = $("#to_zipcode").val();
         toNick  = $("#to_name").val();
     } else {
-        toLocation = customTo.find("option:selected").val();
     customToO = customTo.find("option:selected");
+        toLocation = customToO.attr("value");
         toAddr    = customToO.attr("data-addr");
         toCity    = customToO.attr("data-city");
         toState   = customToO.attr("data-state");
@@ -1836,19 +1871,19 @@ $(function(){
         stopZip   = $("#stop_zipcode").val();
         stopNick  = $("#stop_name").val();
     } else {
-        stopLocation = customStop.find("option:selected");
         customStopO = customStop.find("option:selected");
+        stopLocation = customStopO.attr("value");
         stopAddr    = customStopO.attr("data-addr");
         stopCity    = customStopO.attr("data-city");
         stopState   = customStopO.attr("data-state");
         stopZip     = customStopO.attr("data-zip");
         stopNick    = customStopO.text();
     }
-        $('[name=fromID]').val(fromLocation);
+        // $('[name=fromID]').val(fromLocation);
 
-        $('[name=tpID]').val(toLocation);
+        // $('[name=tpID]').val(toLocation);
 
-        $('[name=stopID]').val(stopLocation) ;
+        // $('[name=stopID]').val(stopLocation) ;
 
 	return {
 	  'from_address':  fromAddr,
@@ -1869,12 +1904,13 @@ $(function(){
 	  'stop_zip':      stopZip,
 	  'stop_nick':     stopNick,
 
-	  'to_location':   '',
-	  'from_location': '',
-	  'stop_location': ''
+	  'to_location':   toLocation,
+	  'from_location': fromLocation,
+	  'stop_location': stopLocation
 
 	};
     };
+
     function getCQAddresses()
     {
 	$("#get_a_quote_button").attr("disabled", 1);
@@ -1930,6 +1966,24 @@ $(function(){
     $('#from_airport').change(function() { $('[name=apts_from]').change(); });
     $('#to_address').change(function()   { $('[name=to_location]').change(); });
     $('#to_airport').change(function()   { $('[name=apts_to]').change(); });
+
+    $('#from_address,'+
+      '#from_airport,'+
+      '#to_address,'+
+      '#to_airport').change(function() {
+      if(!$(this).is("[id*=address]:checked")) return true;
+      $(this)
+        .parents()
+        .filter('fieldset')
+        .find('#to_poi_wrap,[id*=airport_wrap]')
+          .find('input[type=text]')
+            .val('')
+            .end()
+          .find('option:selected')
+            .removeAttr('selected')
+            .end()
+     ;
+    });
 
 
     $("#passenger_name")
@@ -2042,6 +2096,9 @@ $(function(){
 
 	var ad = getAddresses();
 
+        $("[name=toID]").val(ad.toLocation);
+        $("[name=fromID]").val(ad.fromLocation);
+        $("[name=stopID]").val(ad.stopLocation);
 
 	if(!ad.from_address || !ad.from_city || !ad.from_zip || !ad.from_state){
         alert('You have to type in a full from address!');
@@ -2201,12 +2258,12 @@ $(function(){
     <input type="hidden" name="fromID" />
     <input type="hidden" name="toID" />
     <input type="hidden" name="stopID" />
-    <input type="hidden" name="memberid" />
+    <!--input type="hidden" name="memberid" /-->
     <input type="hidden" name="meet_greet" />
-    <input type="hidden" name="groupid" />
+    <!--input type="hidden" name="groupid" /-->
     <input type="hidden" name="vehicle_type" />
     <input type="hidden" name="trip_type" />
-    <input type="hidden" name="wait_time" />
+    <!--input type="hidden" name="wait_time" /-->
 
   <input type="hidden" name="id" value="<?php echo !empty($values['id']) ? $values['id'] : uniqid() ?>" />
 
@@ -2238,6 +2295,13 @@ $(function(){
           <option value="am" <?php if('am' == $values['ampm']) echo 'selected="selected"' ?>>AM</option>
           <option value="pm" <?php if('pm' == $values['ampm']) echo 'selected="selected"' ?>>PM</option>
       </select>
+    <select id="authWait" name="wait_time" style="float:right">
+        <option value="90">1.5 hours</option>
+        <option value="120">2 hours</option>
+        <option value="180">3 hours</option>
+        <option value="240">4 hours</option>
+        <option value="300">5+ hours</option>
+    </select>
       <label for="check_by_the_hour">
           <input name="wait" type="checkbox" <?php if($values['wait']) echo 'checked="checked"' ?> id="check_by_the_hour" />Book by the hour <span id="tip1" class="tip">(?)</span>
       </label>
@@ -2262,7 +2326,7 @@ $(function(){
       <legend>From</legend>
 
       <div class="radio_buttons">
-          <a href="#" id="clear_from_address" onclick="$('#saved_locations_from, [name=apts_from]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
+          <a href="#" id="clear_from_address" onclick="return doClear(this)">clear</a>
 
           <?php $fromApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_from']) || strpos($_REQUEST['from'], 'airport') !== false || strpos($values['from_location'], 'airport') !== false || 'from_airport_wrap' == $values['from_type'] ?>
           <div style='float:right;'>
@@ -2405,7 +2469,7 @@ $(function(){
       <legend>To</legend>
 
       <div class="radio_buttons">
-          <a href="#" id="clear_to_address" onclick="$('#saved_locations_to, [name=apts_to]', $(this).parent().parent()).find('option').removeAttr('selected').end().find('option:first-child').attr('selected',true).end().change();return false;">clear</a>
+          <a href="#" id="clear_to_address" onclick="return doClear(this)">clear</a>
 
           <?php $toApt = ($_REQUEST['from_type'] == 2 && $_REQUEST['apts_to']) || strpos($_REQUEST['to'], 'airport') !== false || strpos($values['to_location'], 'airport') !== false || 'to_airport_wrap' == $values['to_type'] ?>
           <div style='float:right;'>
@@ -2510,7 +2574,7 @@ $(function(){
                   <div  id="<?=$v['vehicle_type']?>_vehicle_price" class="vehicle_price"></div>
               </label>
               <div class="vehicle_chooser">
-                  <input type="radio" name="carTypeSelect" id="vehicle<?php echo $k ?>" value="<?php echo $k.'' ?>" <?php if($k == $values['carTypeSelect'] || (!$values['carTypeSelect'] && $k=="P")) echo 'checked="checked"' ?>/>
+                  <input type="radio" data-vehicleTypeMapping="<?php echo $v['vehicle_type'] ?>" name="carTypeSelect" id="vehicle<?php echo $k ?>" value="<?php echo $k.'' ?>" <?php if($k == $values['carTypeSelect'] || (!$values['carTypeSelect'] && $k=="P")) echo 'checked="checked"' ?>/>
               </div>
           </div>
           <?php endforeach ?>
