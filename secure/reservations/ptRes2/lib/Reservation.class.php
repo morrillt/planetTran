@@ -1525,12 +1525,13 @@ if(!history) {
 		'<span class="price" id="total_price">$30.00</span>'+
 	      '</div>';
 	  }
-      setVehiclePrices(esubtotal);
-	  var cts = $("[name=carTypeSelect]:checked");
+
+        var vehicle_price = 0;
+        var cts = $("[name=carTypeSelect]:checked");
 	  if(cts.val() != "" && cts.val() != "P") {
 	    var vehicle = vehicles[cts.val()];
 	    if(vehicle) {
-	      var vehicle_price = vehicle.price;
+	      vehicle_price = vehicle.price;
 	      esubtotal += vehicle_price;
 
 	      content = content + '<div class="line_item group">'+
@@ -1621,7 +1622,7 @@ if(!history) {
 	    '<span class="line_description">Total estimated fare:</span>'+
 	    '<span class="price" id="total_price">$'+total_fare+'</span>'+
 	  '</div>';
-
+        setVehiclePrices(total_fare - vehicle_price);
 	  $("[name=estimate]").val("$"+total_fare);
 	  $('#reservation_summary').html(content);
 	}
