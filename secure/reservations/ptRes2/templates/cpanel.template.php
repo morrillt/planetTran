@@ -257,11 +257,10 @@ function showReservationTable($res, $err) {
 					 * - I get significantly different results from CmnFns::formatDate and Time 
 					 * - on the QA server vs my QA.  Need to figure this out...
 					 */
-					echo date('m/d/Y', $value['date']) . " " . date("h:i A", 60*$value['pickupTime']);
-					//echo $value['pickupTime'];
-                	//$time = CmnFns::formatTime($value['pickupTime']);   
-					//$date = CmnFns::formatDate($value['date']);
-                	//echo $date . " " . $time;
+					//echo date('m/d/Y', $value['date']) . " " . date("h:i A", 60*$value['pickupTime']);
+                	$time = CmnFns::formatTime($value['pickupTime']);
+					$date = CmnFns::formatDate($value['date']);
+                	echo $date . " " . $time;
 				  	?>
 				</td>
                 <td><?php echo $value['fromLocationName'] ?></td>
@@ -413,8 +412,8 @@ include dirname(__FILE__).'/../../../../config/paths.php';
     <h2><?php
      if ($search) {
      	echo "Search Results";
-     } else {
-     	print $_SESSION['currentName'] . "'s Trips";
+     } else { 
+     	print $_SESSION['currentName'] . "'s Trips"; 
 	}?></h2>
 
     <?php  // if there is no search, give them their monthly export tab
