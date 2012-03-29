@@ -14,7 +14,6 @@ else if ($_SESSION['role'] != 'a' && !Auth::isAdmin())
     Auth::print_login_msg();
 
 
-
 $mode = CmnFns::getOrPost('mode');
 $export = CmnFns::getOrPost('export');
 
@@ -22,7 +21,7 @@ $res = get_reservation_data();
 
 if ($export) {
 	if (!$res) {
-		echo '<div style="font-size: large; text-align: center;">There are no results to export.</div>';
+
 		die(0);
 	}
 
@@ -35,27 +34,26 @@ if ($export) {
 	die(0);
 }
 
-$temp = new Template('Reports');
+$temp = new Template('Reports', false);
 $temp->printHTMLHeader();
 ?>
-<div style="margin: 20px;">
-<div style="text-align: center;"><img src="images/planettran_logo_new.jpg" border=0></div>
+<!--<div style="margin: 20px;">-->
+<!--<div style="text-align: center;"><img src="images/planettran_logo_new.jpg" border=0></div>-->
 <?
 
-
+$temp->printNavReservations();
+$temp->startMain();
 print_table($res);
-
 print_ccc_table($res);
+$temp->endMain();
+$temp->printHTMLFooter();
 
-
-echo '</div>';
+// echo '</div>';
 
 $time_end = microtime(true);
 $total_time = round($time_end - $time_start, 3);
-
 //echo "Page printed in $total_time seconds.";
 
-$temp->printHTMLFooter();
 /*********************************************************************/
 function print_table($res) {
 	global $t;
@@ -72,12 +70,12 @@ function print_table($res) {
 	else
 		$group_name = $user['group_name'];
 	
-	$range = range(0, -6);
+	$range = range(0, -12);  // past 12 months.
 	$months = array();
 
 	foreach ($range as $k=>$v) {
 		$stamp = mktime(0,0,0,date("m")+$v);
-		$months[$v] = date("F", $stamp);
+		$months[$v] = date("F Y", $stamp);
 	}
 
 	$junk = time();
@@ -102,7 +100,7 @@ function print_table($res) {
 	<form name="groupSel" action="<?=$_SERVER['PHP_SELF']?>" method="get" style="margin: 0;">
 	Switch month:
 	<?
-	
+
 	$t->print_dropdown($months, $month, 'date', null, 'onChange=submitThis()'); 
 
 	if (Auth::isAdmin()) {
@@ -111,8 +109,8 @@ function print_table($res) {
 	}
 
 	?>
-	 | <a href="reports.php?export=1<?=$exportStr?>">Export results as spreadsheet</a>
 	</form>
+        <a href="reports.php?export=1<?=$exportStr?>">Export Results</a>
 	</div>
 	<?
 
@@ -125,22 +123,32 @@ function print_table($res) {
 	foreach ($res[0] as $field => $v) {
 		$field = str_replace("_", " ", $field);
 		$field = ucwords($field);
-		echo "<td>$field</td>";
+        if ($field != "CCC" && $field != "Other") // dont echo  CCC or other field for formatting.
+		    echo "<td>$field</td>";
 	}
-	echo "<tr>\n";
+    echo "<tr>\n";
 
 	for($i=0; $res[$i]; $i++) {
 		$cur = $res[$i];
-
-		$bg = $i % 2 ? 'EEE' : 'FFF';
-
+        $results = array();
+        // rebuild array and take out CCC field and other field
+        foreach($cur as $key => $value){
+            if ($key != "CCC" && $key != "other") {
+                if ($key == "total_fare")
+                    /* quick note here:
+                       money_format("$%.2n",floatval($cur[$key])) should work.  but money_format is dependant on local settings.
+                       Idk about international customers so I didn't want to do that.  It seems to always be USD.
+                    */
+                    $cur[$key] = "$".$cur[$key].".00";
+                $results[$key]=$cur[$key];
+            }
+        }
+        $bg = $i % 2 ? 'EEE' : 'FFF';  // doesnt do anything anymore due to CSS.  keeping though.
 		echo "<tr style=\"background-color: #$bg;\">";
-		foreach ($cur as $v)
+		foreach ($results as $v)
 			echo "<td>$v</td>";
 		echo "</tr>\n";
 	}
-
-
 	echo "</table>";
 }
 function print_ccc_table($res) {
@@ -158,7 +166,7 @@ function print_ccc_table($res) {
 	CCC Summary
 	</div>
 	<div>
-	<a href="reports.php?export=1&mode=ccc<?=$exportStr?>">Export results as spreadsheet</a>
+	<a href="reports.php?export=1&mode=ccc<?=$exportStr?>">Export Results</a>
 	</div>
 	<table width="50%" cellspacing=1 cellpadding=2 style="background-color: #EEF;">
 	  <tr style="font-weight: bold; background-color: #EFE;">
