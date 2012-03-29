@@ -1396,9 +1396,9 @@ class Reservation {
         'acode_from' => $splitted[0],
         'fnum_from' => $splitted[1],
         'fdets_from' => $splitted[2],
-          'acode_to' => $splitted[3],
-          'fnum_to' => $splitted[4],
-          'fdets_to' => $splitted[5],
+        'acode_to' => $splitted[3],
+        'fnum_to' => $splitted[4],
+        'fdets_to' => $splitted[5],
 
         'date' => date('m/d/Y', $this->date),
         'start_hour' => floor($start / 60),

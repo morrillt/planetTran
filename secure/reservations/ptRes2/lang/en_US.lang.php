@@ -595,7 +595,8 @@ $email['register'] = "%s, %s \r\n"
 				. "Cell Phone: %s \r\n"
 				. "Company/Organization: %s \r\n"
 				. "Dept. Code: %s \r\n"
-				. "Password: %s \r\n\r\n"
+				//. "Password: %s \r\n\r\n" Adds an extra variable to be passed. Please fix all other *.lang.php files
+                // To have the same number of arguments passed for $email['register']
 				. "Please log into PlanetTran Reservations at this location:\r\n"
 				. "%s \r\n\r\n"
 				. "Please direct any resource or reservation based questions to %s";

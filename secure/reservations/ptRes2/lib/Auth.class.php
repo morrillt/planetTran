@@ -375,6 +375,7 @@ class Auth {
 
 		// Email user informing about successful registration
 		$subject = $conf['ui']['welcome'];
+		$translatePass = "register" . $data['fname'] . $conf['ui']['welcome'] . $data['fname'] . $data['lname'] .$data['phone'] . $data['institution'] . $data['position'] . $url . $adminEmail;  
 		$msg = translate_email('register',
 					$data['fname'], $conf['ui']['welcome'],
 					$data['fname'], $data['lname'],
@@ -389,6 +390,7 @@ class Auth {
 		$mailer->FromName = $conf['app']['title'];
 		$mailer->Subject = $subject;
 		$mailer->Body = $msg;
+		//echo $msg;
 		if($emailuser)
 			$mailer->Send();
 
