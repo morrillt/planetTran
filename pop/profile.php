@@ -26,6 +26,8 @@ if($_POST['radio_profile'])
   $_SESSION['currentID'] = $_POST['radio_profile'];
   $r = mysql_fetch_assoc(mysql_query("SELECT * FROM login where memberid='".$_SESSION['currentID']."'"));
   $_SESSION['currentName'] = $r['fname'].' '.$r['lname'];
+  $_SESSION['curGroup'] = $r['groupid'];
+  
 /*
   $_SESSION['old_session'] = array();
   foreach($_SESSION as $k=>$v) {
