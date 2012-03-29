@@ -1586,6 +1586,7 @@ if(!history) {
 	  } else {
 	    fareType = "One way";
 	  }
+
 	  $("#fareTypes").text(fareType);
 
 	  var coupon = 0;
@@ -1630,45 +1631,46 @@ if(!history) {
 
     };
 
-    (function($){
+(function($){
 
-    $.fn.serializeObject = function() {
-        if ( !this.length ) { return false; }
+$.fn.serializeObject = function() {
+    if ( !this.length ) { return false; }
 
-        var $el = this,
-            data = {},
-            lookup = data; //current reference of data
+    var $el = this,
+        data = {},
+        lookup = data; //current reference of data
 
-        $el.find(':input[type!="checkbox"][type!="radio"], input:checked').each(function() {
-            // data[a][b] becomes [ data, a, b ]
-            var named = this.name.replace(/\[([^\]]+)?\]/g, ',$1').split(','),
-                cap = named.length - 1,
-                i = 0;
+    $el.find(':input[type!="checkbox"][type!="radio"], input:checked').each(function() {
+        // data[a][b] becomes [ data, a, b ]
+        var named = this.name.replace(/\[([^\]]+)?\]/g, ',$1').split(','),
+            cap = named.length - 1,
+            i = 0;
 
-            // Ensure that only elements with valid `name` properties will be serialized
-            if ( named[ 0 ] ) {
-                for ( ; i < cap; i++ ) {
-                    // move down the tree - create objects or array if necessary
-                    lookup = lookup[ named[i] ] = lookup[ named[i] ] ||
-                        ( named[i+1] == "" ? [] : {} );
-                }
-
-                // at the end, psuh or assign the value
-                if ( lookup.length != undefined ) {
-                    lookup.push( $(this).val() );
-                }else {
-                    lookup[ named[ cap ] ] = $(this).val();
-                }
-
-                // assign the reference back to root
-                lookup = data;
-
+        // Ensure that only elements with valid `name` properties will be serialized
+        if ( named[ 0 ] ) {
+            for ( ; i < cap; i++ ) {
+                // move down the tree - create objects or array if necessary
+                lookup = lookup[ named[i] ] = lookup[ named[i] ] ||
+                    ( named[i+1] == "" ? [] : {} );
             }
-        });
 
-        return data;
-    };
+            // at the end, psuh or assign the value
+            if ( lookup.length != undefined ) {
+                lookup.push( $(this).val() );
+            }else {
+                lookup[ named[ cap ] ] = $(this).val();
+            }
+
+            // assign the reference back to root
+            lookup = data;
+
+        }
+    });
+
+    return data;
+};
 })(jQuery);
+
 $(function(){
     var toAddClearOnClick = $('#clear_to_address').attr('onclick');
     function disableToLocation(){
@@ -1704,7 +1706,7 @@ $(function(){
     if(chkByTheHour){
         disableToLocation();
     }
-    $('#check_by_the_hour').click(function() {
+    $('#check_by_the_hour').change(function() {
         if(this.checked){
             disableToLocation();
         } else {
@@ -1712,6 +1714,33 @@ $(function(){
         }
     });
 
+    $('#submit_reservation').click(function(){
+        if(getCurrentStep()==4 && $('#payment_method').val()!=''){
+            return true;
+        }
+        if($('#payment_method').val()==""){
+            alert('please select a payment method.');
+        }
+        return false;
+    });
+    function getCurrentStep(){
+        idx1 = $(".step1").index();
+        idx2 = $(".step2").index();
+        idx3 = $(".step3").index();
+        idx4 = $(".step4").index();
+        currentIdx = $(".step1,.step2,.step3,.step4").filter(":visible").index();
+
+        if(currentIdx==idx4 ){
+            p =4
+        } else if(currentIdx==idx3 ){
+            p = 3;
+        } else if(currentIdx==idx2 ){
+            p = 2;
+        } else {
+            p = 1;
+        }
+        return p;
+    }
 });
     function setVehiclePrices(bprice){
         $(function(){
@@ -1739,8 +1768,8 @@ $(function(){
 	aptFrom = $("#from_airport");
 	customFrom = $("#saved_locations_from");
 	if(aptFrom.is(":checked")) {
-      fromLocation = $('[name=apts_from]').find("option:selected").val();
 	  customFromO = $('[name=apts_from]').find("option:selected");
+      //  fromLocation = customFromO.val();
 	  fromAddr  = customFromO.attr("data-addr");
 	  fromCity  = customFromO.attr("data-city");
 	  fromState = customFromO.attr("data-state");
@@ -1753,8 +1782,9 @@ $(function(){
 	  fromZip   = $("#from_zipcode").val();
 	  fromNick  = $("#from_name").val();
 	} else {
-      fromLocation =customFrom.find("option:selected").val();
+
 	  customFromO = customFrom.find("option:selected");
+      //  fromLocation =customFromO.val();
 	  fromAddr  = customFromO.attr("data-addr");
 	  fromCity  = customFromO.attr("data-city");
 	  fromState = customFromO.attr("data-state");
@@ -2013,15 +2043,18 @@ $(function(){
 	var ad = getAddresses();
 
 
-	if(!ad.from_address || !ad.from_city || !ad.from_zip || !ad.from_state ||
-	    !ad.to_address || !ad.to_state || !ad.to_zip || !ad.to_state ) {
-	  alert('You have to type in full addresses!');
+	if(!ad.from_address || !ad.from_city || !ad.from_zip || !ad.from_state){
+        alert('You have to type in a full from address!');
+        return;
+    }
+    if(ad.to_nick != "As Directed" && (!ad.to_address || !ad.to_state || !ad.to_zip || !ad.to_state) ) {
+	  alert('You have to type in a full to address');
 	  return;
 	}
 
 
 	if($('#intermediate_stop').is(":checked") && (!ad.stop_addr || !ad.stop_state || !ad.stop_zip || !ad.stop_state)) {
-	  alert('You have to type in full addresses!');
+	  alert('You have to type in full intermediate inaddresses!');
 	  return;
 	}
 
@@ -2653,7 +2686,7 @@ $(function(){
 
       <div id="step_navigation">
           <input type="button" value="&laquo; Back to Step 3" class="button prev" />
-          <input type="submit" name="submit" value="Book Reservation" class="button" />
+          <input type="submit" name="submit" id="submit_reservation" value="Book Reservation" class="button" />
           <input type="hidden" name="estimate" />
       </div>
 
