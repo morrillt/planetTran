@@ -45,8 +45,8 @@ else {
 
 if ((!isset($_GET['read_only']) || !$_GET['read_only']) && $conf['app']['readOnlyDetails']) {
 	// Make sure user is logged in
-	if (!Auth::is_logged_in()) {
-		Auth::print_login_msg();
+	if (!$auth->is_logged_in()) {
+		$auth->print_login_msg();
 	}
 }
 
