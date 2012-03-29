@@ -413,10 +413,16 @@ include dirname(__FILE__).'/../../../../config/paths.php';
     <h2><?php
      if ($search) {
      	echo "Search Results";
-     } else { 
-     	print $_SESSION['currentName'] . "'s Trips"; 
+     } else {
+     	print $_SESSION['currentName'] . "'s Trips";
 	}?></h2>
-    <a href="<?php echo $securePrefix ?>/export_receipts.php">View/export Monthly Reports</a>
+
+    <?php  // if there is no search, give them their monthly export tab
+        if (!$search) { ?>
+            <a href="<?php echo $securePrefix ?>/export_receipts.php">Export My Receipts</a>
+    <?php } ?>
+
+
   </caption>
   <tr>
   	<?php if ($search) { // If a search was made, show a name column ?>
