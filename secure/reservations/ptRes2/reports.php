@@ -21,7 +21,7 @@ $res = get_reservation_data();
 
 if ($export) {
 	if (!$res) {
-		echo '<div style="font-size: large; text-align: center;">There are no results to export.</div>';
+
 		die(0);
 	}
 
@@ -70,12 +70,12 @@ function print_table($res) {
 	else
 		$group_name = $user['group_name'];
 	
-	$range = range(0, -6);
+	$range = range(0, -12);  // past 12 months.
 	$months = array();
 
 	foreach ($range as $k=>$v) {
 		$stamp = mktime(0,0,0,date("m")+$v);
-		$months[$v] = date("F", $stamp);
+		$months[$v] = date("F Y", $stamp);
 	}
 
 	$junk = time();
@@ -123,22 +123,32 @@ function print_table($res) {
 	foreach ($res[0] as $field => $v) {
 		$field = str_replace("_", " ", $field);
 		$field = ucwords($field);
-		echo "<td>$field</td>";
+        if ($field != "CCC" && $field != "Other") // dont echo  CCC or other field for formatting.
+		    echo "<td>$field</td>";
 	}
-	echo "<tr>\n";
+    echo "<tr>\n";
 
 	for($i=0; $res[$i]; $i++) {
 		$cur = $res[$i];
-
-		$bg = $i % 2 ? 'EEE' : 'FFF';
-
+        $results = array();
+        // rebuild array and take out CCC field and other field
+        foreach($cur as $key => $value){
+            if ($key != "CCC" && $key != "other") {
+                if ($key == "total_fare")
+                    /* quick note here:
+                       money_format("$%.2n",floatval($cur[$key])) should work.  but money_format is dependant on local settings.
+                       Idk about international customers so I didn't want to do that.  It seems to always be USD.
+                    */
+                    $cur[$key] = "$".$cur[$key].".00";
+                $results[$key]=$cur[$key];
+            }
+        }
+        $bg = $i % 2 ? 'EEE' : 'FFF';  // doesnt do anything anymore due to CSS.  keeping though.
 		echo "<tr style=\"background-color: #$bg;\">";
-		foreach ($cur as $v)
+		foreach ($results as $v)
 			echo "<td>$v</td>";
 		echo "</tr>\n";
 	}
-
-
 	echo "</table>";
 }
 function print_ccc_table($res) {
