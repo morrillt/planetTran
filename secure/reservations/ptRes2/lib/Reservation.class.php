@@ -1470,7 +1470,7 @@ class Reservation {
 <script>
 if(typeof String.prototype.trim !== 'function') {
   String.prototype.trim = function() {
-    return this.replace(/^\s+|\s+$/g, ''); 
+    return this.replace(/^\s+|\s+$/g, '');
   }
 }
 
@@ -1584,7 +1584,7 @@ $(function(){
 
     function refresh_estimate()
     {
-      
+
       $.ajax({
 	url:  'ajaxquote.php',
 	type: 'POST',
@@ -1592,21 +1592,21 @@ $(function(){
 	success: function(response)
 	{
 	  var data = response.split("|");
-	  
+
 	  var content = '';
 	  var esubtotal = 0;
-	  
+
 	  var base_price = parseFloat(data[0]);
 	  esubtotal += base_price;
 	  content = content + '<div class="line_item group">'+
 	    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
 	    '<span class="price" id="total_price">$'+base_price.toFixed(2)+'</span>'+
 	  '</div>';
-	  
+
 	  var meet_greet = $("#meet_greet");
 	  if(meet_greet.is(":checked")) {
 	      esubtotal += 30;
-	      
+
 	      content = content + '<div class="line_item group">'+
 		'<span class="line_description">Logan Airport meet and greet</span>'+
 		'<span class="price" id="total_price">$30.00</span>'+
@@ -1619,31 +1619,31 @@ $(function(){
 	    if(vehicle) {
 	      var vehicle_price = vehicle.price;
 	      esubtotal += vehicle_price;
-	      
+
 	      content = content + '<div class="line_item group">'+
 		'<span class="line_description">Vehicle upgrade ('+vehicle.name+'):</span>'+
 		'<span class="price" id="total_price">$'+vehicle_price.toFixed(2)+'</span>'+
 	      '</div>';
 	    }
 	  }
-	  
+
 	  var children_seats = $("#child_seats_outgoing");
 	  if(children_seats.val() != "0") {
 	    var children_seats_price = 15*parseInt(children_seats.val());
 	    esubtotal += children_seats_price;
-	    
+
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">Children seats ('+children_seats.val()+'):</span>'+
 	      '<span class="price" id="total_price">$'+children_seats_price.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
-	  
-	  
+
+
 	  var booster_seats = $("#booster_seats_outgoing");
 	  if(booster_seats.val() != "0") {
 	    var booster_seats_price = 15*parseInt(booster_seats.val());
 	    esubtotal += booster_seats_price;
-	    
+
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">Booster seats ('+booster_seats.val()+'):</span>'+
 	      '<span class="price" id="total_price">$'+booster_seats_price.toFixed(2)+'</span>'+
@@ -1654,13 +1654,13 @@ $(function(){
 	  if(intermediate_stop.is(":checked")) {
 	    var intermediate_stop_price = 70;
 	    esubtotal += intermediate_stop_price;
-	    
+
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">One intermediate stop:</span>'+
 	      '<span class="price" id="total_price">$'+intermediate_stop_price.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
-	  
+
 	  var fareType = 0;
 	  var tripType = 'P';
 	  if($("#check_by_the_hour").is(":checked")) {
@@ -1673,7 +1673,7 @@ $(function(){
 	    fareType = "One way";
 	  }
 	  $("#fareTypes").text(fareType);
-	  
+
 	  var coupon = 0;
 	  if(parseFloat(data[3]))
 	  {
@@ -1686,12 +1686,12 @@ $(function(){
 	    $('<div class="msg" style="color:#f00;">Provided coupon code is wrong!</div>').insertBefore($("#coupon_code"));
 	    alert('Provided coupon code is wrong!');
 	  }
-	  
+
 	  content = content + '<div class="line_item group total">'+
 	    '<span class="line_description">Estimate subtotal:</span>'+
 	    '<span class="price" id="total_price">$'+esubtotal.toFixed(2)+'</span>'+
 	  '</div>';
-	  
+
 	  if(coupon)
 	  {
 	    content = content + '<div class="line_item group total">'+
@@ -1699,7 +1699,7 @@ $(function(){
 	      '<span class="price" id="total_price">-$'+coupon+'</span>'+
 	    '</div>';
 	  }
-	  
+
 	  var total_fare_1 = parseFloat(data[0]);
 	  if(!total_fare) total_fare = esubtotal;
 	  var total_fare = (esubtotal - coupon - base_price + total_fare_1).toFixed(2);
@@ -1708,12 +1708,12 @@ $(function(){
 	    '<span class="line_description">Total estimated fare:</span>'+
 	    '<span class="price" id="total_price">$'+total_fare+'</span>'+
 	  '</div>';
-	  
+
 	  $("[name=estimate]").val("$"+total_fare);
 	  $('#reservation_summary').html(content);
 	}
       });
-      
+
     };
     function setVehiclePrices(bprice){
         $(function(){
@@ -1733,16 +1733,17 @@ $(function(){
             $('#S' + vpSuffix).text('$'+highlander_price.toFixed(2));
         });
     }
-    
-    
+
+
     function getAddresses()
     {
 	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport,aptFrom,aptTo;
-	
+	var fromLocation, toLocation, stopLocation;
 
 	aptFrom = $("#from_airport");
 	customFrom = $("#saved_locations_from");
 	if(aptFrom.is(":checked")) {
+      fromLocation = $('[name=apts_from]').find("option:selected").val();
 	  customFromO = $('[name=apts_from]').find("option:selected");
 	  fromAddr  = customFromO.attr("data-addr");
 	  fromCity  = customFromO.attr("data-city");
@@ -1756,6 +1757,7 @@ $(function(){
 	  fromZip   = $("#from_zipcode").val();
 	  fromNick  = $("#from_name").val();
 	} else {
+      fromLocation =customFrom.find("option:selected").val();
 	  customFromO = customFrom.find("option:selected");
 	  fromAddr  = customFromO.attr("data-addr");
 	  fromCity  = customFromO.attr("data-city");
@@ -1766,43 +1768,61 @@ $(function(){
 
 	aptTo = $("#to_airport");
 	customTo = $("#saved_locations_to");
-	if(aptTo.is(":checked")) {
-	  customToO = $('[name=apts_to]').find("option:selected");
-	  toAddr  = customToO.attr("data-addr");
-	  toCity  = customToO.attr("data-city");
-	  toState = customToO.attr("data-state");
-	  toZip   = customToO.attr("data-zip");
-	  toNick    = customToO.text();
-	} else if(customTo.val() == "") {
-	  toAddr  = $("#to_street_addres").val();
-	  toCity  = $("#to_city").val();
-	  toState = $("#to_state").val();
-	  toZip   = $("#to_zipcode").val();
-	  toNick  = $("#to_name").val();
-	} else {
-	  customToO = customTo.find("option:selected");
-	  toAddr    = customToO.attr("data-addr");
-	  toCity    = customToO.attr("data-city");
-	  toState   = customToO.attr("data-state");
-	  toZip     = customToO.attr("data-zip");
-	  toNick    = customToO.text();
-	}
+     isHourlyTrip = $('#check_by_the_hour').is(':checked');
+    if(isHourlyTrip){
+        toLocation = customTo.find("option:selected").val();
+        customToO = customTo.find("option:selected");
+        toAddr    = customToO.attr("data-addr");
+        toCity    = customToO.attr("data-city");
+        toState   = customToO.attr("data-state");
+        toZip     = customToO.attr("data-zip");
+        toNick    = customToO.text();
+    } else if(aptTo.is(":checked")) {
+        toLocation = $('[name=apts_to]').find("option:selected").val();
+        customToO = $('[name=apts_to]').find("option:selected");
+        toAddr  = customToO.attr("data-addr");
+        toCity  = customToO.attr("data-city");
+        toState = customToO.attr("data-state");
+        toZip   = customToO.attr("data-zip");
+        toNick    = customToO.text();
+    } else if(customTo.val() == "") {
+        toAddr  = $("#to_street_addres").val();
+        toCity  = $("#to_city").val();
+        toState = $("#to_state").val();
+        toZip   = $("#to_zipcode").val();
+        toNick  = $("#to_name").val();
+    } else {
+        toLocation = customTo.find("option:selected").val();
+    customToO = customTo.find("option:selected");
+        toAddr    = customToO.attr("data-addr");
+        toCity    = customToO.attr("data-city");
+        toState   = customToO.attr("data-state");
+        toZip     = customToO.attr("data-zip");
+        toNick    = customToO.text();
+    }
 
-	customStop = $("#saved_locations_stop");
-	if(customStop.val() == "") {
-	  stopAddr  = $("#stop_street_address").val();
-	  stopCity  = $("#stop_city").val();
-	  stopState = $("#stop_state").val();
-	  stopZip   = $("#stop_zipcode").val();
-	  stopNick  = $("#stop_name").val();
-	} else {
-	  customStopO = customStop.find("option:selected");
-	  stopAddr    = customStopO.attr("data-addr");
-	  stopCity    = customStopO.attr("data-city");
-	  stopState   = customStopO.attr("data-state");
-	  stopZip     = customStopO.attr("data-zip");
-	  stopNick    = customStopO.text();
-	}
+    customStop = $("#saved_locations_stop");
+    stopLocation='';
+    if(customStop.val() == "") {
+        stopAddr  = $("#stop_street_address").val();
+        stopCity  = $("#stop_city").val();
+        stopState = $("#stop_state").val();
+        stopZip   = $("#stop_zipcode").val();
+        stopNick  = $("#stop_name").val();
+    } else {
+        stopLocation = customStop.find("option:selected");
+        customStopO = customStop.find("option:selected");
+        stopAddr    = customStopO.attr("data-addr");
+        stopCity    = customStopO.attr("data-city");
+        stopState   = customStopO.attr("data-state");
+        stopZip     = customStopO.attr("data-zip");
+        stopNick    = customStopO.text();
+    }
+        $('[name=fromID]').val(fromLocation);
+
+        $('[name=tpID]').val(toLocation);
+
+        $('[name=stopID]').val(stopLocation) ;
 
 	return {
 	  'from_address':  fromAddr,
@@ -1810,13 +1830,13 @@ $(function(){
 	  'from_zip':      fromZip,
 	  'from_state':    fromState,
 	  'from_nick':     fromNick,
-	  
+
 	  'to_address':    toAddr,
 	  'to_city':       toCity,
 	  'to_state':      toState,
 	  'to_zip':        toZip,
 	  'to_nick':       toNick,
-	  
+
 	  'stop_addr':     stopAddr,
 	  'stop_city':     stopCity,
 	  'stop_state':    stopState,
@@ -1833,9 +1853,9 @@ $(function(){
     function getCQAddresses()
     {
 	$("#get_a_quote_button").attr("disabled", 1);
-	
+
 	var fromAddr,fromCity,fromZip,toAddr,toCity,toZip,stopAddr,stopCity,stopZip,airport;
-	
+
 	customFrom = $("#quote_saved_locations_from");
 	if(customFrom.val() == "") {
 	  fromAddr  = $("#quote_from_street_address").val();
@@ -1879,14 +1899,14 @@ $(function(){
 
 
   $(function() {
-    
+
     var opFields = $("#opFields");
     $('#from_address').change(function() { $('[name=from_location]').change(); });
     $('#from_airport').change(function() { $('[name=apts_from]').change(); });
     $('#to_address').change(function()   { $('[name=to_location]').change(); });
     $('#to_airport').change(function()   { $('[name=apts_to]').change(); });
-  
-    
+
+
     $("#passenger_name")
       .append($('<option value="kk">Other</option>'))
       .change(function() {
@@ -1903,14 +1923,14 @@ $(function(){
 	var cs = $("#child_seats_outgoing");
 	var bs = $("#booster_seats_outgoing");
 	var sum = parseInt(cs.val()) + parseInt(bs.val());
-	
+
 	if(sum > 3) {
 	  alert("You cannot choose more than 3 children/booster seats.");
 	  $(this).find("option[value=0]").attr('selected','1');
 	  return false;
 	}
-	
-	
+
+
       });
 
       $("[name=apts_from],[name=from_location]")
@@ -1924,7 +1944,7 @@ $(function(){
 	})
 	.change()
       ;
-      
+
       /*
       $("[name=from_location],[name=to_location]")
 	.change(function() {
@@ -1937,7 +1957,7 @@ $(function(){
 	.change()
       ;
       */
-	
+
       $("[name=apts_from],[name=apts_to],[name=stopLoc],[name=from_location],[name=to_location]")
 	.change(function() {
 	  var pi = $($(this).parents().filter('.intermediate_stop,.half_column')[0]);
@@ -1956,10 +1976,10 @@ $(function(){
     <?php if(!isset($_GET['tab']) || $_GET['tab'] == 2): ?>
       api2.next();
     <?php endif ?>
-    
+
     $("#order_steps").tabs("#steps_main > div");
     var api = $("#order_steps").data("tabs");
-    
+
 
     var stepNb = 0;
     <?php if($this->has_warnings()): ?>
@@ -1970,17 +1990,17 @@ $(function(){
     $("input.next").not('[id=get_a_quote_button]').click(function() {
       var nb = parseInt($($(this).parents().filter('[class*=step]')[0]).attr("class").replace("step", ""))+1;
       if(nb == 2)
-      { 
+      {
 
     //FINDME
     var repeatAddressError = false;
-    if(!$("#intermediate_stop").is(":checked")) { 
+    if(!$("#intermediate_stop").is(":checked")) {
 	    if($("#from_zipcode").val().toLowerCase().replace(/[^0-9]/g, "") == $("#to_zipcode").val().toLowerCase().replace(/[^0-9]/g, "")) {
 		    // matched zipcode
 	    	if($("#from_address").val().toLowerCase().replace(/[^0-9a-zA-Z]/g, "") == $("#to_address").val().toLowerCase().replace(/[^0-9a-zA-Z]/g, "")) {
 		    	// matched address
 			    repeatAddressError = true;
-		    } 
+		    }
 	    }
     }
 
@@ -1994,27 +2014,29 @@ $(function(){
 	  alert('You have to choose a reservation date!');
 	  return;
 	}
-	
+
 	var ad = getAddresses();
 
+
 	if(!ad.from_address || !ad.from_city || !ad.from_zip || !ad.from_state ||
-	    !ad.to_address || !ad.to_state || !ad.to_zip || !ad.to_state || ad.to_location !="asDirectedLoc" ) {
+	    !ad.to_address || !ad.to_state || !ad.to_zip || !ad.to_state ) {
 	  alert('You have to type in full addresses!');
 	  return;
 	}
-	
+
+
 	if($('#intermediate_stop').is(":checked") && (!ad.stop_addr || !ad.stop_state || !ad.stop_zip || !ad.stop_state)) {
 	  alert('You have to type in full addresses!');
 	  return;
 	}
-	
+
 	if(( $('#from_airport').is(":checked") && (!$('[name=fnum_from]').val() || !$('[name=acode_from]  option:selected').attr("value") ))
 	 || ($('#to_airport').is(":checked") && (!$('[name=fnum_to]').val() || !$('[name=acode_to]  option:selected').attr("value") ))) {
 	  alert('You have to type in flight number and airline!');
 	  return;
 	}
 
-	
+
 	$.ajax({
 	  url:  'ajaxquote.php',
 	  type: 'POST',
@@ -2026,10 +2048,10 @@ $(function(){
 	    if(!price || price == NaN || price == "NaN") {
 	      alert("One of the addresses you have provided is wrong!");
 	    } else {
-	      
+
 	      var Cx = $('#steps_main');
 	      var addresses = getAddresses();
-	      
+
 	      $($('.order_details li:nth-child(2)', Cx)).text('Pickup Location: '+addresses.from_nick+' - '+addresses.from_address+", "+addresses.from_city+", "+addresses.from_state+" "+addresses.from_zip);
 	      if(addresses.stop_addr && $("#intermediate_stop").is(":checked"))
 	      {
@@ -2041,8 +2063,8 @@ $(function(){
 		$($('.order_details li:nth-child(3)', Cx)).hide();
 	      }
 	      $($('.order_details li:nth-child(4)', Cx)).text('Drop-off Location: '+addresses.to_nick+' - '+addresses.to_address+", "+addresses.to_city+", "+addresses.to_state+" "+addresses.to_zip);
-	      
-	      
+
+
 	      try {
 	       history.pushState({ isMine:true }, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);
 	      } catch(e) {}
@@ -2081,20 +2103,20 @@ $(function(){
 	// console.log(data.delegateTarget.location.href);
 	// console.log(data.currentTarget.location.href);
         // if (data.state.isMine)
-        //     $.getScript(location.href); 
+        //     $.getScript(location.href);
      });
 
     $('label[for=from_zipcode] a,label[for=to_zipcode] a,label[for=stop_zipcode] a')
       .click(function(e) {
 	e.preventDefault();
-	
+
 	var f = $($(this).parents().filter('[id*=locations_],.intermediate_stop')[0]);
-	
+
 	var address = f.find('input[name*=address]');
 	var city = f.find('input[name*=city]');
 	var state =  f.find('input[name*=state]');
 	var zip = f.find('input[name*=zip]');
-	
+
 	// console.log(address);
 	// console.log(city);
 	// console.log(state);
@@ -2111,7 +2133,7 @@ $(function(){
 	  success: function(response)
 	  {
 	    $("#get_a_quote_button").removeAttr("disabled");
-	    
+
 	    var price = response.split("|");
 	    var quickVal = parseFloat(price[0]);
 	    if(!quickVal || quickVal == NaN || quickVal == "NaN") {
@@ -2147,10 +2169,16 @@ $(function(){
 <?php
       include_once('reservations.include.qq.php');
 ?>
-
-
-
   <form name="reserve" id="steps_main" class="group" method="post" action="">
+    <input type="hidden" name="fromID" />
+    <input type="hidden" name="toID" />
+    <input type="hidden" name="stopID" />
+    <input type="hidden" name="memberid" />
+    <input type="hidden" name="meet_greet" />
+    <input type="hidden" name="groupid" />
+    <input type="hidden" name="vehicle_type" />
+    <input type="hidden" name="trip_type" />
+    <input type="hidden" name="wait_time" />
 
   <input type="hidden" name="id" value="<?php echo !empty($values['id']) ? $values['id'] : uniqid() ?>" />
 
