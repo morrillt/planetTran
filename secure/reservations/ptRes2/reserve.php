@@ -19,7 +19,7 @@ include_once('lib.php');
 $auth = New Auth();
 
 if(isset($_COOKIE['ID']))
-    $auth->doLogin('', '', 'y', $_COOKIE['ID']);
+    $auth->doLogin('', '', 'y', $_COOKIE['ID']);  // log in if they have a cookie set...
 
 if (!$auth->is_logged_in())  // if not logged in pass to login
     header('Location: index.php');
