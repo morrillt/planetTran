@@ -1532,7 +1532,7 @@ if(!history) {
         } else {
           fareType = "One way";
         }
-        $("#fareTypes").text(fareType);
+        $("#fareType").text(fareType);
 
         var ad = getAddresses();
       $("#steps_main [name=toID]")  .val(ad.to_location);
@@ -1812,12 +1812,26 @@ $(function(){
         $(function(){
             var vpSuffix = '_vehicle_price';
             var vuSuffix = '_vehicle_upgrade';
+
             $('#base_estiamte_for_vehicles').text(bprice);
-            prius_price = bprice +parseFloat($('#P'+vuSuffix).text());
-            prius_v_price = bprice + parseFloat($('#W'+vuSuffix).text());
-            camry_v_price = bprice + parseFloat($('#Y'+vuSuffix).text());
-            lexus_price = bprice + parseFloat($('#L'+ vuSuffix).text());
-            highlander_price = bprice + parseFloat($('#S' + vuSuffix).text());
+
+            if($('#check_by_the_hour').is(':checked')){
+                // vpSuffix = '_vehicle_price_hr';
+                vuSuffix = '_vehicle_upgrade_hr';
+
+                prius_price = bprice +parseFloat($('#P'+vuSuffix).text());
+                prius_v_price = bprice + parseFloat($('#W'+vuSuffix).text());
+                camry_v_price = bprice + parseFloat($('#Y'+vuSuffix).text());
+                lexus_price = bprice + parseFloat($('#L'+ vuSuffix).text());
+                highlander_price = bprice + parseFloat($('#S' + vuSuffix).text());
+            } else{
+                prius_price = bprice +parseFloat($('#P'+vuSuffix).text());
+                prius_v_price = bprice + parseFloat($('#W'+vuSuffix).text());
+                camry_v_price = bprice + parseFloat($('#Y'+vuSuffix).text());
+                lexus_price = bprice + parseFloat($('#L'+ vuSuffix).text());
+                highlander_price = bprice + parseFloat($('#S' + vuSuffix).text());
+            }
+
 
             $('#P' + vpSuffix).text('$'+prius_price.toFixed(2));
             $('#W' + vpSuffix).text('$'+prius_v_price.toFixed(2));
@@ -2624,6 +2638,7 @@ $(function(){
   <div class="step2"><!-- step2 -->
       <h2>Select a vehicle:</h2>
       <div style="display:none" id="base_estiamte_for_vehicles">60</div>
+      <div style="display:none" id="base_estiamte_for_vehicles_hr">65</div>
 
       <?php $tools = new Tools();
       foreach($tools->car_select_details() as $k=>$v): ?>
@@ -2636,8 +2651,10 @@ $(function(){
                       Holds: <?php echo $v['suitcases'] ?> suitcases<br/>
                       <?php if($v['extra']) echo $v['extra'] ?>
                   </div>
+                  <div style="display:none"  id="<?=$v['vehicle_type']?>_vehicle_upgrade_hr"><?=$v['price_hr']?></div>
                   <div style="display:none"  id="<?=$v['vehicle_type']?>_vehicle_upgrade"><?=$v['price']?></div>
                   <div  id="<?=$v['vehicle_type']?>_vehicle_price" class="vehicle_price"></div>
+
               </label>
               <div class="vehicle_chooser">
                   <input type="radio" data-vehicleTypeMapping="<?php echo $v['vehicle_type'] ?>" name="carTypeSelect" id="vehicle<?php echo $k ?>" value="<?php echo $k.'' ?>" <?php if($k == $values['carTypeSelect'] || (!$values['carTypeSelect'] && $k=="P")) echo 'checked="checked"' ?>/>
