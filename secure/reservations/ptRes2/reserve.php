@@ -19,7 +19,8 @@ include_once('lib.php');
 $auth = New Auth();
 
 if(isset($_COOKIE['ID']))
-    $auth->doLogin('', '', 'y', $_COOKIE['ID']);  // log in if they have a cookie set...
+    unset($_COOKIE['ID']);
+    //$auth->doLogin('', '', 'y', $_COOKIE['ID']);  // log in if they have a cookie set...
 
 if (!$auth->is_logged_in())  // if not logged in pass to login
     header('Location: index.php');
@@ -303,6 +304,8 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
     $toLoc = $_POST['to_location'];
   } elseif($_POST['to_type']==2 && $_POST['apts_to']) {
     $toLoc = $_POST['apts_to'];
+  } elseif($_POST['toID']=="asDirectedLoc" || $_POST['to_location']=="asDirectedLoc" || $_POST['toLoc'] == 'asDirectedLoc') {
+      $toLoc = "asDirectedLoc";
   } else {
 
     $toLocation = array();

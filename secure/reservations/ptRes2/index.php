@@ -34,7 +34,8 @@ if (isset($_GET['logout'])) {
 } else if(isset($_POST['login'])) {
 	$msg = $auth->doLogin($_POST['email'], $_POST['password'], (isset($_POST['setCookie']) ? 'y' : null), false, $resume);
 } else if(isset($_COOKIE['ID'])) {
-    $msg = $auth->doLogin('', '', 'y', $_COOKIE['ID'], $resume);
+    //$msg = $auth->doLogin('', '', 'y', $_COOKIE['ID'], $resume);
+    unset($_COOKIE['ID']);
 } else if (Auth::is_logged_in()) {
   header('Location: reserve.php?type=r');
   die();

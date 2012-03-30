@@ -452,11 +452,11 @@ class Tools {
 
 
 	function car_select_details() {
-		return array(	'P'=>	array('name'=>'Standard (Prius)','select_name'=>'Standard (Prius)','seats'=>4,'suitcases'=>'3 large','price'=>0,'img'=>'vehicle_preview_prius.jpg', 'vehicle_type'=>'P', 'price_hr'=> 0),
-				'V'=>	array('name'=>'Prius V','select_name'=>'Prius V (+$15)','seats'=>4,'suitcases'=>'4 large','price'=>15,'img'=>'vehicle_preview_priusV.jpg', 'vehicle_type'=>'W', 'price_hr'=> 5),
-				'C'=>	array('name'=>'Camry','select_name'=>'Camry (+$15)','seats'=>4,'suitcases'=>'3 medium','price'=>15,'img'=>'vehicle_preview_camry.jpg', 'vehicle_type'=>'Y', 'price_hr'=> 5),
-				'S'=>	array('name'=>'SUV (Highlander or Lexus)','select_name'=>'SUV (Highlander or Lexus [+$30])','seats'=>4,'suitcases'=>'4 large','price'=>30,'img'=>'vehicle_preview_highlander.jpg', 'vehicle_type'=>'S', 'price_hr'=> 10),
-				'L'=>	array('name'=>'Luxury (Lexus HS Sedan)','select_name'=>'Luxury (Lexus HS Sedan [+$30])','seats'=>3,'suitcases'=>'3 medium' ,'price'=>30,'img'=>'vehicle_preview_luxorylexus.jpg', 'vehicle_type'=>'L', 'price_hr'=> 10,
+		return array(	'P'=>	array('name'=>'Standard (Prius)','select_name'=>'Standard (Prius)','seats'=>4,'suitcases'=>'3 large','price'=>0,'img'=>'vehicle_preview_prius.jpg', 'vehicle_type'=>'P', 'price_hr'=> 65),
+				'V'=>	array('name'=>'Prius V','select_name'=>'Prius V (+$15)','seats'=>4,'suitcases'=>'4 large','price'=>15,'img'=>'vehicle_preview_priusV.jpg', 'vehicle_type'=>'W', 'price_hr'=> 70),
+				'C'=>	array('name'=>'Camry','select_name'=>'Camry (+$15)','seats'=>4,'suitcases'=>'3 medium','price'=>15,'img'=>'vehicle_preview_camry.jpg', 'vehicle_type'=>'Y', 'price_hr'=> 70),
+				'S'=>	array('name'=>'SUV (Highlander or Lexus)','select_name'=>'SUV (Highlander or Lexus [+$30])','seats'=>4,'suitcases'=>'4 large','price'=>30,'img'=>'vehicle_preview_highlander.jpg', 'vehicle_type'=>'S', 'price_hr'=> 75),
+				'L'=>	array('name'=>'Luxury (Lexus HS Sedan)','select_name'=>'Luxury (Lexus HS Sedan [+$30])','seats'=>3,'suitcases'=>'3 medium' ,'price'=>30,'img'=>'vehicle_preview_luxorylexus.jpg', 'vehicle_type'=>'L', 'price_hr'=> 75,
 					      'extra'=>'<strong>(Massachusetts only)</strong>'),
 				//'N'=>	'9-Passenger van ($75/hr, 2 hr minimum)'
 			);
