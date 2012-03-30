@@ -8,7 +8,7 @@
     <li class="sn4"><a href="<?php echo $securePrefix ?>/ctrlpnl.php?active=view">Upcoming</a></li>
     <li class="sn5"><a href="<?php echo $securePrefix ?>/receipts.php">Past Trips/Receipts</a></li>
     <?php if ($_SESSION['role'] == 'a' || $_SESSION['role'] == 'm') { ?>
-      <li class="sn9"><a href="<?php echo $securePrefix ?>/ctrlpnl.php?active=schedules5">Schedules</a></li>
+      <li class="sn9"><a href="<?php echo $securePrefix ?>/ctrlpnl.php?active=schedules">Schedules</a></li>
     <?php } ?>
     <?php if ($_SESSION['role'] == 'm') { ?>
       <li class="sn9"><a href="<?php echo $securePrefix ?>/reports.php">Billing Reports</a></li>
