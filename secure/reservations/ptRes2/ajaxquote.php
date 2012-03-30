@@ -1,6 +1,6 @@
 <?php
- ini_set('error_reporting', E_ERROR);
- ini_set('display_errors', 1);
+ // ini_set('error_reporting', E_ERROR);
+ // ini_set('display_errors', 1);
 
 session_start();
 
@@ -31,11 +31,11 @@ function get_estimate($col){
     $to = null;
     $stop = null;
 
-    loadResourceById(&$e,$fromId);
+    loadResourceById(&$e->fromAddress,$fromId);
 
-    loadResourceById(&$e,$toId);
+    loadResourceById(&$e->toAddress,$toId);
 
-    loadResourceById(&$e,$stopId);
+    loadResourceById(&$e->stopAddress,$stopId);
 
     loadCollectionIn(&$e, $col);
 
@@ -44,13 +44,16 @@ function get_estimate($col){
 
 
     $estVal = $e->getEstimate();
+    $estErrors="";
     if(is_null($estVal)){
-        echo implode('    ', $e->errors);
+        $estErrors =  implode('    ', $e->errors);
     }
     if($estVal->fare > 0 && $estVal->fare < 29)
         $estVal->fare = 29;
 
-    echo $estVal->fare . '|' . $e->fromAddress->getOneLineAddress() . '|' . $e->toAddress->getOneLineAddress() . '|' .  $estVal->couponAmount . '|' .  $estVal->baseFare;
+    echo $estVal->fare . '|' . $e->fromAddress->getOneLineAddress() . '|'
+        . $e->toAddress->getOneLineAddress() . '|' .  $estVal->couponAmount
+        . '|' .  $estVal->baseFare .'|' . $estVal->status .'|' . implode('    ',$estVal->errors) . $estErrors ;
 
 }
 
@@ -79,16 +82,16 @@ function setEstimateRegion(&$e){
     }
 
 }
-function loadResourceById(Estimate &$e, $machId){
+function loadResourceById(EstimateAddress &$e, $machId){
     global $d;
     if(is_null($machId)){
-        $e->fromAddress = new EstimateAddress();
+        $e  = new EstimateAddress();
     } else if($machId && $machId=="asDirectedLoc"){
-        $e->fromAddress->machId = "asDirectedLoc";
+        $e->machid = "asDirectedLoc";
     } else if($machId){
-        $e->fromAddress->machid = $machId;
+        $e->machid = $machId;
         $res = $d->get_resource_data($machId);
-        EstimateConverter::getAddressFromResource(&$e->fromAddress, $res);
+        EstimateConverter::getAddressFromResource(&$e, $res);
     }
 }
 

@@ -1535,13 +1535,12 @@ if(!history) {
         $("#fareTypes").text(fareType);
 
         var ad = getAddresses();
-        $("[name=toID]")  .val(ad.to_location);
-        $("[name=fromID]").val(ad.from_location);
-        $("[name=stopID]").val(ad.stop_location);
-        $("[name=meet_greet]").val($("[name=greet]").is(":checked") ? "1" : "0");
-        $("[name=trip_type]").val(tripType);
-        $("[name=vehicle_type]").val($("[name=carTypeSelect]:checked").attr("data-vehicleTypeMapping"));
-
+      $("#steps_main [name=toID]")  .val(ad.to_location);
+      $("#steps_main [name=fromID]").val(ad.from_location);
+      $("#steps_main [name=stopID]").val(ad.stop_location);
+      $("#steps_main [name=meet_greet]").val($("[name=greet]").is(":checked") ? "1" : "0");
+      $("#steps_main [name=trip_type]").val(tripType);
+      $("#steps_main [name=vehicle_type]").val($("[name=carTypeSelect]:checked").attr("data-vehicleTypeMapping"));
 
       $.ajax({
 	url:  'ajaxquote.php',
@@ -1555,7 +1554,7 @@ if(!history) {
 	  var esubtotal = 0;
 
 	  var base_price = parseFloat(data[0]);
-	  esubtotal += base_price;
+	  esubtotal += getBasePrice(data[0]);
 	  content = content + '<div class="line_item group">'+
 	    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
 	    '<span class="price" id="total_price">$'+base_price.toFixed(2)+'</span>'+
@@ -1611,7 +1610,7 @@ if(!history) {
 
 	  var intermediate_stop = $("#intermediate_stop");
 	  if(intermediate_stop.is(":checked")) {
-	    var intermediate_stop_price = 70;
+	    var intermediate_stop_price = 20;
 	    esubtotal += intermediate_stop_price;
 
 	    content = content + '<div class="line_item group">'+
@@ -1658,11 +1657,11 @@ if(!history) {
         setVehiclePrices(total_fare - vehicle_price);
 	  $("[name=estimate]").val("$"+total_fare);
 	  $('#reservation_summary').html(content);
-	  
+
 	if(callback) callback(response);
-	
+
 	}
-	
+
       });
 
     };
@@ -1709,6 +1708,19 @@ $.fn.serializeObject = function() {
 })(jQuery);
 
 $(function(){
+    $("#tab1,#tab2")
+      .click(function(e) {
+        var idx = $("#tab1,#tab2").not(this).index();
+        $ (
+          $("#quote_tabs_content > div")[idx]
+        )
+	  .find('a')
+	  .filter(function(){
+	    return $(this).text().indexOf("clear") != -1;
+	  })
+	  .click();
+      });
+
     var toAddClearOnClick = $('#clear_to_address').attr('onclick');
     function disableToLocation(){
         removeClearClick();
@@ -1744,18 +1756,29 @@ $(function(){
     if(chkByTheHour){
         disableToLocation();
     }
-    
+
     $('#check_by_the_hour')
       .change(function() {
         if(this.checked){
             disableToLocation();
-	      $("#authWait").show();
         } else {
             enableToLocation();
+        }
+      });
+
+
+    var showHideAuthWait = function() {
+        if($(this).is(':checked')){
+	      $("#authWait").show();
+        } else {
 	      $("#authWait").hide();
         }
-      })
-      .change();
+    };
+    $('#check_by_the_hour')
+      .change(showHideAuthWait)
+      .each  (showHideAuthWait)
+    ;
+
 
     $('#submit_reservation').click(function(){
         if(getCurrentStep()==4 && $('#payment_method').val()!=''){
@@ -1803,7 +1826,7 @@ $(function(){
             $('#S' + vpSuffix).text('$'+highlander_price.toFixed(2));
         });
     }
-    
+
     function getAddresses()
     {
 	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport,aptFrom,aptTo;
@@ -1812,7 +1835,7 @@ $(function(){
 	aptFrom = $("#from_airport");
 	customFrom = $("#saved_locations_from");
 	if(aptFrom.is(":checked")) {
-	  customFromO = $('#steps_main [name=apts_to]').find("option:selected");
+	  customFromO = $('#steps_main [name=apts_from]').find("option:selected");
 	  fromLocation = customFromO.attr("value");
 	  fromAddr  = customFromO.attr("data-addr");
 	  fromCity  = customFromO.attr("data-city");
@@ -1933,6 +1956,7 @@ $(function(){
 	  fromZip   = $("#quote_from_zipcode").val();
 	} else {
 	  customFromO = customFrom.find("option:selected");
+          fromLocation = customFromO.attr("value");
 	  fromAddr  = customFromO.attr("data-addr");
 	  fromCity  = customFromO.attr("data-city");
 	  fromState = customFromO.attr("data-state");
@@ -1947,6 +1971,7 @@ $(function(){
 	  toZip  = $("#quote_to_zipcode").val();
 	} else {
 	  customToO = customTo.find("option:selected");
+          toLocation = customToO.attr("value");
 	  toAddr = customToO.attr("data-addr");
 	  toCity = customToO.attr("data-city");
 	  toState = customToO.attr("data-state");
@@ -1962,11 +1987,47 @@ $(function(){
 	  'to_city':   toCity,
 	  'to_state':   toState,
 	  'to_zip':    toZip,
-	  'airport':   airport
+	  'airport':   airport,
+	  'to_location':   toLocation,
+	  'from_location': fromLocation
 	};
     };
 
+    function getBasePrice(total){
+        var addons = 0;
+        var intermediate_stop = $("#intermediate_stop");
+        if(intermediate_stop.is(":checked")) {
 
+            addons += 20;
+        }
+        var booster_seats = $("#booster_seats_outgoing");
+        if(booster_seats.val() != "0") {
+
+            addons += 15*parseInt(booster_seats.val());
+        }
+
+        var children_seats = $("#child_seats_outgoing");
+        if(children_seats.val() != "0") {
+
+            addons += 15*parseInt(children_seats.val());
+        }
+
+        var vehicle_price = 0;
+        var cts = $("[name=carTypeSelect]:checked");
+        if(cts.val() != "" && cts.val() != "P") {
+            var vehicle = vehicles[cts.val()];
+            if(vehicle) {
+                vehicle_price = vehicle.price;
+                addons += vehicle_price;
+            }
+        }
+        var meet_greet = $("#meet_greet");
+        if(meet_greet.is(":checked")) {
+            addons += 30;
+        }
+
+        return total - addons;
+    }
   $(function() {
 
     var opFields = $("#opFields");
@@ -1975,7 +2036,9 @@ $(function(){
     $('#to_address').change(function()   { $('[name=to_location]').change(); });
     $('#to_airport').change(function()   { $('[name=apts_to]').change(); });
 
-    $('#from_address,'+
+      // this code is responsible for clearing the
+      // address when toggle between airport and address
+  $('#from_address,'+
       '#from_airport,'+
       '#to_address,'+
       '#to_airport').change(function() {
@@ -2127,11 +2190,11 @@ $(function(){
 
 	refresh_estimate(function(response)
 	  {
-	
+
 	    var p = response.split("|");
 	    var price = parseFloat(p[0]);
 	    if(!price || price == NaN || price == "NaN") {
-	      alert("One of the addresses you have provided is wrong!");
+	      alert("We were unable to automatically generate a quote for your locations. Email us at customerservice@planettran.com, or call 888-756-8876 (press option 2). Thanks for your patience and cooperation. ");
 	    } else {
 
 	      var Cx = $('#steps_main');
@@ -2156,7 +2219,7 @@ $(function(){
 	    }
 	    return;
 	});
-	
+
 
       } else {
 	try {
@@ -2210,9 +2273,13 @@ $(function(){
 
     $('#get_a_quote_button')
       .click(function() {
+	var ad = getCQAddresses();
+	$("#quote_tabs_content > div:first-child > form [name=toID]")  .val(ad.to_location);
+	$("#quote_tabs_content > div:first-child > form [name=fromID]").val(ad.from_location);
+
 	$.ajax({
 	  url: 'ajaxquote.php',
-	  data: getCQAddresses(),
+	  data: $.extend($("#quote_tabs_content > div:first-child > form").serializeObject(), getCQAddresses()),
 	  type: 'POST',
 	  success: function(response)
 	  {
@@ -2221,7 +2288,7 @@ $(function(){
 	    var price = response.split("|");
 	    var quickVal = parseFloat(price[0]);
 	    if(!quickVal || quickVal == NaN || quickVal == "NaN") {
-	      alert("One of the addresses you have provided is wrong!");
+	      alert("We were unable to automatically generate a quote for your locations. Email us at customerservice@planettran.com, or call 888-756-8876 (press option 2). Thanks for your patience and cooperation. ");
 	      return;
 	    }
 	    $("#quote_contents").show().find('.price').html(price[0]+"");
@@ -2297,13 +2364,6 @@ $(function(){
       <label for="check_by_the_hour">
           <input name="wait" type="checkbox" <?php if($values['wait']) echo 'checked="checked"' ?> id="check_by_the_hour" />Book by the hour <span id="tip1" class="tip">(?)</span>
       </label>
-    <select id="authWait" name="wait_time" style="float:right">
-        <option value="90">1.5 hours</option>
-        <option value="120">2 hours</option>
-        <option value="180">3 hours</option>
-        <option value="240">4 hours</option>
-        <option value="300">5+ hours</option>
-    </select>
       <div class="tooltip tip1">
           <p>Reserve by the hour (minimum of 90 minutes) to direct your driver for a period of time or to more than one intermediate stop. These trips are billed at the following rates:</p>
           <p>
@@ -2315,6 +2375,13 @@ $(function(){
           </p>
           <p>If the passenger is running late, PlanetTran will wait the entire trip time before creating a no-show billing for the reserved trip.</p>
       </div>
+      <select id="authWait" name="wait_time" style="float:right">
+          <option value="90">1.5 hours</option>
+          <option value="120">2 hours</option>
+          <option value="180">3 hours</option>
+          <option value="240">4 hours</option>
+          <option value="300">5+ hours</option>
+      </select>
   </fieldset>
 
   <div class="group">

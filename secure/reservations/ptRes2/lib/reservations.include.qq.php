@@ -5,6 +5,13 @@
 
     <form method="post" action="">
 
+	<input type="hidden" name="fromID" />
+	<input type="hidden" name="toID" />
+	<input type="hidden" name="stopID" />
+	<input type="hidden" name="meet_greet" value="0" />
+	<input type="hidden" name="vehicle_type" value="P" />
+	<input type="hidden" name="trip_type" value="P" />
+        
         <input type="hidden" name="id" value="<?php echo !empty($values['id']) ? $values['id'] : uniqid() ?>" />
 
         <div class="step1"><!-- step1 -->
@@ -27,9 +34,12 @@
                         <li>Tips are neither expected nor included in our flat-rate pricing.</li>
                     </ul>
                 </div>
-                <br/><br/><br/><br/>
                 <!-- START LEFT COLUMN -->
+                
+                
+                
                 <fieldset id="pickup" class="half_column">
+
                     <legend>From</legend>
                     
                 <div class="radio_buttons">
@@ -43,7 +53,7 @@
                 <div id="from_address_wrap1" class="from_location_option1">
                     <select id="quote_saved_locations_from" name="from_location" class="saved_locations" style='margin-bottom: 10px;'>
                         <option value="">Saved locations</option>
-                        <?php foreach(Account::getSavedLocations() as $location): ?>
+                        <?php foreach(Account::getSavedLocations() as $location): if(strstr($location['machid'], 'airport') !== false) continue ?>
                         <option <?php if($location['machid'] == $values['from_location'] || $location['machid'] === $_GET['from']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
                                                                                                                                                                  data-addr="<?php echo htmlspecialchars($location['address1']) ?>" data-zip="<?php echo htmlspecialchars($location['zip']) ?>"
                                                                                                                                                                  data-city="<?php echo htmlspecialchars($location['city'])?>" data-state="<?php echo htmlspecialchars($location['state']) ?>">
@@ -51,6 +61,7 @@
                         </option>
                         <?php endforeach; ?>
                     </select>
+
                     <div id="saved_locations_from_wrap1">
                             <div class="row group">
                                 <label for="from_street_address">Street Address</label><br />
@@ -101,7 +112,7 @@
 				<div id="to_address_wrap1" class="to_location_option1">                
                     <select id="quote_saved_locations_to" name="to_location" class="saved_locations" style='margin-bottom: 10px;'>
                         <option value="">Saved locations</option>
-                        <?php foreach(Account::getSavedLocations() as $location): ?>
+                        <?php foreach(Account::getSavedLocations() as $location): if(strstr($location['machid'], 'airport') !== false) continue ?>
                         <option <?php if($location['machid'] == $values['to_location'] || $location['machid'] === $_GET['to']) echo 'selected="selected"' ?> value="<?php echo $location['machid'] ?>"
                                                                                                                                                              data-addr="<?php echo htmlspecialchars($location['address1']) ?>" data-zip="<?php echo htmlspecialchars($location['zip']) ?>"
                                                                                                                                                              data-city="<?php echo htmlspecialchars($location['city'])?>" data-state="<?php echo htmlspecialchars($location['state']) ?>">
