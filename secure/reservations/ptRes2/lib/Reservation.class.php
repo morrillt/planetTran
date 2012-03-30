@@ -1515,8 +1515,9 @@ if(!history) {
 
 
 
-    function refresh_estimate()
+    function refresh_estimate(callback)
     {
+
 
 	var intermediate_stop = $("#intermediate_stop");
           
@@ -1657,14 +1658,19 @@ if(!history) {
         setVehiclePrices(total_fare - vehicle_price);
 	  $("[name=estimate]").val("$"+total_fare);
 	  $('#reservation_summary').html(content);
+	  
+	if(callback) callback(response);
+	
 	}
+	
       });
 
     };
 
-    (function($){
 
-    $.fn.serializeObject = function() {
+(function($){
+
+$.fn.serializeObject = function() {
     if ( !this.length ) { return false; }
 
     var $el = this,
@@ -1699,12 +1705,14 @@ if(!history) {
     });
 
     return data;
-    };
+};
 })(jQuery);
+
 $(function(){
     var toAddClearOnClick = $('#clear_to_address').attr('onclick');
     function disableToLocation(){
         removeClearClick();
+        $('#to_address').click()
         $('#saved_locations_to').append($('<option id="opt_as_direct" selected="selected"> </option>').val('asDirectedLoc').html('As Directed'));
         $('#saved_locations_to').attr("disabled", true);
         $("div.to_location_option :input").attr("disabled", true);
@@ -1744,7 +1752,7 @@ $(function(){
 	      $("#authWait").show();
         } else {
             enableToLocation();
-	      $("#authWait").show();
+	      $("#authWait").hide();
         }
       })
       .change();
@@ -1971,16 +1979,12 @@ $(function(){
       '#from_airport,'+
       '#to_address,'+
       '#to_airport').change(function() {
-      if(!$(this).is("[id*=address]:checked")) return true;
       $(this)
         .parents()
         .filter('fieldset')
-        .find('#to_poi_wrap,[id*=airport_wrap]')
-          .find('input[type=text]')
-            .val('')
-            .end()
-          .find('option:selected')
-            .removeAttr('selected')
+        .find('a')
+	  .filter(function() { return $(this).text().toLowerCase().indexOf('clear') != -1 })
+	  .click()
             .end()
      ;
     });
@@ -2109,7 +2113,6 @@ $(function(){
 	  return;
 	}
 
-
 	if($('#intermediate_stop').is(":checked") && (!ad.stop_addr || !ad.stop_state || !ad.stop_zip || !ad.stop_state)) {
 	  alert('You have to type in full intermediate inaddresses!');
 	  return;
@@ -2122,12 +2125,9 @@ $(function(){
 	}
 
 
-	$.ajax({
-	  url:  'ajaxquote.php',
-	  type: 'POST',
-	  data: $.extend($("#steps_main").serializeObject(), getAddresses()),
-	  success: function(response)
+	refresh_estimate(function(response)
 	  {
+	
 	    var p = response.split("|");
 	    var price = parseFloat(p[0]);
 	    if(!price || price == NaN || price == "NaN") {
@@ -2149,16 +2149,15 @@ $(function(){
 	      }
 	      $($('.order_details li:nth-child(4)', Cx)).text('Drop-off Location: '+addresses.to_nick+' - '+addresses.to_address+", "+addresses.to_city+", "+addresses.to_state+" "+addresses.to_zip);
 
-
 	      try {
 	       history.pushState({ isMine:true }, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);
 	      } catch(e) {}
-	      refresh_estimate();
 	      api.next();
 	    }
 	    return;
-	  }
 	});
+	
+
       } else {
 	try {
 	  history.pushState({ isMine:true }, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);
@@ -2295,6 +2294,9 @@ $(function(){
           <option value="am" <?php if('am' == $values['ampm']) echo 'selected="selected"' ?>>AM</option>
           <option value="pm" <?php if('pm' == $values['ampm']) echo 'selected="selected"' ?>>PM</option>
       </select>
+      <label for="check_by_the_hour">
+          <input name="wait" type="checkbox" <?php if($values['wait']) echo 'checked="checked"' ?> id="check_by_the_hour" />Book by the hour <span id="tip1" class="tip">(?)</span>
+      </label>
     <select id="authWait" name="wait_time" style="float:right">
         <option value="90">1.5 hours</option>
         <option value="120">2 hours</option>
@@ -2302,9 +2304,6 @@ $(function(){
         <option value="240">4 hours</option>
         <option value="300">5+ hours</option>
     </select>
-      <label for="check_by_the_hour">
-          <input name="wait" type="checkbox" <?php if($values['wait']) echo 'checked="checked"' ?> id="check_by_the_hour" />Book by the hour <span id="tip1" class="tip">(?)</span>
-      </label>
       <div class="tooltip tip1">
           <p>Reserve by the hour (minimum of 90 minutes) to direct your driver for a period of time or to more than one intermediate stop. These trips are billed at the following rates:</p>
           <p>

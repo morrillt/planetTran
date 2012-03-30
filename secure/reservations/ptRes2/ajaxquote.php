@@ -1,4 +1,6 @@
 <?php
+ ini_set('error_reporting', E_ERROR);
+ ini_set('display_errors', 1);
 
 session_start();
 
@@ -8,15 +10,23 @@ include_once('../../../../BusinessLogic/Estimates/Estimate.php');
 global $d;
 
 get_estimate($_REQUEST);
-
+function loadMachId($arr, $srch){
+    foreach($srch as $v){
+        if($arr["$v"]){
+            return $arr["$v"];
+        }
+    }
+    return 0;
+}
 function get_estimate($col){
     global $d;
     $d = new AdminDB();
     $e = new Estimate();
 
-    $fromId = ($col['fromID']?$_GET['fromID']:0);
-    $toId = ($col['toID']?$_GET['toID']:0);
-    $stopId = ($col['stopID']?$_GET['stopID']:0);
+    $fromId = loadMachId($col, array('fromID','from_location'));
+    $toId = loadMachId($col, array('toID','to_location'));
+    $stopId = loadMachId($col, array('stopID','stop_location'));
+
     $from = null;
     $to = null;
     $stop = null;
@@ -34,7 +44,9 @@ function get_estimate($col){
 
 
     $estVal = $e->getEstimate();
-
+    if(is_null($estVal)){
+        echo implode('    ', $e->errors);
+    }
     if($estVal->fare > 0 && $estVal->fare < 29)
         $estVal->fare = 29;
 
@@ -69,7 +81,11 @@ function setEstimateRegion(&$e){
 }
 function loadResourceById(Estimate &$e, $machId){
     global $d;
-    if($machId){
+    if(is_null($machId)){
+        $e->fromAddress = new EstimateAddress();
+    } else if($machId && $machId=="asDirectedLoc"){
+        $e->fromAddress->machId = "asDirectedLoc";
+    } else if($machId){
         $e->fromAddress->machid = $machId;
         $res = $d->get_resource_data($machId);
         EstimateConverter::getAddressFromResource(&$e->fromAddress, $res);
