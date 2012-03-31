@@ -1,5 +1,4 @@
 <div id="footer" class="group constrainer">
-	<br />
   <div id="footerPopup">Copyright &copy; 2012, PlanetTran, All Rights Reserved.</div>
 </div><!--/footer-->
 
