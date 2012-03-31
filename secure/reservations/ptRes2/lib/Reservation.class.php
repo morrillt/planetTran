@@ -1508,7 +1508,8 @@ if(!history) {
 	$tools = new Tools();
 	foreach($tools->car_select_details() as $k=>$v): ?>
 	<?php echo $k ?>: {name: '<?php echo addslashes($v['name']) ?>',
-                           price: <?php echo addslashes($v['price']) ?> },
+                           price: <?php echo addslashes($v['price']) ?>,
+    price_hr: <?php echo addslashes($v['price_hr']) ?>},
       <?php endforeach ?>
       X: {}
     };
@@ -1532,7 +1533,7 @@ if(!history) {
         } else {
           fareType = "One way";
         }
-        $("#fareTypes").text(fareType);
+        $("#fareType").text(fareType);
 
         var ad = getAddresses();
       $("#steps_main [name=toID]")  .val(ad.to_location);
@@ -1550,11 +1551,16 @@ if(!history) {
 	{
 	  var data = response.split("|");
 
+
+
 	  var content = '';
 	  var esubtotal = 0;
 
-	  var base_price = parseFloat(data[0]);
-	  esubtotal += getBasePrice(data[0]);
+	  var base_price = getBasePrice(parseFloat(data[0]));
+        if($('[name=vehicle_type]').val()=='P'){
+            $('#base_estiamte_for_vehicles').text(base_price);
+        }
+
 	  content = content + '<div class="line_item group">'+
 	    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
 	    '<span class="price" id="total_price">$'+base_price.toFixed(2)+'</span>'+
@@ -1575,7 +1581,7 @@ if(!history) {
 	  if(cts.val() != "" && cts.val() != "P") {
 	    var vehicle = vehicles[cts.val()];
 	    if(vehicle) {
-	      vehicle_price = vehicle.price;
+	      vehicle_price = getVehiclePrice();
 	      esubtotal += vehicle_price;
 
 	      content = content + '<div class="line_item group">'+
@@ -1646,16 +1652,16 @@ if(!history) {
 	    '</div>';
 	  }
 
-	  var total_fare_1 = parseFloat(data[0]);
+	  var total_fare = parseFloat(data[0]);
 	  if(!total_fare) total_fare = esubtotal;
-	  var total_fare = (esubtotal - coupon - base_price + total_fare_1).toFixed(2);
+
 
 	  content = content + '<div class="line_item group total">'+
 	    '<span class="line_description">Total estimated fare:</span>'+
-	    '<span class="price" id="total_price">$'+total_fare+'</span>'+
+	    '<span class="price" id="total_price">$'+total_fare.toFixed(2)+'</span>'+
 	  '</div>';
-        setVehiclePrices(total_fare - vehicle_price);
-	  $("[name=estimate]").val("$"+total_fare);
+        setVehiclePrices();
+	  $("[name=estimate]").val("$"+total_fare.toFixed(2));
 	  $('#reservation_summary').html(content);
 
 	if(callback) callback(response);
@@ -1708,6 +1714,11 @@ $.fn.serializeObject = function() {
 })(jQuery);
 
 $(function(){
+    $('#back_step_1').click(function(){
+        $('[name=vehicle_type]').val('P');
+        $('#vehicleP').click()
+    });
+
     $("#tab1,#tab2")
       .click(function(e) {
         var idx = $("#tab1,#tab2").not(this).index();
@@ -1731,7 +1742,7 @@ $(function(){
         $('#dropoff').find('a').hide();
         $('#to_airport').attr("disabled", true);
         $('#to_address').attr("disabled", true);
-
+        $('#saved_locations_to_wrap [name=to_name]').val('As Directed');
     }
     function enableToLocation(){
         addClearClick();
@@ -1742,6 +1753,7 @@ $(function(){
         $('#dropoff').find('a').show();
         $('#to_airport').attr("disabled", false);
         $('#to_address').attr("disabled", false);
+        $('#saved_locations_to_wrap [name=to_name]').val('');
 
     }
     function addClearClick(){
@@ -1752,6 +1764,7 @@ $(function(){
         $('#clear_to_address').click();
         $('#clear_to_address').attr('onclick','return false;').unbind('click');
     }
+
     var chkByTheHour = $('#check_by_the_hour').is(':checked');
     if(chkByTheHour){
         disableToLocation();
@@ -1789,6 +1802,8 @@ $(function(){
         }
         return false;
     });
+
+});
     function getCurrentStep(){
         idx1 = $(".step1").index();
         idx2 = $(".step2").index();
@@ -1807,24 +1822,34 @@ $(function(){
         }
         return p;
     }
-});
-    function setVehiclePrices(bprice){
-        $(function(){
+    function setVehiclePrices(){
+
             var vpSuffix = '_vehicle_price';
             var vuSuffix = '_vehicle_upgrade';
-            $('#base_estiamte_for_vehicles').text(bprice);
-            prius_price = bprice +parseFloat($('#P'+vuSuffix).text());
-            prius_v_price = bprice + parseFloat($('#W'+vuSuffix).text());
-            camry_v_price = bprice + parseFloat($('#Y'+vuSuffix).text());
-            lexus_price = bprice + parseFloat($('#L'+ vuSuffix).text());
-            highlander_price = bprice + parseFloat($('#S' + vuSuffix).text());
+
+            if($('#check_by_the_hour').is(':checked')){
+                prius_price = getEstimateByVehcileHourly('P');
+                prius_v_price = getEstimateByVehcileHourly('V');
+                camry_v_price = getEstimateByVehcileHourly('C');
+                lexus_price = getEstimateByVehcileHourly('L');
+                highlander_price = getEstimateByVehcileHourly('S');
+            } else{
+                var bprice = parseFloat($('#base_estiamte_for_vehicles').text());
+                bprice += getAddOnsNoVehicle();
+                prius_price = bprice +parseFloat($('#P'+vuSuffix).text());
+                prius_v_price = bprice + parseFloat($('#W'+vuSuffix).text());
+                camry_v_price = bprice + parseFloat($('#Y'+vuSuffix).text());
+                lexus_price = bprice + parseFloat($('#L'+ vuSuffix).text());
+                highlander_price = bprice + parseFloat($('#S' + vuSuffix).text());
+            }
+
 
             $('#P' + vpSuffix).text('$'+prius_price.toFixed(2));
             $('#W' + vpSuffix).text('$'+prius_v_price.toFixed(2));
             $('#Y' + vpSuffix).text('$'+camry_v_price.toFixed(2));
             $('#L' + vpSuffix).text('$'+lexus_price.toFixed(2));
             $('#S' + vpSuffix).text('$'+highlander_price.toFixed(2));
-        });
+
     }
 
     function getAddresses()
@@ -1940,7 +1965,7 @@ $(function(){
 	  'stop_location': stopLocation
 
 	};
-    };
+    }
 
     function getCQAddresses()
     {
@@ -1991,10 +2016,9 @@ $(function(){
 	  'to_location':   toLocation,
 	  'from_location': fromLocation
 	};
-    };
-
-    function getBasePrice(total){
-        var addons = 0;
+    }
+    function getAddOnsNoVehicle(){
+        addons = 0;
         var intermediate_stop = $("#intermediate_stop");
         if(intermediate_stop.is(":checked")) {
 
@@ -2012,20 +2036,62 @@ $(function(){
             addons += 15*parseInt(children_seats.val());
         }
 
+        var meet_greet = $("#meet_greet");
+        if(meet_greet.is(":checked")) {
+            addons += 30;
+        }
+        return addons;
+    }
+
+    function isSelectVehicle(v_type){
+        var cts = $("[name=carTypeSelect]:checked");
+        if(cts.val() != ""){
+            return (cts.val()==v_type);
+        }
+        return false;
+    }
+
+//used by function getEstimateByVehcileHourly(v_type)
+    function getVehiclePriceHourly(v_type){
         var vehicle_price = 0;
+
+        var vehicle = vehicles[v_type];
+        if(vehicle) {
+            vehicle_price = vehicle.price_hr * parseFloat($('#authWait option:selected').val()/60);
+
+        }
+        return vehicle_price ;
+    }
+    function getVehiclePriceBy(v_type){
+        var vehicle_price = 0;
+        var vehicle = vehicles[v_type];
+        if(vehicle) {
+            vehicle_price = vehicle.price;
+        }
+        return vehicle_price;
+    }
+    function getVehiclePrice(){
+        var vehicle_price = 0;
+
         var cts = $("[name=carTypeSelect]:checked");
         if(cts.val() != "" && cts.val() != "P") {
             var vehicle = vehicles[cts.val()];
             if(vehicle) {
                 vehicle_price = vehicle.price;
-                addons += vehicle_price;
             }
         }
-        var meet_greet = $("#meet_greet");
-        if(meet_greet.is(":checked")) {
-            addons += 30;
-        }
+        return vehicle_price;
+    }
 
+    function getEstimateByVehcileHourly(v_type){
+        var addons = getAddOnsNoVehicle();
+        var vehicle_price =getVehiclePriceHourly(v_type);
+        return addons +  vehicle_price;
+    }
+
+    function getBasePrice(total){
+        var addons = getAddOnsNoVehicle();
+        addons += getVehiclePrice();
         return total - addons;
     }
   $(function() {
@@ -2623,7 +2689,8 @@ $(function(){
   </div><!-- /step1 -->
   <div class="step2"><!-- step2 -->
       <h2>Select a vehicle:</h2>
-      <div style="display:none" id="base_estiamte_for_vehicles">60</div>
+      <div style="display:none" id="base_estiamte_for_vehicles">0</div>
+      <div style="display:none" id="base_estiamte_for_vehicles_hr">0</div>
 
       <?php $tools = new Tools();
       foreach($tools->car_select_details() as $k=>$v): ?>
@@ -2636,8 +2703,10 @@ $(function(){
                       Holds: <?php echo $v['suitcases'] ?> suitcases<br/>
                       <?php if($v['extra']) echo $v['extra'] ?>
                   </div>
+                  <div style="display:none"  id="<?=$v['vehicle_type']?>_vehicle_upgrade_hr"><?=$v['price_hr']?></div>
                   <div style="display:none"  id="<?=$v['vehicle_type']?>_vehicle_upgrade"><?=$v['price']?></div>
                   <div  id="<?=$v['vehicle_type']?>_vehicle_price" class="vehicle_price"></div>
+
               </label>
               <div class="vehicle_chooser">
                   <input type="radio" data-vehicleTypeMapping="<?php echo $v['vehicle_type'] ?>" name="carTypeSelect" id="vehicle<?php echo $k ?>" value="<?php echo $k.'' ?>" <?php if($k == $values['carTypeSelect'] || (!$values['carTypeSelect'] && $k=="P")) echo 'checked="checked"' ?>/>
@@ -2667,7 +2736,7 @@ $(function(){
 
 
       <div id="step_navigation">
-          <input type="button" value="&laquo; Back to Step 1" class="button prev" />
+          <input type="button" id="back_step_1" value="&laquo; Back to Step 1" class="button prev" />
           <input type="button" value="Step 3 &raquo;" class="button next" />
       </div>
   </div><!-- /step2 -->

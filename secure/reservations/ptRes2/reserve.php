@@ -16,9 +16,10 @@
 */
 include_once('lib/Template.class.php');
 include_once('lib.php');
+$auth = New Auth();
 
 if(!isset($_SESSION['currentID']))
-    header('Location: index.php');
+    header('Location: index.php'); // got logged out ?
 
 //include_once('lib/Reservation.class.php');
 
@@ -41,8 +42,8 @@ else {
 
 if ((!isset($_GET['read_only']) || !$_GET['read_only']) && $conf['app']['readOnlyDetails']) {
 	// Make sure user is logged in
-	if (!Auth::is_logged_in()) {
-		Auth::print_login_msg();
+	if (!$auth->is_logged_in()) {
+		$auth->print_login_msg();
 	}
 }
 
