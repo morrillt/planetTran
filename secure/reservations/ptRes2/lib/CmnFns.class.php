@@ -42,6 +42,7 @@ class CmnFns {
 		// If time does not contain decimal point
 		// then set time array manually
 		// else explode on the decimal point
+		if($time >= 1440) $time -= 1440; // this is a dumb hack to double check that time isnt greater than a full day...
 		$hour = intval($time / 60);
 		$min = $time % 60;
 		if ($conf['app']['timeFormat'] == 24) {
