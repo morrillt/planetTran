@@ -16,12 +16,8 @@
 */
 include_once('lib/Template.class.php');
 include_once('lib.php');
-$auth = New Auth();
 
-if(isset($_COOKIE['ID']))
-    $auth->doLogin('', '', 'y', $_COOKIE['ID']);  // log in if they have a cookie set...
-
-if (!$auth->is_logged_in())  // if not logged in pass to login
+if(!isset($_SESSION['currentID']))
     header('Location: index.php');
 
 //include_once('lib/Reservation.class.php');
@@ -45,8 +41,8 @@ else {
 
 if ((!isset($_GET['read_only']) || !$_GET['read_only']) && $conf['app']['readOnlyDetails']) {
 	// Make sure user is logged in
-	if (!$auth->is_logged_in()) {
-		$auth->print_login_msg();
+	if (!Auth::is_logged_in()) {
+		Auth::print_login_msg();
 	}
 }
 

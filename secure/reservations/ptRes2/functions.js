@@ -72,10 +72,16 @@ function help(file) {
 
 function schedule(type, machid, ts, resid, scheduleid, read_only) {  
 		w = (type == 'r') ? 425 : 425;
-		h = (type == 'm') ? 600 : 500;
+		h = (type == 'm') ? 600 : 550;
 
+        if(type == 'c'){
+            h = 725
+            w = 550
+        }
+        centerW = (window.screen.width - w) / 2;
+        centerH = (window.screen.height - h) / 2;
 		nurl = "newschedule.php?type=" + type + "&machid=" + machid + "&ts=" + ts + "&resid=" + resid + '&scheduleid=' + scheduleid + "&is_blackout=0&read_only=" + read_only;    
-		window.open(nurl,"schedule","width=" + w + ",height=" + h + ",scrollbars,resizable=no,status=no");     
+		window.open(nurl,"schedule","width=" + w + ",height=" + h + ",left="+ centerW + ",top =" + centerH +",scrollbars,resizable=no,status=no");
 		void(0);    
 }
 
@@ -1329,8 +1335,8 @@ function get_state_from_zip(zip) {
 }
 
 function pop_email(resid, email) {  
-		w = 300;
-		h = 300;
+		w = 325;
+		h = 250;
 		
 		var left = (screen.width/2)-(w/2);
 		var top = (screen.height/2)-(h/2);

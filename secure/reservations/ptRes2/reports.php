@@ -35,7 +35,7 @@ if ($export) {
 }
 
 $temp = new Template('Reports', false);
-$temp->printHTMLHeader();
+$temp->printHTMLHeader('silo_reservations sn11 mn1');
 ?>
 <!--<div style="margin: 20px;">-->
 <!--<div style="text-align: center;"><img src="images/planettran_logo_new.jpg" border=0></div>-->
@@ -57,10 +57,13 @@ $total_time = round($time_end - $time_start, 3);
 /*********************************************************************/
 function print_table($res) {
 	global $t;
-	$month = CmnFns::getOrPost('date');
+	$month = CmnFns::getOrPost('month');
+	$year = CmnFns::getOrPost('year');
 	$group = CmnFns::getOrPost('group');
 	$groups = get_groups();
-	$exportStr = $month ? "&date=$month" : '';
+	$exportStr = "";
+	$exportStr .= $month ? "&month=$month" : "";
+	$exportStr .= $year ? "&year=$year" : "";
 	if (Auth::isAdmin())
 		$exportStr .= "&group=$group";
 	$user = get_user();
@@ -69,26 +72,12 @@ function print_table($res) {
 		$group_name = get_group_name($group);
 	else
 		$group_name = $user['group_name'];
-	
-	$range = range(0, -12);  // past 12 months.
-	$months = array();
 
-	foreach ($range as $k=>$v) {
-		$stamp = mktime(0,0,0,date("m")+$v);
-		$months[$v] = date("F Y", $stamp);
-	}
-
-	$junk = time();
-	//CmnFns::diagnose($months);
+	$months = get_months();  // just lazily moved this code down to clean up a bit
+	$years = get_years();
 
 	?>
 	<script type="text/javascript">
-		function changePage(e) {
-			var index = e.selectedIndex;
-			var month = e.options[index].value;
-			var ahref = "reports.php?date=" + month;
-			document.location.href = ahref;
-		}
 		function submitThis() {
 			document.groupSel.submit();
 		}
@@ -98,13 +87,13 @@ function print_table($res) {
 	</div>
 	<div>
 	<form name="groupSel" action="<?=$_SERVER['PHP_SELF']?>" method="get" style="margin: 0;">
-	Switch month:
+	Search A Month:
 	<?
-
-	$t->print_dropdown($months, $month, 'date', null, 'onChange=submitThis()'); 
+	$t->print_dropdown($months, $month, 'month', null, 'onChange=submitThis()');  // this function is cool.
+	$t->print_dropdown($years, $year, 'year', null, 'onChange=submitThis()');
 
 	if (Auth::isAdmin()) {
-		$t->print_dropdown($groups, $group, 'group', null, 'onChange=submitThis()'); 
+		$t->print_dropdown($groups, $group, 'group', null, 'onChange=submitThis()');
 		echo '<input type="submit" value="Go">';
 	}
 
@@ -154,13 +143,14 @@ function print_table($res) {
 function print_ccc_table($res) {
 	if (!$res) return;
 	$summary = get_ccc_summary($res);
-	$month = CmnFns::getOrPost('date');
+	$month = CmnFns::getOrPost('month');
+	$year = CmnFns::getOrPost('year');
 	$group = CmnFns::getOrPost('group');
-	//$groups = get_groups();
-	$exportStr = $month ? "&date=$month" : '';
+	$exportStr = "";
+	$exportStr .= $month ? "&month=$month" : "";
+	$exportStr .= $year ? "&year=$year" : "";
 	if (Auth::isAdmin())
-		$exportStr .= "&group=$group";
-
+		$exportStr .= "&group=$group"
 	?>
 	<div style="text-align: center; font-size: large; margin-top: 5px;">
 	CCC Summary
@@ -222,17 +212,7 @@ function cccsort($x, $y) {
 	else
 		return -1;
 }
-function get_date($string = false) {
-	$month = CmnFns::getOrPost('date');
 
-	if (!isset($month) || $month > 0) $month = 0;
-	else if ($month < -6) $month = -6;
-
-	$unixdate = mktime(0,0,0, date("m")+$month, 1, date("Y"));
-		
-	if ($string) return date("m/Y", $unixdate);
-	else return $unixdate;
-}
 
 function get_reservation_data() {
 		global $d;
@@ -245,11 +225,11 @@ function get_reservation_data() {
 
 		if (!$group) return array();
 
+		// 1 month range...
 		$startDate = $s = get_date();
-		$endDate = mktime(0,0,0, date("m", $s)+1, 1, date("Y", $s));
+		$endDate = mktime(0,0,0, date("m", $s), 0, date("Y", $s));
 	
-		$month = CmnFns::getOrPost('date');
-		if ($month == 0) $endDate = mktime(0,0,0);
+		if ($s == 0) $endDate = mktime(0,0,0);
 
 		$query = "SELECT distinct res.resid, res.date,
 			res.startTime, res.endTime,
@@ -283,8 +263,8 @@ function get_reservation_data() {
 			and trip_log.dispatch_status <> 14
 			ORDER BY res.date ASC, res.startTime ASC, l.lname";
 
-		$vals = array($user['groupid'], $startDate, $endDate);
-		$vals = array($group, $startDate, $endDate);
+		//$vals = array($user['groupid'], $startDate, $endDate);
+		$vals = array($group, $endDate, $startDate);
 
 		$q = $d->db->prepare($query);
 		$result = $d->db->execute($q, $vals);
@@ -367,3 +347,41 @@ function get_group_name($group) {
 	$row = $d->db->getRow($query, array($group));
 	return $row['group_name'];
 }
+
+function get_months(){
+	$range = range(1, 12);  // 12 months ...
+	$months = array();
+
+	foreach ($range as $k=>$v) {
+		$stamp = mktime(0,0,0,$v,1);  // first of the month....
+		$months[$v] = date("F", $stamp);
+	}
+	return $months;
+}
+
+function get_years(){
+	$years = array();
+	for ($i=0; $i<=5; $i++) {
+		// store string formatted date as key and value for dropdown and query.  since we're using maketime...
+		$years[date("Y")-$i] = date("Y")-$i;
+	}
+	return $years;
+}
+
+function get_date($string = false) {
+	$year = CmnFns::getOrPost('year');
+	$month = CmnFns::getOrPost('month');
+
+	if(!isset($year))
+		$year = 0;
+
+	if(!isset($month))
+		$month = 0;
+
+	$unixdate = mktime(0,0,0, $month+1, 0, $year); // last day of month before
+
+	if ($string) return date("m/Y", $unixdate);
+	else return $unixdate;
+}
+
+?>

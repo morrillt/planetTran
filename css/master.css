@@ -119,6 +119,16 @@ a:hover {
 	float: left;
 	}
 
+#main.full {
+    margin-bottom: 0em !important;
+    width: 100%; /* full screen main div */
+}
+
+#main.full .content_box {
+    margin-bottom: 0em !important;
+}
+
+
 #secondary {
 	margin-top: 2.5em;
 	margin-bottom: 2em;
@@ -368,6 +378,8 @@ body.sn6 #subnav ul li.sn6 a,
 body.sn7 #subnav ul li.sn7 a,
 body.sn8 #subnav ul li.sn8 a,
 body.sn9 #subnav ul li.sn9 a,
+body.sn11 #subnav ul li.sn11 a,
+
 body.sn10 #subnav ul li.sn10 a {
 	color: #fff;
 	text-shadow: 1px 1px 1px #9d9f9b;
@@ -1549,7 +1561,7 @@ h1#hdr_my_locations {
 }		
 
 #footerPopup {
-	width: 325px;
+    align: center;
 	text-align: center;
 	font-size: .87em;
 	color: #9a9b9a;

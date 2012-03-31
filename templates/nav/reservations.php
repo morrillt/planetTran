@@ -11,7 +11,7 @@
       <li class="sn9"><a href="<?php echo $securePrefix ?>/ctrlpnl.php?active=schedules">Schedules</a></li>
     <?php } ?>
     <?php if ($_SESSION['role'] == 'm') { ?>
-      <li class="sn9"><a href="<?php echo $securePrefix ?>/reports.php">Billing Reports</a></li>
+      <li class="sn11"><a href="<?php echo $securePrefix ?>/reports.php">Billing Reports</a></li>
     <?php } ?>
     <li class="sn6"><a href="<?php echo $securePrefix ?>/referrals.php">Referrals</a></li>
     <li class="sn2"><a href="<?php echo $securePrefix ?>/impact.php">Impact</a></li>
