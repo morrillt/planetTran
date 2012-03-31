@@ -13,26 +13,13 @@ if (!Auth::is_logged_in())
 else if ($_SESSION['role'] != 'a' && !Auth::isAdmin())
     Auth::print_login_msg();
 
-
 $mode = CmnFns::getOrPost('mode');
 $export = CmnFns::getOrPost('export');
-
+$group = CmnFns::getOrPost('group');
 $res = get_reservation_data();
 
-if ($export) {
-	if (!$res) {
-
-		die(0);
-	}
-
-	if ($mode == 'ccc') {
-		$summary = get_ccc_summary($res);
-		CmnFns::export_excel_array($summary);
-	} else
-		CmnFns::export_excel_array($res);
-
-	die(0);
-}
+if($export)
+	do_export($res,$mode);
 
 $temp = new Template('Reports', false);
 $temp->printHTMLHeader('silo_reservations sn11 mn1');
@@ -97,15 +84,14 @@ function print_table($res) {
 		echo '<input type="submit" value="Go">';
 	}
 
+	if (!$res) return;  // if no resource, stop printing stuff.  including that annoying export button.
 	?>
+
+
 	</form>
-        <a href="reports.php?export=1<?=$exportStr?>">Export Results</a>
+		<a href="reports.php?export=1<?=$exportStr?>">Export Results</a>
 	</div>
-	<?
 
-	if (!$res) return;
-
-	?>
 	<table width="100%" cellspacing=1 cellpadding=2 style="background-color: #EEF;">
 	  <tr style="font-weight: bold; background-color: #EFE;"><?
 
@@ -295,7 +281,6 @@ function get_reservation_data() {
 
 			$cur['CC'] = $row['cc'] ? '*'.$row['cc'] : '';
 
-
 			$cur['booker_name'] 	= $row['fname']." ".$row['lname']; 
 			$cur['passenger_name_if_different'] 	= $notes['name'] ? $notes['name'] : ''; 
 
@@ -353,7 +338,7 @@ function get_months(){
 	$months = array();
 
 	foreach ($range as $k=>$v) {
-		$stamp = mktime(0,0,0,$v,1);  // first of the month....
+		$stamp = mktime(0,0,0,$v,1);
 		$months[$v] = date("F", $stamp);
 	}
 	return $months;
@@ -384,4 +369,17 @@ function get_date($string = false) {
 	else return $unixdate;
 }
 
+function do_export($res, $mode=''){
+	if (!$res) {
+		header('Location: reports.php');
+		return;
+	}
+	if ($mode == 'ccc') {
+		$summary = get_ccc_summary($res);
+		CmnFns::export_excel_array($summary);
+	} else {
+		CmnFns::export_excel_array($res);
+	}
+	die(0);
+}
 ?>
