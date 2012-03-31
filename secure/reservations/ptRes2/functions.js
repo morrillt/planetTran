@@ -71,11 +71,11 @@ function help(file) {
 }      
 
 function schedule(type, machid, ts, resid, scheduleid, read_only) {  
-		w = (type == 'r') ? 425 : 425;
-		h = (type == 'm') ? 600 : 550;
+		w = (type == 'r') ? 680 : 550;
+		h = (type == 'm') ? 730 : 550;
 
         if(type == 'c'){
-            h = 725
+            h = 715
             w = 550
         }
         centerW = (window.screen.width - w) / 2;
