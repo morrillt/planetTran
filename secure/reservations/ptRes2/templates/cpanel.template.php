@@ -157,9 +157,9 @@ function showSchedulesTable($res, $err) {
 		//$b = "..".$rs['group_type']."--";
 
 		if ($rs['group_type']=='c'||!$rs['group_type']) {
-			if (!$rs['hascard'])	
+			if (!$rs['hascard'])
 				$class = 'cellColorYellow';
-			
+
 		}
 
 
@@ -250,11 +250,11 @@ function showReservationTable($res, $err) {
             <?php //echo '<pre>'; print_r($value); echo '</pre>'; ?>
               <tr>
                 <td><?php echo substr($value['resid'], strlen($value['resid'])-6) ?></td>
-                <td><?php 
+                <td><?php
 					/*
-					 * $time and date returned as string from CmnFns.  
+					 * $time and date returned as string from CmnFns.
 					 * - update... issues with every function I've used.  even manual math.
-					 * - I get significantly different results from CmnFns::formatDate and Time 
+					 * - I get significantly different results from CmnFns::formatDate and Time
 					 * - on the QA server vs my QA.  Need to figure this out...
 					 */
 					//echo date('m/d/Y', $value['date']) . " " . date("h:i A", 60*$value['pickupTime']);
@@ -349,7 +349,7 @@ function showPage($page) {
 	$baklink = '&lt;&lt; Prev';
 	$nexlink = 'Next &gt;&gt;';
 	$dates = isset($_GET['monthLow']) ? "&monthLow={$_GET['monthLow']}&yearLow={$_GET['yearLow']}&monthHi={$_GET['monthHi']}&yearHi={$_GET['yearHi']}":'';
-	if ($page['total'] > $page['upper']) 
+	if ($page['total'] > $page['upper'])
 		$nexlink = '<a href="'.$_SERVER['PHP_SELF'].'?page='.($page['page']+1).$dates.'">'.$nexlink.'</a>';
 
 	if ($page['lower'] > 0)
@@ -371,8 +371,8 @@ function showReceiptsTable($res, $err) {
 	global $conf;
 	global $link;
 	$page = $res[0];
-	
-	$search = array_pop($res);	// Grab the $search flag that was pushed in DBEngine.class.php	
+
+	$search = array_pop($res);	// Grab the $search flag that was pushed in DBEngine.class.php
 //	showPage($page);
 /*
 ?>
@@ -408,12 +408,12 @@ include dirname(__FILE__).'/../../../../config/paths.php';
 ?>
 <table width="100%" border="0" cellspacing="1" cellpadding="0">
   <caption class="group">
-  
+
     <h2><?php
      if ($search) {
      	echo "Search Results";
-     } else { 
-     	print $_SESSION['currentName'] . "'s Trips"; 
+     } else {
+     	print $_SESSION['currentName'] . "'s Trips";
 	}?></h2>
 
     <?php  // if there is no search, give them their monthly export tab
@@ -474,7 +474,7 @@ include dirname(__FILE__).'/../../../../config/paths.php';
 	if (!$res)
 		echo '        <tr class="cellColor"><td colspan="9" align="center">You do not have any receipts.</td></tr>';
 
-	/*********************************************************	
+	/*********************************************************
 	* print receipts
 	*/
 	for ($i = 0; is_array($res) && $i < count($res); $i++) {
@@ -506,8 +506,8 @@ include dirname(__FILE__).'/../../../../config/paths.php';
 //    $hours = date('h', $rs['date']);
 //    $minutes = date('i', $rs['date']);
 //    $am = ($hours / 12) < 1;
-    
-    
+
+
     $member = mysql_fetch_assoc(mysql_query("select * from login where memberid='".$rs['memberid']."'"));
 ?>
     <tr>
@@ -516,19 +516,20 @@ include dirname(__FILE__).'/../../../../config/paths.php';
     <?php }
     /* <a href="javascript:reserve('v','','','<?php echo $rs['resid'] ?>', '', '1')">View</a> |
      * Temporarily removed the View link from the receipts view.
-     */ 
+     */
      ?>
-    
-      <td><a href="survey.php?resid=<?php echo $rs['resid'] ?>">Send Feedback</a></td>
-      <td><?php echo date('m/d/Y', $rs['date']) ?></td>
-      <td><?php echo date("h:i A", 60*$rs['startTime']) ?></td>
+
+      <td><a href="javascript:pop_survey('<?php echo $rs['resid']?>')">Send Feedback</a></td>
+      <? // <td><?php echo date('m/d/Y', $rs['date']) ?>
+	  <td><?php echo CmnFns::formatDate($rs['date']) ?></td>
+      <td><?php echo CmnFns::formatTime($rs['startTime'])?></td>
       <td>$<?php echo $rs['total_fare'] ?></td>
       <td><?php echo $rs['fromLocationName'] ?></td>
       <td><?php echo $rs['toLocationName'] ?></td>
       <td><a href="newReceipt.php?resid=<?php echo $rs['resid'] ?>">PDF</a> |
-          <a href="javascript:pop_email('<?php echo $rs['resid']?>', '<?php echo $member['email']?>')">Email</a></td> 
+          <a href="javascript:pop_email('<?php echo $rs['resid']?>', '<?php echo $member['email']?>')">Email</a></td>
     </tr>
-    
+
 
 <?php
 //$_SESSION['sessionAdmin']
@@ -572,7 +573,7 @@ function showTrainingTable($per, $err, $scheduleid) {
    var edit = '<a href="/pop/add_location.php?machid='+data2.machid+'" class="popover-edit" title="Edit Location">Edit</a>'+
               '|'+
 	      '<a href="/pop/delete_location.php?machid='+data2.machid+'" class="popover-delete parentTr" title="Delete Location?">Delete</a>';
-	      
+
    t.prepend("<tr><td>"+data2.name+"</td><td>"+data2.address1+"</td>"+
 		  "<td>"+data2.city+"</td><td>"+data2.state+"</td>"+
 		  "<td>"+data2.zip+"</td><td>"+edit+"</td></tr>");
@@ -636,7 +637,7 @@ function showTrainingTable($per, $err, $scheduleid) {
 		    &#8250; <?=translate('My Permissions') . ' ' . stripslashes($_SESSION['currentName'])?>
 		  </td>
 		  <td align="right" valign="middle" class="tableTitle" width="30%">
-		  <? 
+		  <?
 		echo getApts();
 		 ?></td><td align="right" class="tableTitle" width="10%"><?
 		echo "<input type=\"button\" value=\"Create New Location\" onmouseup=\"locate('c','$id','$ts','','$scheduleid');\" onmouseover=\"window.status='Create New Location'; return true;\" onmouseout=\"window.status=''; return true;\">"; ?>
@@ -758,17 +759,17 @@ function showQuickLinks() {
               <? $link->doLink('my_email.php', translate('Manage My Email Preferences')) ?>
             </p>
             <p><b>&raquo;</b>
-             <a href="javascript: window.open('feedback.php', 'feedbackForm', 'width=700, height=425'); void(0);">Send Feedback</a> 
+             <a href="javascript: window.open('feedback.php', 'feedbackForm', 'width=700, height=425'); void(0);">Send Feedback</a>
             </p>
             <p><b>&raquo;</b>
-             <a href="javascript: window.open('qq.php', 'qq', 'width=650, height=400, scrollbars=1'); void(0);">Get a Custom Quote w/ your organization's discount.</a> 
+             <a href="javascript: window.open('qq.php', 'qq', 'width=650, height=400, scrollbars=1'); void(0);">Get a Custom Quote w/ your organization's discount.</a>
             </p>
             <?
 		if (Auth::isAdmin() || ($_SESSION['role'] == 'a' && $_SESSION['curGroup'])) {
 		$rlink = $conf['app']['weburi'] . '/reports.php';
 		?>
             	<p><b>&raquo;</b>
-             	<a href="<?=$rlink?>" target="_blank">Monthly Activity Report</a> 
+             	<a href="<?=$rlink?>" target="_blank">Monthly Activity Report</a>
             </p>
 
 		<?
@@ -777,7 +778,7 @@ function showQuickLinks() {
 		// If it's the admin, print out admin links
 		if (Auth::isAdmin()) {
             ?><p><b>&raquo;</b>
-             <a href="javascript: window.open('turnaway.php', 'turnaway', 'width=450, height=250, scrollbars=1'); void(0);">Report Turnaway</a> 
+             <a href="javascript: window.open('turnaway.php', 'turnaway', 'width=450, height=250, scrollbars=1'); void(0);">Report Turnaway</a>
 	    <?
 			echo
 				  '<p><b>&raquo;</b> ' .  $link->getLink('admin.php?tool=schedules', translate('Manage Schedules')) . "</p>\n"

@@ -72,7 +72,7 @@ function help(file) {
 
 function schedule(type, machid, ts, resid, scheduleid, read_only) {  
 		w = (type == 'r') ? 680 : 550;
-		h = (type == 'm') ? 730 : 550;
+		h = (type == 'm') ? 770 : 550;
 
         if(type == 'c'){
             h = 715
@@ -1344,4 +1344,65 @@ function pop_email(resid, email) {
 		nurl = "emailPopup.php?resid=" + resid + "&email=" + email;    
 		window.open(nurl,"pop_email","width=" + w + ",height=" + h + ",top=" + top + ",left=" + left + ", scrollbars=no,resizable=no,status=no");     
 		void(0);    
+}
+
+
+function pop_survey(resid) {
+    w = 650;
+    h = 700;
+
+    var left = (screen.width/2)-(w/2);
+    var top = (screen.height/2)-(h/2);
+
+    nurl = "survey.php?resid=" + resid;
+    window.open(nurl,"pop_survey","width=" + w + ",height=" + h + ",top=" + top + ",left=" + left + ", scrollbars=yes,resizable=yes,status=no");
+    void(0);
+}
+
+
+function makeHttpRequest(url,method){
+    var http_request = false;
+    var response = '';
+
+    if (method != 'POST') {
+        method = 'GET';
+    }
+
+    if (window.XMLHttpRequest) { // Firefox and real browsers
+        http_request = new XMLHttpRequest();
+        if (http_request.overrideMimeType){
+            http_request.overrideMimeType('text/xml');
+        }
+    }
+    else if (window.ActiveXObject) { // IE
+        try{
+            http_request = new ActiveXObject("Msxml2.XMLHTTP");
+        }
+        catch(e){
+            try{
+                http_request = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            catch (e) {
+
+            }
+        }
+    }
+    if (!http_request) {
+        alert('Unfortunatelly you browser doesn\'t support this feature.');
+        return false;
+    }
+    http_request.onreadystatechange = function () {
+        if (http_request.readyState == 4) {
+            if (http_request.status == 200) {
+                alert(http_request.responseText);
+                //return response;
+            }
+            else {
+                alert('There was a problem with the request.(Code: ' + http_request.status + ')');
+                //return response;
+            }
+        }
+    };
+    xmlhttp.open(method,url,true);
+    xmlhttp.send();
 }

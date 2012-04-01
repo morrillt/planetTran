@@ -753,7 +753,8 @@ function print_newschedule_edit($rs, $scheds, $type, &$pager, $login, $bill, $gr
 	if ($_SESSION['role']=='a')
 		echo 'Does your passenger already have an account?<br><a href="'.$_SERVER['PHP_SELF'].'?addExisting=1">Click here to add them</a>.';
     ?>
-<form name="register" method="post" action="admin_update.php" onSubmit="return checkReg('<?=$mode?>')">
+
+<form name="register" method="post" action="admin_update.php">
 <table width="100%" border="0" cellspacing="0" cellpadding="1" align="center">
   <tr>
     <td class="tableBorder">

@@ -8,7 +8,7 @@ include_once('lib/Template.class.php');
 $d = new DBEngine();
 $t = new Tools();
 
-if (!Auth::is_logged_in()) 
+if (!Auth::is_logged_in())
     Auth::print_login_msg();
 else if ($_SESSION['role'] != 'a' && !Auth::isAdmin())
     Auth::print_login_msg();
@@ -87,7 +87,6 @@ function print_table($res) {
 	if (!$res) return;  // if no resource, stop printing stuff.  including that annoying export button.
 	?>
 
-
 	</form>
 		<a href="reports.php?export=1<?=$exportStr?>">Export Results</a>
 	</div>
@@ -110,11 +109,8 @@ function print_table($res) {
         foreach($cur as $key => $value){
             if ($key != "CCC" && $key != "other") {
                 if ($key == "total_fare")
-                    /* quick note here:
-                       money_format("$%.2n",floatval($cur[$key])) should work.  but money_format is dependant on local settings.
-                       Idk about international customers so I didn't want to do that.  It seems to always be USD.
-                    */
-                    $cur[$key] = "$".$cur[$key].".00";
+	                if ($key == "total_fare")
+		                $cur[$key] = "$". money_format("%.2n",floatval($cur[$key]));
                 $results[$key]=$cur[$key];
             }
         }
@@ -182,11 +178,9 @@ function get_ccc_summary($res) {
 			$s[$curcc]['total'] = $cur['total_fare'];
 		}
 	}
-
 	foreach ($s as $v) {
 		$return[] = $v;
 	}
-
 	usort($return, 'cccsort');
 	return $return;
 }
@@ -214,7 +208,7 @@ function get_reservation_data() {
 		// 1 month range...
 		$startDate = $s = get_date();
 		$endDate = mktime(0,0,0, date("m", $s), 0, date("Y", $s));
-	
+
 		if ($s == 0) $endDate = mktime(0,0,0);
 
 		$query = "SELECT distinct res.resid, res.date,
@@ -229,7 +223,7 @@ function get_reservation_data() {
 			toLoc.city as toCity, toLoc.state as toState,
 			toLoc.name as toName, toLoc.zip as toZip,
 			res.special_items as specialItems,
-			trip_log.total_fare, trip_log.cc, 
+			trip_log.total_fare, trip_log.cc,
 			l.fname, l.lname, l.position as ccc,
 			dispatch.code as dispatch_status,
 			pay.code as pay_status
@@ -237,10 +231,10 @@ function get_reservation_data() {
 			left join trip_log on trip_log.resid = res.resid
 			left join codes pay on pay.id = trip_log.pay_status
 			left join codes dispatch on dispatch.id = trip_log.dispatch_status
-		 	WHERE 
-			res.memberid=l.memberid 
-			AND res.machid=rs.machid 
-			AND res.toLocation = toLoc.machid 
+		 	WHERE
+			res.memberid=l.memberid
+			AND res.machid=rs.machid
+			AND res.toLocation = toLoc.machid
 			and l.groupid=?
 			and res.date >= ?
 			and res.date < ?
@@ -259,7 +253,7 @@ function get_reservation_data() {
 
 		while ($row = $result->fetchRow()) {
 			$cur = array();
-		
+
 			if (strtoupper($row['lname']) == 'SHUTTLE') continue;
 			if (strpos($row['specialItems'], "P") !== false) continue;
 
@@ -267,9 +261,9 @@ function get_reservation_data() {
 
 			//$cur['resid']	= $row['resid'];
 			$cur['resid'] = strtoupper(substr($row['resid'], -6));
-			$cur['date'] 	= date("m/d/y", $row['date']);
+			$cur['date'] 	= CmnFns::formatDate($row['date']); // STOP USING THE WRONG DATE FORMAT.  USE THIS FUNCTION FFS.  SERIOUSLY.
 			$cur['total_fare'] = $row['total_fare'];
-			
+
 			$cur['CCC']	= $notes['code'] ? $notes['code'] : $row['ccc'];
 
 			$cur['payment_method'] = $row['pay_status'];
@@ -281,8 +275,8 @@ function get_reservation_data() {
 
 			$cur['CC'] = $row['cc'] ? '*'.$row['cc'] : '';
 
-			$cur['booker_name'] 	= $row['fname']." ".$row['lname']; 
-			$cur['passenger_name_if_different'] 	= $notes['name'] ? $notes['name'] : ''; 
+			$cur['booker_name'] 	= $row['fname']." ".$row['lname'];
+			$cur['passenger_name_if_different'] 	= $notes['name'] ? $notes['name'] : '';
 
 			$cur['from']	= $row['fromName'];
 			$cur['from_address'] = $row['fromAdd1'].", ".$row['fromCity']." ".$row['fromState']." ".$row['fromZip'];
@@ -291,7 +285,6 @@ function get_reservation_data() {
 
 			$cur['flight_info'] = str_replace("{`}", " ", $row['flightDets']);
 			$cur['other'] = ($notes['cell'] == 'Not given' ? '' : $notes['cell'])." ".$notes['email']." ".$notes['email'];
-
 
 			$return[] = $cur;
 		}
@@ -302,7 +295,7 @@ function get_user() {
 	global $d;
 	$memberid = $_SESSION['sessionID'];
 	$vals = array($memberid);
-	
+
 	$query = "select l.*, bg.group_name
 		  from login l join billing_groups bg on l.groupid=bg.groupid
 		  where l.memberid=?";
