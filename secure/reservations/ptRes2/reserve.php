@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
 * Interface form for placing/modifying/viewing a reservation
 * This file will present a form for a user to
 *  make a new reservation or modify/delete an old one.
@@ -105,7 +105,7 @@ $t->printHTMLFooter();
 * Processes a reservation request (add/del/edit)
 * @param string $fn function to perform
 */
-function process_reservation($fn) {   // Why is this lower_under when the entire app is lowerCamel? Consistency please.  -JL  
+function process_reservation($fn) {   // Why is this lower_under when the entire app is lowerCamel? Consistency please.  -JL
 	$success = false;
 	global $Class;
 	$delimiter = 'DELIMITER';
@@ -133,11 +133,11 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
 				$_POST['city'] . $delimiter .
 			$_POST['cell'];
 
-	
+
 
 	if (isset($_POST['hack']))
 		$_POST['summary'] = $_POST['pname'] . $delimiter . $_POST['ccnum'] . $delimiter . $_POST['expdate'] . $delimiter . $_POST['address'] . $delimiter . $_POST['city'] . $delimiter . $_POST['cell'];
-	
+
 	if (isset($_POST['resid']))
 		$res = new $Class($_POST['resid']);
 	else if (isset($_GET['resid']))
@@ -159,14 +159,21 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
   if($_REQUEST['resid'])
     $res->load_by_id();
 
-
 //	$startTime = $_POST['ampm'] == 'pm' ? $_POST['startTime'] + 720 : $_POST['startTime'];
-  $startMinutes = $_POST['start_hour'] * 60 + $_POST['start_minutes'];
-	$startTime = ($_POST['ampm'] == 'pm' ? $startMinutes + 720 : $startMinutes);
+    $startMinutes = $_POST['start_minutes'];
+	$startHour = $_POST['start_hour'];
 
-	$dates = split('/', $_POST['date']);
+	if($startHour=='12' || $startHour=12) $startHour = 0;  // since we're adding 720, we cant multiply 12 ever... it throws it into next day.
+
+	if($_POST['ampm'] == 'am'){
+		$startTime = $startHour * 60 + $startMinutes;
+	} else {
+		$startTime = $startHour * 60 + $startMinutes + 720; // if we're PM, add half a day...  since we caught 12 o'clock already, this shouldnt be a problem.
+	}
+
+	$dates = explode('/', $_POST['date']);  // dont use split, use explode or preg_split.  split is deprecated now
 	if ($_POST['fn'] != 'delete')
-		$res->date = mktime($_POST['start_hour'],$_POST['start_minutes'],0,$dates[0], $dates[1], $dates[2]);//array($_POST['ts']);
+		$res->date = mktime($startHour,$startMinutes,0,$dates[0], $dates[1], $dates[2]);//array($_POST['ts']);  -- JL I think fixed?
 
 	$specialItems = '';
 	$specialItems .= isset($_POST['suv']) ? 'S' : '';
@@ -186,9 +193,9 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
 	$specialItems .= isset($_POST['van']) ? 'N' : '';
 	$specialItems .= isset($_POST['curbside']) ? 'C' : '';
 
-	if (isset($_POST['carTypeSelect'])) 
+	if (isset($_POST['carTypeSelect']))
 		$specialItems .= $_POST['carTypeSelect'];
-	if (isset($_POST['seatTypeSelect'])) 
+	if (isset($_POST['seatTypeSelect']))
 		$specialItems .= $_POST['seatTypeSelect'];
 
   require_once dirname(__FILE__).'/lib/db/AdminDB.class.php';
@@ -264,7 +271,7 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
 
 	$regionID = get_service_region($_POST['fromLoc']);
 	$vehicle_type = ($_POST['carTypeSelect'] == '') ? 'P' : $_POST['carTypeSelect'];
-	
+
 	if(isset($authWait) || $_POST['toLoc'] == 'asDirectedLoc')
 		$trip_type = 'H';
 	elseif(isset($stopLoc))
@@ -315,7 +322,7 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
     $toLoc = add_resource($toLocation, true);
   }
 
-  
+
 
   if($fn == 'create'){
 	  $res->add_res($fromLoc, $toLoc, $_SESSION['currentID'], $startTime, $startTime + 15, $repeat, $_POST['date'], $_POST['minRes'], $_POST['maxRes'], stripslashes($_POST['summary']), stripslashes($_POST['special']), $flightDets, (isset($_POST['checkBags'])?1:0), $scheduleid, $specialItems, stripslashes($_POST['dispNotes']), $_POST['coupon'], null, $authWait, $paymentProfileId, $stopLoc, (isset($_POST['autoBillOverride'])?1:0), $convertible_seats, $booster_seats, $regionID, $vehicle_type, $trip_type, $passenger_count, $meet_greet, $estimate);
@@ -415,7 +422,7 @@ function get_repeat_dates($initial_ts, $interval, $days, $until, $frequency, $we
 	list($last_m, $last_d, $last_y) = explode('/', $until);
 	//$last_ts = mktime(0,0,0,$last_m, $last_d, $last_y);
 	$last_ts = -1;
-	
+
 	$last_date = getdate($last_ts);
 
 	$day_of_week = $initial_date['wday'];
