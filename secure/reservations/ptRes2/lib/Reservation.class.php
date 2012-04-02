@@ -317,7 +317,7 @@ class Reservation {
 		    $this->add_error('Please enter a date for all reservations.');
 	    }
 
-	    if (!$this->start || $this->start == ''){
+	    if (!isset($this->start) || $this->start == ''){
 		    $this->add_error('Please enter a pickup time for all reservations.');
 	    }
 
@@ -1398,7 +1398,6 @@ class Reservation {
 
 				$split = '{`}';
         $splitted = explode($split, $this->flightDets);
-	  $start = $this->start;
 
 
 	  // this adjusts time to determine hour.  stop using 779 >_>
@@ -2247,7 +2246,7 @@ $(function(){
     if(!$("#intermediate_stop").is(":checked")) {
 	    if($("#from_zipcode").val().toLowerCase().replace(/[^0-9]/g, "") == $("#to_zipcode").val().toLowerCase().replace(/[^0-9]/g, "")) {
 		    // matched zipcode
-	    	if($("#from_address").val().toLowerCase() == $("#to_address").val().toLowerCase()) {
+	    	if($("#from_street_address").val().toLowerCase() == $("#to_street_addres").val().toLowerCase()) {
 		    	// matched address
 			    repeatAddressError = true;
 		    }
