@@ -86,11 +86,11 @@ class Reservation {
 	var $autoBillOverride;
 	var $convertible_seats = null;
 	var $booster_seats = null;
-	
+
 	var $regionID = null;
 	var $vehicle_type = null;
 	var $trip_type = null;
-	var $passenger_count = null; 
+	var $passenger_count = null;
 	var $meet_greet = null;
 	var $estimate = null;
 
@@ -294,7 +294,7 @@ class Reservation {
 		if ($_POST['asDirected']) {
 			$mtype = 'h';
 			$this->toLocation = 'asDirectedLoc';
-		} 
+		}
 		// hailing
 		//if ($_POST['fromLoc'] == 'fromgps') {
 		//	$this->machid = $this->insert_gps_loc($scheduleid);
@@ -309,12 +309,20 @@ class Reservation {
 //var_dump(!isset($this->start));
 //var_dump($this->start == '');
 
-		if (!$this->machid || !$this->toLocation
-		 || !$date || !isset($this->start) || $this->start == '') {
-			$this->add_error('Please enter a date, time, and locations for all reservations.');
-			$this->print_all_errors(true);
+		if (!$this->machid || !$this->toLocation) {
+			$this->add_error('Please enter a location for all reservations.');
 		}
-		
+
+	    if (!$this->machid || !$date){
+		    $this->add_error('Please enter a date for all reservations.');
+	    }
+
+	    if (!$this->start || $this->start == ''){
+		    $this->add_error('Please enter a pickup time for all reservations.');
+	    }
+
+	    $this->print_all_errors(true);
+
 		$fixdate = mktime(0,0,0,$dates_info[0], $dates_info[1], $dates_info[2]);
 		$fixdate -= $fixdate % 100;
 		$this->date = $fixdate;
@@ -340,7 +348,7 @@ class Reservation {
 			//$this->check_min_max($min, $max);
 		}
 
-		if ($coupon) 
+		if ($coupon)
 			$this->check_coupon($coupon, $this->machid, $this->toLocation);
 
 
@@ -376,7 +384,7 @@ class Reservation {
 		//if ($i == 0) $tmp_date = $this->date;	// Store the first date to use in the email
 
 		$is_valid = $this->check_res();
-		
+
 		if ($is_valid) //{
 			$tmp_valid = true;							// Only one recurring needs to work
 		//$this->id = $this->db->add_res($this, $is_parent);
@@ -400,10 +408,10 @@ class Reservation {
 
 		//sort($dates);
 
-		/*							      
+		/*
 		* All above repeat logic has been discarded.
 		* This is the new add_res logic.
-		*/							      
+		*/
 		$this->mtype = $mtype;
 
 		if (!$mtype || $mtype == 'o') {
@@ -431,11 +439,11 @@ class Reservation {
 
 			// reverse from and to locations, set new time
 			// all other properties are identical
-			
+
 			$this->machid = $toLocation;
 			$this->toLocation = $machid;
 			$this->start = $start2;
-			
+
 			$this->end = $this->start + 15;
 			$this->date = $date2;
 			array_push($dates, $this->date);
@@ -481,8 +489,8 @@ class Reservation {
 
 		if (!$this->is_repeat || $tmp_valid) {
 			// If they entered a CC and want it to be the default
-			if (isset($_POST['ccToAcct'])) 
-				$this->db->cc_to_acct();			
+			if (isset($_POST['ccToAcct']))
+				$this->db->cc_to_acct();
 			$this->print_success('created', $dates);
 		}
 
@@ -493,7 +501,7 @@ class Reservation {
 	*/
 	function do_voucher () {
 		$vid = $_POST['voucherid'];
-		if (strlen($vid) != 6) { 
+		if (strlen($vid) != 6) {
 			$this->add_error('To make an ABCTMA reservation, please enter the 6 character voucherid.<br>');
 			return false;
 		}
@@ -510,7 +518,7 @@ class Reservation {
 			$this->add_error('Invalid ABCTMA user or voucherid. Error code ABC1. Please write this code down and use it when reporting the problem.');
 			return false;
 		}
-		
+
 		// Add voucherid to cost code field
 		$notes = $this->db->parseNotes($this->summary, 1);
 		$notes[2] = $vid;
@@ -574,7 +582,7 @@ class Reservation {
 
 		$this->machid = $fromLoc;
 		$this->toLocation = $toLoc;
-		
+
 		$this->type = 'm';
 		$this->summary = $summary;
 		$this->flightDets = $flightDets;
@@ -586,14 +594,14 @@ class Reservation {
 		$this->autoBillOverride	= $autoBillOverride;
 		$this->convertible_seats = $convertible_seats;
 		$this->booster_seats = $booster_seats;
-		
+
 		$this->regionID = $regionID;
 		$this->vehicle_type = $vehicle_type;
 		$this->trip_type = $trip_type;
 		$this->passenger_count = $passenger_count;
 		$this->meet_greet = $meet_greet;
 		$this->estimate = $estimate;
-		
+
 
 		$dates_info = split('/', $date);
 		//$this->date = mktime(0,0,0,$dates_info[0], $dates_info[1], $dates_info[2]);
@@ -608,7 +616,7 @@ class Reservation {
 		$this->dispNotes = !empty($dispNotes) ? $dispNotes : null;
 		$this->coupon = $coupon ? $coupon : null;
 
-		if ($coupon) 
+		if ($coupon)
 			$this->check_coupon($coupon, $this->machid, $this->toLocation);
 
 		if ($del) {	// First, check if this should be deleted
@@ -702,22 +710,22 @@ class Reservation {
 			$date_text .= "Reservation #$showid on ";
 			$date_text .= CmnFns::formatDate($dates[$i]) . " $payinfo";
 		}
-		
+
 			$airports = get_airports_array();
-			
+
 			if($_POST['apts_from'] && $_POST['from_type'] == 2) {
 				$this->machid = $_POST['apts_from'];
 			}
 			if($_POST['apts_to'] && $_POST['to_type'] == 2) {
 				$this->toLocation = $_POST['apts_to'];
 			}
-		
+
 		$fromLocation = mysql_fetch_assoc(mysql_query("SELECT * FROM resources WHERE machid='".$this->machid."'"));
 		$toLocation = mysql_fetch_assoc(mysql_query("SELECT * FROM resources WHERE machid='".$this->toLocation."'"));
 		$stopLocation = mysql_fetch_assoc(mysql_query("SELECT * FROM resources WHERE machid='".$this->stopLoc."'"));
-		
-			
-			
+
+
+
 		$member = mysql_fetch_assoc(mysql_query("SELECT * FROM login WHERE memberid='".$this->memberid."'"));
 
 		if (!$this->word) $this->word = 'reservation';
@@ -730,11 +738,11 @@ class Reservation {
 		*/
 		$convertible_seats = max(0,$this->convertible_seats).' ';
 		$booster_seats = max(0,$this->booster_seats).' ';
-		
+
 		//print_r($stopLocation);
 		// print_r($toLocation);
 		// die(print_r($fromLocation));
-		
+
 		$address1 = $fromLocation['name']. ($fromLocation['schedule_id'] ? ' - '.$fromLocation['address1'] : ', ' ) .$fromLocation['city'].' '.$fromLocation['zip'].', '.$fromLocation['state'];
 		$address2 = $stopLocation['name']. ($stopLocation['schedule_id'] ? ' - '.$stopLocation['address1'] : ', ' ) .$stopLocation['city'].' '.$stopLocation['zip'].', '.$stopLocation['state'];
 		$address3 = $toLocation['name']. ($toLocation['schedule_id'] ? ' - '.$toLocation['address1'] : ', ' ) .$toLocation['city'].' '.$toLocation['zip'].', '.$toLocation['state'];
@@ -759,7 +767,7 @@ class Reservation {
 
 					<h1 id="hdr_reservation_confirmation"><span class="imagetext"><?php echo translate('Reservation Confirmation') ?></span></h1>
 
-				
+
 					<div class="hr">
 						<h2><?php echo translate('Thanks for placing your reservation!') ?></h2>
 						<p><?php echo translate('Here is a summary of your trip (which will also be emailed to you shortly):') ?></p>
@@ -781,7 +789,7 @@ class Reservation {
 								<label for="override_auto_billing"><?php echo translate('When') ?></label>
 							</div>
 							<div class="inputs">
-								<?php echo date("m/d/Y h:ia", $this->date + $this->start); ?>
+								<?php echo CmnFns::formatDate($this->date) . " " . CmnFns::formatTime($this->start); ?>
 							</div>
 						</div>
 						<div class="row group">
@@ -854,7 +862,7 @@ class Reservation {
 						      <!-- 1 convertible seat ($15), 1 booster ($15) -->
 						    </div>
 						  </div>
-						<?php endif ?>				
+						<?php endif ?>
 						<div class="row group">
 							<div class="labelish">
 								<label for="override_auto_billing"><?php echo translate('Reservation for') ?></label>
@@ -865,7 +873,7 @@ class Reservation {
 								<!-- John Doe -->
 							</div>
 						</div>
-						<?php if($_POST['cphone']): ?>	
+						<?php if($_POST['cphone']): ?>
 						  <div class="row group">
 						    <div class="labelish">
 						      <label for="override_auto_billing"><?php echo translate('Other passenger name and cell') ?></label>
@@ -920,12 +928,12 @@ class Reservation {
 						</div>
 
 					</div><!-- /confirmation_summary_wrap -->
-	
 
-					<div id="roundtrip_wrap" class="group spacious_top">	
+
+					<div id="roundtrip_wrap" class="group spacious_top">
 					  <?php $_SESSION['booked'][$fromLocation['location'].':'.$toLocation['location']] = 1 ?>
 					  <?php if(!isset($_SESSION['booked'][$toLocation['location'].':'.$fromLocation['location']])): ?>
-					    <input type="button" onclick="window.location.href = window.location.href+'&amp;from=<?php echo $this->toLocation ?>&amp;to=<?php echo $this->machid ?>'" id="book_return"    name="" value="<?php echo translate('Book a return trip') ?>" /> <span id="or" class="by"><?php echo translate('OR') ?></span> 
+					    <input type="button" onclick="window.location.href = window.location.href+'&amp;from=<?php echo $this->toLocation ?>&amp;to=<?php echo $this->machid ?>'" id="book_return"    name="" value="<?php echo translate('Book a return trip') ?>" /> <span id="or" class="by"><?php echo translate('OR') ?></span>
 					  <?php endif ?>
 					  <input type="button" onclick="window.location.href = window.location.href+'&amp;from=<?php echo $this->machid ?>&amp;to=<?php echo $this->toLocation ?>'" id="book_duplicate" name="" value="<?php echo translate('Book similar trip at another time') ?>" />
 					</div>
@@ -990,7 +998,7 @@ class Reservation {
 
 			if ($this->db->get_billtype($user->groupid)!='c')
 				return;
-		}		
+		}
 		$debug = $user->email."|".$user->other."|".$user->groupid;
 		list($cc, $exp, $cvv) = explode("+", $user->other);
 		*/
@@ -1038,7 +1046,7 @@ class Reservation {
 		$van = strrchr($this->specialItems, 'N')===false?false:true;
 		$lux = strrchr($this->specialItems, 'L')===false?false:true;
 		$frLoc = $this->db->get_resource_data($fr);
-		$toLoc = $this->db->get_resource_data($to);	
+		$toLoc = $this->db->get_resource_data($to);
 		$day = date("D", $this->date);
 
 		// $reason is a string describing why a reservation was blocked
@@ -1046,7 +1054,7 @@ class Reservation {
 		$reason = "";
 		$reasonCode = 100;
 		$bypass = $_POST['bypass'] ? 1 : 0;
-		
+
 		$is_valid = true;
 		$isValidSuv = true;
 		$inCA = 0;
@@ -1078,7 +1086,7 @@ class Reservation {
 				$is_valid = false;
 			}
 		}
-		*/		
+		*/
 
 
 		$timestuff = array();
@@ -1086,7 +1094,7 @@ class Reservation {
 		$curhour = $timestuff['tm_hour'];
 		$difftime = $this->date+$this->start*60 - $curtime + $inCA * 3600 * 3;
 		$datetime = $this->date + ($this->start * 60);
-		
+
 		$is_super = ($_SESSION['role'] == 'm');
 		$is_super_super = Auth::isSuperAdmin();
 
@@ -1112,7 +1120,7 @@ class Reservation {
 			$reason = "Less than 1 hour in advance";
 			$reasonCode = 3;
 		}
-		//after 8p for before 5a the next day 
+		//after 8p for before 5a the next day
 		if($difftime < 12*3600 && $this->start/60 <= $morning_cutoff && ($curhour >= 20 || $curhour < $morning_cutoff) && !$is_super && !$bypass) {
 			$is_valid = false;
 			$this->add_error("Thanks for trying to book your car reservation online, but we can't confirm your reservations automatically for tomorrow morning.  However, we should be able to accomodate your needs.  Please call 1 888 756 8876 to check availability and book your reservation." . "<br/><br/>");
@@ -1123,7 +1131,7 @@ class Reservation {
 		/*************************************
 		* Moratoriums
 		*************************************/
-		
+
 		if($this->db->is_moratoriumed($datetime, $area)) {
 			if (!$is_super) {
 				$this->add_error('Due to high demand during the time you have requested a reservation, your reservation cannot be confirmed automatically.  Please call 1-888-PLNT-TRN (888-756-8876) to check availability and book your reservation.');
@@ -1132,7 +1140,7 @@ class Reservation {
 				$reasonCode = $area == 'CA' ? 5 : 6;
 			} else
 				$this->add_warning('This reservation is for a time that has been moratoriumed by an admin. Check with an admin or dispatcher because we may be overbooked.');
-		} 
+		}
 
 		/*
 		* Auto-moratoriums
@@ -1189,7 +1197,7 @@ class Reservation {
 			$mailer->ClearAllRecipients();
 			$p = print_r($_POST, 1);
 			//$mailer->AddAddress('seth@planettran.com', 'Seth Riney');
-			$mailer->AddAddress('msobecky@gmail.com', 'Matt Sobecky');	
+			$mailer->AddAddress('msobecky@gmail.com', 'Matt Sobecky');
 			$mailer->Subject = $header." ".$this->memberid . " just tried to make a reservation";
 			$mailer->Body = ($this->start/60).date(" m/d/Y", $this->date)."\nReason: $reason\n$p";
 			$mailer->Send();
@@ -1197,7 +1205,7 @@ class Reservation {
 			$turnawayCoast = $inCA ? 'CA' : 'MA';
 			$this->db->insert_turnaway($reason, $reasonCode, $this->memberid, $turnawayCoast);
 		}
-		
+
 		if(!$isValidSuv)
 			$is_valid = false;
 		return $is_valid;
@@ -1261,7 +1269,7 @@ class Reservation {
 	*/
 	function print_res_read_only() {
 		global $conf;
-		
+
 		if (!empty($this->id))
 			$this->load_by_id();
 		else
@@ -1276,10 +1284,10 @@ class Reservation {
 		$rs = $this->db->get_resource_data($this->machid);
 
 		$loclist = $this->db->get_user_permissions($this->db->get_user_scheduleid($this->memberid));
-	
+
 		if ($this->type == 'm' || $this->type == 'd') {
 			$trip = $this->db->get_trip_data($this->id);
-	
+
 			//echo Auth::isSuperAdmin();
 
 			if ( (!Auth::has_permission(DISP_WRITE) && !Auth::isSuperAdmin() ) && $trip['dispatch_status'] != 27){
@@ -1292,18 +1300,18 @@ class Reservation {
 		}
 
 
-		// Block reservations for x and u roles 
+		// Block reservations for x and u roles
 		if ($_SESSION['role']=='x') {
 			CmnFns::do_error_box(
 				'The credit card or other billing information on file is no longer valid. Please call 888-PLNTTRN (756-8876) during business hours to update your information.',
 				'',
 				true);
-		} else if ($user->role=='u'&&$_SESSION['role']!='m') { 
+		} else if ($user->role=='u'&&$_SESSION['role']!='m') {
 			CmnFns::do_error_box(
 				"To be able to make reservations, you must first confirm the email address by either clicking the link in the registration email, or copying/pasting it into your browser's address bar. $resend_url",
 				'',
 				true);
-		} else if ($user->role=='u'&&$_SESSION['role']=='m') { 
+		} else if ($user->role=='u'&&$_SESSION['role']=='m') {
 			CmnFns::do_error_box(
 				"This user has an unconfirmed corporate account. They need to activate it by clicking the link in their registration email. If necessary, we can send the email again. $resend_url",
 				'',
@@ -1360,7 +1368,7 @@ class Reservation {
 		// $hack is our array from group_hack_summary
 		$hack = $this->db->parseNotes($this->summary);
 
-		
+
 		print_buttons($this->type, $hack, $this->coupon, $user->groupid, $user->email, true);
 		print_hidden_fields($this);	// Print hidden form fields
 
@@ -1374,8 +1382,8 @@ class Reservation {
 
 		end_reserve_form($this->id, $this->type);				// End form
 	}
-	
-	
+
+
 	function print_res()
   {
     if($_POST)
@@ -1444,7 +1452,7 @@ class Reservation {
 	$values['to_state']   = $toLoc['state'];
 	$values['to_zip']     = $toLoc['zip'];
       }
-    
+
       if(($machid=$_GET['stop'])||($machid=$this->stopLoc))
       {
 	$toLoc = mysql_fetch_assoc(mysql_query("SELECT * FROM resources where machid='".addslashes($machid)."'"));
@@ -1454,7 +1462,7 @@ class Reservation {
 	$values['stop_state']   = $toLoc['state'];
 	$values['stop_zip']     = $toLoc['zip'];
       }
-    
+
 
     if(!class_exists('Account')) {
 	require_once dirname(__FILE__).'/Account.class.php';
@@ -1468,7 +1476,7 @@ class Reservation {
 }
 </style>
 <script>
-    
+
     function doClear(relativeTo)
     {
       relativeTo = $(relativeTo);
@@ -1481,15 +1489,15 @@ class Reservation {
             .attr('selected',true)
             .end()
         .change();
-        
+
       $('input[type=text]', relativeTo.parent().parent())
 	  .not('[name*=stop]')
           .val('')
           .end();
-      return false;  
+      return false;
     }
-    
-    
+
+
 if(typeof String.prototype.trim !== 'function') {
   String.prototype.trim = function() {
     return this.replace(/^\s+|\s+$/g, '');
@@ -1508,8 +1516,7 @@ if(!history) {
 	$tools = new Tools();
 	foreach($tools->car_select_details() as $k=>$v): ?>
 	<?php echo $k ?>: {name: '<?php echo addslashes($v['name']) ?>',
-                           price: <?php echo addslashes($v['price']) ?>,
-    price_hr: <?php echo addslashes($v['price_hr']) ?>},
+                           price: <?php echo addslashes($v['price']) ?> },
       <?php endforeach ?>
       X: {}
     };
@@ -1521,7 +1528,7 @@ if(!history) {
 
 
 	var intermediate_stop = $("#intermediate_stop");
-          
+
         var fareType = 0;
         var tripType = 'P';
         if($("#check_by_the_hour").is(":checked")) {
@@ -1551,16 +1558,38 @@ if(!history) {
 	{
 	  var data = response.split("|");
 
-
-
 	  var content = '';
 	  var esubtotal = 0;
+	  //var base_price = parseFloat(data[3]);
 
-	  var base_price = getBasePrice(parseFloat(data[0]));
-        if($('[name=vehicle_type]').val()=='P'){
-            $('#base_estiamte_for_vehicles').text(base_price);
-        }
 
+	  var res_type = data[0];
+	  var group_name = data[1];
+	  var vehicle_desc = data[2];
+	  var base_fare = parseFloat(data[3]);
+	  var base_price = base_fare;
+	  var stop_fee = parseFloat(data[4]);
+	  var wait_fee = parseFloat(data[5]);
+	  var vehicle_fee = parseFloat(data[6]);
+	  var meet_greet_fee = parseFloat(data[7]);
+	  var children_seats_fee = parseFloat(data[8]);
+	  var booster_seats_fee = parseFloat(data[9]);
+	  var subtotal_fare = parseFloat(data[10]);
+	  var special_discount = parseFloat(data[11]);
+	  var group_discount = parseFloat(data[12]);
+	  var coupon_discount = parseFloat(data[13]);
+	  var min_fare = parseFloat(data[14]);
+	  var integration_fee = parseFloat(data[15]);
+	  var airport_fee = parseFloat(data[16]);
+	  var tolls = parseFloat(data[17]);
+	  var fromAddress = data[18];
+	  var toAddress = data[19];
+      var stopAddress = data[20];
+	  var fare = parseFloat(data[21]);
+	  var status = data[22];
+	  var errors = data[23];
+
+	  esubtotal =+ base_price;
 	  content = content + '<div class="line_item group">'+
 	    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
 	    '<span class="price" id="total_price">$'+base_price.toFixed(2)+'</span>'+
@@ -1568,11 +1597,15 @@ if(!history) {
 
 	  var meet_greet = $("#meet_greet");
 	  if(meet_greet.is(":checked")) {
-	      esubtotal += 30;
+	      if (!meet_greet_fee){
+		      esubtotal += 30;
+	      } else {
+		      esubtotal += meet_greet_fee;
+	      }
 
 	      content = content + '<div class="line_item group">'+
 		'<span class="line_description">Logan Airport meet and greet</span>'+
-		'<span class="price" id="total_price">$30.00</span>'+
+		'<span class="price" id="total_price">$'+meet_greet_fee.toFixed(2)+'</span>'+
 	      '</div>';
 	  }
 
@@ -1581,7 +1614,12 @@ if(!history) {
 	  if(cts.val() != "" && cts.val() != "P") {
 	    var vehicle = vehicles[cts.val()];
 	    if(vehicle) {
-	      vehicle_price = getVehiclePrice();
+	      //vehicle_price = vehicle.price;
+			if(!vehicle_fee){
+				vehicle_price = vehicle.price;
+			} else {
+				vehicle_price = vehicle_fee;
+			}
 	      esubtotal += vehicle_price;
 
 	      content = content + '<div class="line_item group">'+
@@ -1593,8 +1631,13 @@ if(!history) {
 
 	  var children_seats = $("#child_seats_outgoing");
 	  if(children_seats.val() != "0") {
-	    var children_seats_price = 15*parseInt(children_seats.val());
-	    esubtotal += children_seats_price;
+	      var childrens_seat_price = 0;
+		  if(!children_seats_fee){
+			   children_seats_price = 15*parseInt(children_seats.val());
+		  } else {
+			  children_seat_price = childrens_seat_fee;
+		  }
+	    esubtotal += children_seats_fee;
 
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">Children seats ('+children_seats.val()+'):</span>'+
@@ -1605,19 +1648,24 @@ if(!history) {
 
 	  var booster_seats = $("#booster_seats_outgoing");
 	  if(booster_seats.val() != "0") {
-	    var booster_seats_price = 15*parseInt(booster_seats.val());
-	    esubtotal += booster_seats_price;
+	    //var booster_seats_price = 15*parseInt(booster_seats.val());
+	    esubtotal += booster_seats_fee;
 
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">Booster seats ('+booster_seats.val()+'):</span>'+
-	      '<span class="price" id="total_price">$'+booster_seats_price.toFixed(2)+'</span>'+
+	      '<span class="price" id="total_price">$'+booster_seats_fee.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 
 	  var intermediate_stop = $("#intermediate_stop");
 	  if(intermediate_stop.is(":checked")) {
-	    var intermediate_stop_price = 20;
-	    esubtotal += intermediate_stop_price;
+	      var intermediate_stop_price = 0;
+		  if(!stop_fee){
+			  intermediate_stop_price = 20
+		  } else {
+			  intermediate_stop_price = stop_fee;
+		  }
+	    esubtotal += stop_fee;
 
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">One intermediate stop:</span>'+
@@ -1625,18 +1673,17 @@ if(!history) {
 	    '</div>';
 	  }
 
-
-	  var coupon = 0;
-	  if(parseFloat(data[3]))
+	  if($("#coupon_code").val() != "")
 	  {
-	    coupon = parseFloat(data[3]);
-	    esubtotal += coupon;
-	    $("#coupon_code").parent().find('.msg').remove();
-	    $('<div class="msg" style="color:#0f0;">Provided coupon code is valid!</div>').insertBefore($("#coupon_code"));
-	  } else if($("#coupon_code").val()) {
-	    $("#coupon_code").parent().find('.msg').remove();
-	    $('<div class="msg" style="color:#f00;">Provided coupon code is wrong!</div>').insertBefore($("#coupon_code"));
-	    alert('Provided coupon code is wrong!');
+	    if(!isNaN(coupon_discount))
+	    {
+	      $("#coupon_code").parent().find('.msg').remove();
+	      $('<div class="msg" style="color:#0f0;">Provided coupon code is valid!</div>').insertBefore($("#coupon_code"));
+	    } else {
+	      $("#coupon_code").parent().find('.msg').remove();
+	      $('<div class="msg" style="color:#f00;">Provided coupon code is wrong!</div>').insertBefore($("#coupon_code"));
+	      alert('Provided coupon code is wrong!');
+	    }
 	  }
 
 	  content = content + '<div class="line_item group total">'+
@@ -1644,27 +1691,45 @@ if(!history) {
 	    '<span class="price" id="total_price">$'+esubtotal.toFixed(2)+'</span>'+
 	  '</div>';
 
-	  if(coupon)
+	  if(coupon_discount)
 	  {
+		esubtotal -= coupon_discount;
 	    content = content + '<div class="line_item group total">'+
-	      '<span class="line_description">Coupon:</span>'+
-	      '<span class="price" id="total_price">-$'+coupon+'</span>'+
+	      '<span class="line_description">Coupon Discount:</span>'+
+	      '<span class="price" id="total_price">-$'+coupon_discount.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 
-	  var total_fare = parseFloat(data[0]);
-	  if(!total_fare) total_fare = esubtotal;
+	  if(group_discount)
+	  {
+		  esubtotal -= group_discount;
+		  content = content + '<div class="line_item group total">'+
+	      '<span class="line_description">Group Discount:</span>'+
+	  	  '<span class="price" id="total_price">-$'+group_discount.toFixed(2)+'</span>'+
+	  	  '</div>';
+	  }
+	  if(special_discount)
+	  {
+		esubtotal -= special_discount;
+	    content = content + '<div class="line_item group total">'+
+		  '<span class="line_description">Special Trip Discount:</span>'+
+		  '<span class="price" id="total_price">-$'+special_discount.toFixed(2)+'</span>'+
+		  '</div>';
+     	}
 
+
+	  var total_fare = fare;
+	  if(!total_fare) total_fare = esubtotal;
 
 	  content = content + '<div class="line_item group total">'+
 	    '<span class="line_description">Total estimated fare:</span>'+
 	    '<span class="price" id="total_price">$'+total_fare.toFixed(2)+'</span>'+
 	  '</div>';
-        setVehiclePrices();
+        setVehiclePrices(total_fare - vehicle_price);
 	  $("[name=estimate]").val("$"+total_fare.toFixed(2));
 	  $('#reservation_summary').html(content);
 
-	if(callback) callback(response);
+	  if(typeof callback === "function") callback(response);
 
 	}
 
@@ -1714,11 +1779,6 @@ $.fn.serializeObject = function() {
 })(jQuery);
 
 $(function(){
-    $('#back_step_1').click(function(){
-        $('[name=vehicle_type]').val('P');
-        $('#vehicleP').click()
-    });
-
     $("#tab1,#tab2")
       .click(function(e) {
         var idx = $("#tab1,#tab2").not(this).index();
@@ -1742,7 +1802,7 @@ $(function(){
         $('#dropoff').find('a').hide();
         $('#to_airport').attr("disabled", true);
         $('#to_address').attr("disabled", true);
-        $('#saved_locations_to_wrap [name=to_name]').val('As Directed');
+
     }
     function enableToLocation(){
         addClearClick();
@@ -1753,7 +1813,6 @@ $(function(){
         $('#dropoff').find('a').show();
         $('#to_airport').attr("disabled", false);
         $('#to_address').attr("disabled", false);
-        $('#saved_locations_to_wrap [name=to_name]').val('');
 
     }
     function addClearClick(){
@@ -1764,7 +1823,6 @@ $(function(){
         $('#clear_to_address').click();
         $('#clear_to_address').attr('onclick','return false;').unbind('click');
     }
-
     var chkByTheHour = $('#check_by_the_hour').is(':checked');
     if(chkByTheHour){
         disableToLocation();
@@ -1802,8 +1860,6 @@ $(function(){
         }
         return false;
     });
-
-});
     function getCurrentStep(){
         idx1 = $(".step1").index();
         idx2 = $(".step2").index();
@@ -1822,37 +1878,27 @@ $(function(){
         }
         return p;
     }
-    function setVehiclePrices(){
-
+});
+    function setVehiclePrices(bprice){
+        $(function(){
             var vpSuffix = '_vehicle_price';
             var vuSuffix = '_vehicle_upgrade';
-
-            if($('#check_by_the_hour').is(':checked')){
-                prius_price = getEstimateByVehcileHourly('P');
-                prius_v_price = getEstimateByVehcileHourly('V');
-                camry_v_price = getEstimateByVehcileHourly('C');
-                lexus_price = getEstimateByVehcileHourly('L');
-                highlander_price = getEstimateByVehcileHourly('S');
-            } else{
-                var bprice = parseFloat($('#base_estiamte_for_vehicles').text());
-                bprice += getAddOnsNoVehicle();
-                prius_price = bprice +parseFloat($('#P'+vuSuffix).text());
-                prius_v_price = bprice + parseFloat($('#W'+vuSuffix).text());
-                camry_v_price = bprice + parseFloat($('#Y'+vuSuffix).text());
-                lexus_price = bprice + parseFloat($('#L'+ vuSuffix).text());
-                highlander_price = bprice + parseFloat($('#S' + vuSuffix).text());
-            }
-
+            $('#base_estiamte_for_vehicles').text(bprice);
+            prius_price = bprice +parseFloat($('#P'+vuSuffix).text());
+            prius_v_price = bprice + parseFloat($('#W'+vuSuffix).text());
+            camry_v_price = bprice + parseFloat($('#Y'+vuSuffix).text());
+            lexus_price = bprice + parseFloat($('#L'+ vuSuffix).text());
+            highlander_price = bprice + parseFloat($('#S' + vuSuffix).text());
 
             $('#P' + vpSuffix).text('$'+prius_price.toFixed(2));
             $('#W' + vpSuffix).text('$'+prius_v_price.toFixed(2));
             $('#Y' + vpSuffix).text('$'+camry_v_price.toFixed(2));
             $('#L' + vpSuffix).text('$'+lexus_price.toFixed(2));
             $('#S' + vpSuffix).text('$'+highlander_price.toFixed(2));
-
+        });
     }
 
-    function getAddresses()
+    function getAddresses(context)
     {
 	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport,aptFrom,aptTo;
 	var fromLocation, toLocation, stopLocation;
@@ -1965,60 +2011,89 @@ $(function(){
 	  'stop_location': stopLocation
 
 	};
-    }
+    };
 
     function getCQAddresses()
     {
 	$("#get_a_quote_button").attr("disabled", 1);
 
-	var fromAddr,fromCity,fromZip,toAddr,toCity,toZip,stopAddr,stopCity,stopZip,airport;
+	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport,aptFrom,aptTo;
+	var fromLocation, toLocation, stopLocation;
 
+	aptFrom = $("#quote_from_airport");
 	customFrom = $("#quote_saved_locations_from");
-	if(customFrom.val() == "") {
-	  fromAddr  = $("#quote_from_street_address").val();
-	  fromCity  = $("#quote_from_city").val();
-	  fromState = $("#quote_from_state").val();
-	  fromZip   = $("#quote_from_zipcode").val();
-	} else {
-	  customFromO = customFrom.find("option:selected");
-          fromLocation = customFromO.attr("value");
+	if(aptFrom.is(":checked")) {
+	  customFromO = $('#quote_tabs_content [name=quote_apts_from]').find("option:selected");
+	  fromLocation = customFromO.attr("value");
 	  fromAddr  = customFromO.attr("data-addr");
 	  fromCity  = customFromO.attr("data-city");
 	  fromState = customFromO.attr("data-state");
 	  fromZip   = customFromO.attr("data-zip");
-	}
-
-	customTo = $("#quote_saved_locations_to");
-	if(customTo.val() == "") {
-	  toAddr = $("#quote_to_street_address").val();
-	  toCity = $("#quote_to_city").val();
-	  toState = $("#quote_to_state").val();
-	  toZip  = $("#quote_to_zipcode").val();
+	  fromNick  = customFromO.text();
+	} else if(customFrom.val() == "") {
+	  fromAddr  = $("#quote_from_street_address").val();
+	  fromCity  = $("#quote_from_city").val();
+	  fromState = $("#quote_from_state").val();
+	  fromZip   = $("#quote_from_zipcode").val();
+	  fromNick  = $("#quote_from_name").val();
 	} else {
-	  customToO = customTo.find("option:selected");
-          toLocation = customToO.attr("value");
-	  toAddr = customToO.attr("data-addr");
-	  toCity = customToO.attr("data-city");
-	  toState = customToO.attr("data-state");
-	  toZip  = customToO.attr("data-zip");
+	  customFromO = customFrom.find("option:selected");
+	  fromLocation = customFromO.attr("value");
+	  fromAddr  = customFromO.attr("data-addr");
+	  fromCity  = customFromO.attr("data-city");
+	  fromState = customFromO.attr("data-state");
+	  fromZip   = customFromO.attr("data-zip");
+	  fromNick  = customFromO.text();
 	}
 
-	return {
-	  'from_address': fromAddr,
-	  'from_city': fromCity,
-	  'from_zip':  fromZip,
-	  'from_state':   fromState,
-	  'to_address':   toAddr,
-	  'to_city':   toCity,
-	  'to_state':   toState,
-	  'to_zip':    toZip,
-	  'airport':   airport,
+	aptTo = $("#quote_to_airport");
+	customTo = $("#quote_saved_locations_to");
+	if(aptTo.is(":checked")) {
+	    customToO = $('#quote_tabs_content [name=quote_apts_to]').find("option:selected");
+	    toLocation = customToO.attr("value");
+	    toAddr  = customToO.attr("data-addr");
+	    toCity  = customToO.attr("data-city");
+	    toState = customToO.attr("data-state");
+	    toZip   = customToO.attr("data-zip");
+	    toNick    = customToO.text();
+	} else if(customTo.val() == "") {
+	    toAddr  = $("#quote_to_street_addres").val();
+	    toCity  = $("#quote_to_city").val();
+	    toState = $("#quote_to_state").val();
+	    toZip   = $("#quote_to_zipcode").val();
+	    toNick  = $("#quote_to_name").val();
+	} else {
+	    customToO = customTo.find("option:selected");
+	    toLocation = customToO.attr("value");
+	    toAddr    = customToO.attr("data-addr");
+	    toCity    = customToO.attr("data-city");
+	    toState   = customToO.attr("data-state");
+	    toZip     = customToO.attr("data-zip");
+	    toNick    = customToO.text();
+	}
+
+
+	var retval = {
+	  'from_address':  fromAddr,
+	  'from_city':     fromCity,
+	  'from_zip':      fromZip,
+	  'from_state':    fromState,
+	  'from_nick':     fromNick,
+
+	  'to_address':    toAddr,
+	  'to_city':       toCity,
+	  'to_state':      toState,
+	  'to_zip':        toZip,
+	  'to_nick':       toNick,
+
 	  'to_location':   toLocation,
 	  'from_location': fromLocation
 	};
-    }
-    function getAddOnsNoVehicle(){
-        addons = 0;
+	return retval;
+    };
+
+    function getBasePrice(total){
+        var addons = 0;
         var intermediate_stop = $("#intermediate_stop");
         if(intermediate_stop.is(":checked")) {
 
@@ -2036,62 +2111,20 @@ $(function(){
             addons += 15*parseInt(children_seats.val());
         }
 
-        var meet_greet = $("#meet_greet");
-        if(meet_greet.is(":checked")) {
-            addons += 30;
-        }
-        return addons;
-    }
-
-    function isSelectVehicle(v_type){
-        var cts = $("[name=carTypeSelect]:checked");
-        if(cts.val() != ""){
-            return (cts.val()==v_type);
-        }
-        return false;
-    }
-
-//used by function getEstimateByVehcileHourly(v_type)
-    function getVehiclePriceHourly(v_type){
         var vehicle_price = 0;
-
-        var vehicle = vehicles[v_type];
-        if(vehicle) {
-            vehicle_price = vehicle.price_hr * parseFloat($('#authWait option:selected').val()/60);
-
-        }
-        return vehicle_price ;
-    }
-    function getVehiclePriceBy(v_type){
-        var vehicle_price = 0;
-        var vehicle = vehicles[v_type];
-        if(vehicle) {
-            vehicle_price = vehicle.price;
-        }
-        return vehicle_price;
-    }
-    function getVehiclePrice(){
-        var vehicle_price = 0;
-
         var cts = $("[name=carTypeSelect]:checked");
         if(cts.val() != "" && cts.val() != "P") {
             var vehicle = vehicles[cts.val()];
             if(vehicle) {
                 vehicle_price = vehicle.price;
+                addons += vehicle_price;
             }
         }
-        return vehicle_price;
-    }
+        var meet_greet = $("#meet_greet");
+        if(meet_greet.is(":checked")) {
+            addons += 30;
+        }
 
-    function getEstimateByVehcileHourly(v_type){
-        var addons = getAddOnsNoVehicle();
-        var vehicle_price =getVehiclePriceHourly(v_type);
-        return addons +  vehicle_price;
-    }
-
-    function getBasePrice(total){
-        var addons = getAddOnsNoVehicle();
-        addons += getVehiclePrice();
         return total - addons;
     }
   $(function() {
@@ -2170,17 +2203,17 @@ $(function(){
       ;
       */
 
-      $("[name=apts_from],[name=apts_to],[name=stopLoc],[name=from_location],[name=to_location]")
+      $("[name=apts_from],[name=apts_to],[name=stopLoc],[name=from_location],[name=to_location],[name=quote_from_location],[name=quote_to_location]")
 	.change(function() {
 	  var pi = $($(this).parents().filter('.intermediate_stop,.half_column')[0]);
 
 	  var name_val = $('option:selected', this).text().trim();
 	  if(name_val == "Saved locations" || name_val == "Select an airport") name_val = "";
-	  $(pi.find("[name=from_name],[name=to_name],[name=stop_name]")[0]).val(name_val);
-	  $(pi.find("[name=from_address],[name=to_address],[name=stop_address]")[0]).val($('option:selected', this).attr("data-addr"));
-	  $(pi.find("[name=from_zip],[name=to_zip],[name=stop_zip]")[0]).val($('option:selected', this).attr("data-zip"));
-	  $(pi.find("[name=from_city],[name=to_city],[name=stop_city]")[0]).val($('option:selected', this).attr("data-city"));
-	  $(pi.find("[name=from_state],[name=to_state],[name=stop_state]")[0]).val($('option:selected', this).attr("data-state"));
+	  $(pi.find("[name*=from_name],[name*=to_name],[name=stop_name]")[0]).val(name_val);
+	  $(pi.find("[name*=from_address],[name*=to_address],[name=stop_address]")[0]).val($('option:selected', this).attr("data-addr"));
+	  $(pi.find("[name*=from_zip],[name*=to_zip],[name=stop_zip]")[0]).val($('option:selected', this).attr("data-zip"));
+	  $(pi.find("[name*=from_city],[name*=to_city],[name=stop_city]")[0]).val($('option:selected', this).attr("data-city"));
+	  $(pi.find("[name*=from_state],[name*=to_state],[name=stop_state]")[0]).val($('option:selected', this).attr("data-state"));
 	});
 
     $("#quote_tabs").tabs("#quote_tabs_content > div");
@@ -2209,19 +2242,19 @@ $(function(){
     if(!$("#intermediate_stop").is(":checked")) {
 	    if($("#from_zipcode").val().toLowerCase().replace(/[^0-9]/g, "") == $("#to_zipcode").val().toLowerCase().replace(/[^0-9]/g, "")) {
 		    // matched zipcode
-	    	if($("#from_address").val().toLowerCase().replace(/[^0-9a-zA-Z]/g, "") == $("#to_address").val().toLowerCase().replace(/[^0-9a-zA-Z]/g, "")) {
+	    	if($("#from_address").val().toLowerCase() == $("#to_address").val().toLowerCase()) {
 		    	// matched address
 			    repeatAddressError = true;
 		    }
 	    }
     }
-
     if (repeatAddressError) {
         // Error alert
         alert("You cannot have the same starting and ending location without an intermediate stop");
         return;
     }
     //ENDFINDME
+
 	if($("#reservation_date").val() == '') {
 	  alert('You have to choose a reservation date!');
 	  return;
@@ -2257,9 +2290,36 @@ $(function(){
 	refresh_estimate(function(response)
 	  {
 
-	    var p = response.split("|");
-	    var price = parseFloat(p[0]);
-	    if(!price || price == NaN || price == "NaN") {
+	    var data = response.split("|");
+		var res_type = data[0];
+		var group_name = data[1];
+		var vehicle_desc = data[2];
+		var base_fare = parseFloat(data[3]);
+		var base_price = base_fare;
+		var stop_fee = parseFloat(data[4]);
+		var wait_fee = parseFloat(data[5]);
+		var vehicle_fee = parseFloat(data[6]);
+		var meet_greet_fee = parseFloat(data[7]);
+		var children_seats_fee = parseFloat(data[8]);
+		var booster_seats_fee = parseFloat(data[9]);
+		var subtotal_fare = parseFloat(data[10]);
+		var special_discount = parseFloat(data[11]);
+		var group_discount = parseFloat(data[12]);
+		var coupon_discount = parseFloat(data[13]);
+		var min_fare = parseFloat(data[14]);
+		var integration_fee = parseFloat(data[15]);
+		var airport_fee = parseFloat(data[16]);
+		var tolls = parseFloat(data[17]);
+		var fromAddress = data[18];
+		var toAddress = data[19];
+		var stopAddress = data[20];
+		var fare = parseFloat(data[21]);
+		var status = data[22];
+		var errors = data[23];
+
+
+	    var price = fare;
+	    if(!price || price == NaN || price == "NaN" || status == "FAILED") {
 	      alert("We were unable to automatically generate a quote for your locations. Email us at customerservice@planettran.com, or call 888-756-8876 (press option 2). Thanks for your patience and cooperation. ");
 	    } else {
 
@@ -2351,13 +2411,15 @@ $(function(){
 	  {
 	    $("#get_a_quote_button").removeAttr("disabled");
 
-	    var price = response.split("|");
-	    var quickVal = parseFloat(price[0]);
-	    if(!quickVal || quickVal == NaN || quickVal == "NaN") {
+	    var data = response.split("|");
+	    var quickVal = parseFloat(data[21]);
+	    var status = data[22];
+	    var fare = parseFloat(data[21]);
+	    if(!quickVal || quickVal == NaN || quickVal == "NaN" || status == "FAILED" ) {
 	      alert("We were unable to automatically generate a quote for your locations. Email us at customerservice@planettran.com, or call 888-756-8876 (press option 2). Thanks for your patience and cooperation. ");
 	      return;
 	    }
-	    $("#quote_contents").show().find('.price').html(price[0]+"");
+	    $("#quote_contents").show().find('.price').html(fare+"");
 	  }
 	});
       });
@@ -2689,8 +2751,7 @@ $(function(){
   </div><!-- /step1 -->
   <div class="step2"><!-- step2 -->
       <h2>Select a vehicle:</h2>
-      <div style="display:none" id="base_estiamte_for_vehicles">0</div>
-      <div style="display:none" id="base_estiamte_for_vehicles_hr">0</div>
+      <div style="display:none" id="base_estiamte_for_vehicles">60</div>
 
       <?php $tools = new Tools();
       foreach($tools->car_select_details() as $k=>$v): ?>
@@ -2703,10 +2764,8 @@ $(function(){
                       Holds: <?php echo $v['suitcases'] ?> suitcases<br/>
                       <?php if($v['extra']) echo $v['extra'] ?>
                   </div>
-                  <div style="display:none"  id="<?=$v['vehicle_type']?>_vehicle_upgrade_hr"><?=$v['price_hr']?></div>
                   <div style="display:none"  id="<?=$v['vehicle_type']?>_vehicle_upgrade"><?=$v['price']?></div>
                   <div  id="<?=$v['vehicle_type']?>_vehicle_price" class="vehicle_price"></div>
-
               </label>
               <div class="vehicle_chooser">
                   <input type="radio" data-vehicleTypeMapping="<?php echo $v['vehicle_type'] ?>" name="carTypeSelect" id="vehicle<?php echo $k ?>" value="<?php echo $k.'' ?>" <?php if($k == $values['carTypeSelect'] || (!$values['carTypeSelect'] && $k=="P")) echo 'checked="checked"' ?>/>
@@ -2736,7 +2795,7 @@ $(function(){
 
 
       <div id="step_navigation">
-          <input type="button" id="back_step_1" value="&laquo; Back to Step 1" class="button prev" />
+          <input type="button" value="&laquo; Back to Step 1" class="button prev" />
           <input type="button" value="Step 3 &raquo;" class="button next" />
       </div>
   </div><!-- /step2 -->
@@ -2945,7 +3004,7 @@ $(function(){
 		$useremail = $user->get_email();
 		$fr = $this->machid;
 		$to = $this->toLocation;
-		
+
 		if ($this->paymentProfileId == "00")
 			$payinfo = "Direct Bill";
 		else {
@@ -2973,14 +3032,14 @@ $(function(){
 				'airport-SFO' => "San Francisco Int'l Airport",
 				'airport-OAK' => "Oakland Int'l Airport",
 				'airport-SJC' => "San Jose Int'l Airport");
-	
+
 		foreach ($apts as $a => $description)
 			if ($a == $fr || $a == $to) {
 				$a = substr($a, -3);
 				if ($a=='1cb'||$a=='d87')
-					$a = 'BOS';	
+					$a = 'BOS';
 				$link = 'For information about meeting Planettran at '.$description.', please visit <a href="http://www.planettran.com/'.strtolower($a).'.php">http://www.planettran.com/'.strtolower($a).".php</a>\r\n\r\n<br /><br />";
-			}	
+			}
 
 		if($_SESSION['sessionID'] != $this->memberid) {
 			$user = new User($_SESSION['sessionID']);
@@ -2988,7 +3047,7 @@ $(function(){
 		// Dont bother if nobody wants email
 		if (!$user->wants_email($type) && !$conf['app']['emailAdmin'])
 			return;
-		
+
 		$rs = $this->db->get_resource_data($this->machid);
 		$toLoc = $this->db->get_resource_data($this->toLocation);
 
@@ -3005,7 +3064,7 @@ $(function(){
 
 		$emailFrLoc = $rs['name']." ".$rs['address1'].", ".$rs['city'].", ".$rs['state']." ".$rs['zip'];
 		$emailToLoc = $toLoc['name']." ".$toLoc['address1'].", ".$toLoc['city'].", ".$toLoc['state']." ".$toLoc['zip'];
-		$showid = strtoupper(substr($this->id, -6));		
+		$showid = strtoupper(substr($this->id, -6));
 
 		// Email addresses
 		$adminEmail = $this->sched['adminEmail'];
@@ -3148,7 +3207,7 @@ You can view or modify your reservation at any time by logging into PlanetTran M
 
 <br>&nbsp;<br>
 Please note: if you need to cancel this reservation on the day of travel, you must call us at 888.756.8876 no later than one hour before the scheduled pickup time in order to avoid being charged the full fare.
- 
+
 <br>&nbsp;<br>
 For information about meeting PlanetTran at Boston Logan International Airport, please visit <a href="http://www.planettran.com/bos.php">http://www.planettran.com/bos.php</a>. Traveling to the Bay Area? We are now serving SFO, OAK, and SJC airports! Add these airports to your profile and you can make reservations now!
 
@@ -3198,7 +3257,7 @@ EOT;
 			}
 			$msg .= "|\n";					// Close the row
 			$msg .= $divider . "\n";
-		
+
 			$msg .= $sf;
 		}
 		$send = false;
@@ -3226,7 +3285,7 @@ EOT;
 		if ($user->wants_email($type)) {
 			$send = true;
 			$mailer->AddBCC($toEmail, $uname); //email of booker
-			//$m->AddBCC($toEmail, $uname); 
+			//$m->AddBCC($toEmail, $uname);
 			if($this->sched['isHidden'] && $toEmail != $useremail) {
 				$mailer->AddAddress($useremail, $fname . " " . $lname);
 				$m->AddAddress($useremail, $fname . " " . $lname);
@@ -3247,15 +3306,15 @@ EOT;
 		$send_calendar = Auth::isSuperAdmin();
 		$send_calendar = false;
 
-		//if ($this->coupon) 
+		//if ($this->coupon)
 		//	$mailer->AddBCC('couponres@planettran.com');
-		
+
 
 		if($send_calendar) {
 			$dstamp = gmdate("Ymd\THis\Z");
 			$timestamp = $this->date + $this->start * 60;
 			$dstart = gmdate("Ymd\THis\Z", $timestamp);
-			$uid = $this->id;	
+			$uid = $this->id;
 			$calfile = $uid.".ics";
 			$summary = "Planettran reservation, ".$rs['name']." to ".$toLoc['name'];
 			$location = $rs['address1'].($rs['address2']?" ".$rs['address2']:"").", ".$rs['city'].", ".$rs['state']." ".$rs['zip'];
@@ -3276,7 +3335,7 @@ TRANSP:OPAQUE
 END:VEVENT
 END:VCALENDAR
 ICS;
-			
+
 		//echo "<pre>$cal</pre>";
 		//touch($calfile);
 		//file_put_contents($calfile, $cal);
@@ -3289,10 +3348,10 @@ ICS;
 		  $mailer->Send();
 		}
 		// if ($send_calendar) unlink($calfile);
-		
+
 		unset($rs, $headers, $msg, $fields);
 
-		
+
 		// Send email for people who booked by phone
 
 		if (Auth::isAdmin() && $type == 'e_add') {
@@ -3638,12 +3697,12 @@ BODY2;
 
 		/* return false only if both are missing */
 		if (!$phone && !$notes['cell'])
-			$this->add_error('A valid contact number is required, either on the account itself (the My Account tab, or the "Change My Profile Information/Password" link), or in the reservation details.'); 
-			
+			$this->add_error('A valid contact number is required, either on the account itself (the My Account tab, or the "Change My Profile Information/Password" link), or in the reservation details.');
+
 	}
 
 	/*
-	* 
+	*
 	*/
 	function email_admins() {
 		if ($this->type == 'd') return;
@@ -3673,7 +3732,7 @@ BODY2;
 
 		$airport = false;
 		if (CmnFns::isAirport($from) || CmnFns::isAirport($to))
-			$airport = true;	
+			$airport = true;
 
 		if ($amount['allowed'] == 'p2p' && $airport)
 			$this->add_error("That coupon is only valid for non-airport trips.");
@@ -3711,7 +3770,7 @@ BODY2;
 		$parser = $conf['app']['include_path'].'reservations/ptRes2/xml_parser.php';
     		global $current_tag, $xml_addNum_key, $xml_addState_key, $xml_type_key, $counter, $story_array, $address_array;
 		include($parser);
-	
+
 		//CmnFns::diagnose($address_array);
 
 		$loc = $t->get_gps_loc_values($address_array);
