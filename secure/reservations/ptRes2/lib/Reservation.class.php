@@ -1566,6 +1566,13 @@ if(!history) {
 	  var esubtotal = 0;
 	  //var base_price = parseFloat(data[3]);
 
+		var tripType = 'P';
+		var intermediate_stop = $("#intermediate_stop");
+		if($("#check_by_the_hour").is(":checked")) {
+			tripType = 'H';
+		} else if(intermediate_stop.is(":checked")) {
+			tripType = 'I';
+		}
 
 	  var res_type = data[0];
 	  var group_name = data[1];
@@ -1639,9 +1646,9 @@ if(!history) {
 		  if(!children_seats_fee){
 			   children_seats_price = 15*parseInt(children_seats.val());
 		  } else {
-			  children_seat_price = childrens_seat_fee;
+			  children_seats_price = children_seat_fee;
 		  }
-	    esubtotal += children_seats_fee;
+	    esubtotal += children_seats_price;
 
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">Children seats ('+children_seats.val()+'):</span>'+
