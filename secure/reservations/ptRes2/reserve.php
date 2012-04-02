@@ -134,7 +134,6 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
 			$_POST['cell'];
 
 
-
 	if (isset($_POST['hack']))
 		$_POST['summary'] = $_POST['pname'] . $delimiter . $_POST['ccnum'] . $delimiter . $_POST['expdate'] . $delimiter . $_POST['address'] . $delimiter . $_POST['city'] . $delimiter . $_POST['cell'];
 
@@ -160,10 +159,10 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
     $res->load_by_id();
 
 //	$startTime = $_POST['ampm'] == 'pm' ? $_POST['startTime'] + 720 : $_POST['startTime'];
-    $startMinutes = $_POST['start_minutes'];
+	$startMinutes = $_POST['start_minutes'];
 	$startHour = $_POST['start_hour'];
 
-	if($startHour=='12' || $startHour=12) $startHour = 0;  // since we're adding 720, we cant multiply 12 ever... it throws it into next day.
+	if($startHour=='12' || $startHour==12) $startHour = 0;  // since we're adding 720, we cant multiply 12 ever... it throws it into next day.
 
 	if($_POST['ampm'] == 'am'){
 		$startTime = $startHour * 60 + $startMinutes;
@@ -266,8 +265,6 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
     foreach($arr as $v){
         $flightDets .= $v .'{`}';
     }
-
-
 
 	$regionID = get_service_region($_POST['fromLoc']);
 	$vehicle_type = ($_POST['carTypeSelect'] == '') ? 'P' : $_POST['carTypeSelect'];
