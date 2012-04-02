@@ -1398,8 +1398,13 @@ class Reservation {
 
 				$split = '{`}';
         $splitted = explode($split, $this->flightDets);
+	  $start = $this->start;
 
-      $start = ($this->start > 779) ? $this->start - 720 : $this->start;
+
+	  // this adjusts time to determine hour.  stop using 779 >_>
+      $start = ($this->start >= 720) ? $this->start - 720 : $this->start;
+
+
       $values = array(
         'acode_from' => $splitted[0],
         'fnum_from' => $splitted[1],
@@ -1412,7 +1417,7 @@ class Reservation {
         'start_hour' => floor($start / 60),
         'start_minutes' => floor($start % 60),
         'from_location' => $this->machid,
-        'ampm' => ($this->start > 779) ? 'pm' : 'am', // 779 = 12*60+59
+        'ampm' => ($this->start >= 720) ? 'pm' : 'am', // 779 = 12*60+59  <--- is 59 minutes too late.  -JL
 //        'wait' => $this->???,
         'to_location' => $this->toLocation,
         'stop' => $this->stopLoc ? 1 : 0,
