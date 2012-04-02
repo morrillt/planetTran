@@ -5,7 +5,7 @@
 session_start();
 
 include_once('lib/db/AdminDB.class.php');
-include_once('../../../../BusinessLogic/Estimates/Estimate.php');
+include_once('../../../BusinessLogic/Estimates/Estimate.php');
 
 global $d;
 
@@ -13,7 +13,7 @@ get_estimate($_REQUEST);
 function loadMachId($arr, $srch){
     foreach($srch as $v){
         if($arr["$v"]){
-            return $arr["$v"];
+	        return $arr["$v"];
         }
     }
     return 0;
@@ -32,16 +32,10 @@ function get_estimate($col){
     $stop = null;
 
     loadResourceById(&$e->fromAddress,$fromId);
-
     loadResourceById(&$e->toAddress,$toId);
-
     loadResourceById(&$e->stopAddress,$stopId);
-
     loadCollectionIn(&$e, $col);
-
     setEstimateRegion(&$e);
-
-
 
     $estVal = $e->getEstimate();
     $estErrors="";
@@ -51,9 +45,73 @@ function get_estimate($col){
     if($estVal->fare > 0 && $estVal->fare < 29)
         $estVal->fare = 29;
 
-    echo $estVal->fare . '|' . $e->fromAddress->getOneLineAddress() . '|'
-        . $e->toAddress->getOneLineAddress() . '|' .  $estVal->couponAmount
-        . '|' .  $estVal->baseFare .'|' . $estVal->status .'|' . implode('    ',$estVal->errors) . $estErrors ;
+
+	/*
+		  *  var $code=0;  no
+	 *       }
+			 var $address1;  1
+			 var $address2;  1
+			 var $address3;  1
+			 var $res_type;
+			 var $group_name;
+			 var $vehicle_desc;
+			 var $base_fare = 0;
+			 var $stop_fee = 0;
+			 var $wait_fee = 0;
+			 var $vehicle_fee = 0;
+			 var $meet_greet_fee = 0;
+			 var $convertible_seats_fee;
+			 var $booster_seats_fee;
+			 var $subtotal_fare;
+			 var $s_discount = 0;
+			 var $g_discount = 0;
+			 var $c_discount = 0;
+			 var $min_fare = 29;
+			 var $integration_fee;
+			 var $airport_fee;
+			 var $tolls;
+			 var $fare = 0;
+			 var $status = "NotOK";
+		  */
+
+	$output = array();
+	$output['res_type'] = $estVal->res_type;
+	$output['group_name'] = $estVal->group_name;
+	$output['vehicle_desc'] = $estVal->vehicle_desc;
+	$output['base_fare'] = $estVal->base_fare;
+	$output['stop_fee'] = $estVal->stop_fee;
+	$output['wait_fee'] = $estVal->wait_fee;
+	$output['vehicle_fee'] = $estVal->vehicle_fee;
+	$output['meet_greet_fee'] = $estVal->meet_greet_fee;
+	$output['convertible_seats_fee'] = $estVal->convertible_seats_fee;
+	$output['booster_seats_fee'] = $estVal->booster_seats_fee;
+	$output['subtotal_fare'] = $estVal->subtotal_fare;
+	$output['s_discount'] =  $estVal->s_discount;
+	$output['g_discount'] = $estVal->g_discount;
+	$output['c_discount'] = $estVal->c_discount;
+	$output['min_fare'] = $estVal->min_fare;
+	$output['integration_fee'] = $estVal->integration_fee;
+	$output['airport_fee'] = $estVal->airport_fee;
+	$output['tolls'] = $estVal->tolls;
+	$output['fromAddress'] = $e->fromAddress->getOneLineAddress();
+	$output['toAddress'] = $e->toAddress->getOneLineAddress();
+	$output['stopAddress'] = $e->stopAddress->getOneLineAddress();
+	$output['fare'] = $estVal->fare;
+	$output['status'] = $estVal->status;
+	$output['errors'] =  implode('    ',$estVal->errors) . $estErrors;
+
+
+	$msg = "";
+
+	foreach($output as $k=>$v){
+		$msg .= $v . "|";
+	}
+	$msg = substr($msg,0,-1); // get rid of last pipe
+	echo $msg;
+
+    //echo $estVal->fare . '|' . $e->fromAddress->getOneLineAddress() . '|'
+    //    . $e->toAddress->getOneLineAddress() . '|' .  $estVal->couponAmount
+    //    . '|' .  $estVal->baseFare .'|' . $estVal->status .'|' . implode('    ',$estVal->errors) . $estErrors ;
 
 }
 
