@@ -5,7 +5,7 @@
 session_start();
 
 include_once('lib/db/AdminDB.class.php');
-include_once('../../../BusinessLogic/Estimates/Estimate.php');
+include_once('../../../BusinessLogic/Estimates/Estimate.php'); // todo:  I DONT KNOW WHAT THE PATH IS NOW.  <--- Change this
 
 global $d;
 
@@ -45,7 +45,6 @@ function get_estimate($col){
     if($estVal->fare > 0 && $estVal->fare < 29)
         $estVal->fare = 29;
 
-
 	/*
 		  *  var $code=0;  no
 	 *       }
@@ -75,23 +74,23 @@ function get_estimate($col){
 		  */
 
 	$output = array();
-	$output['res_type'] = $estVal->res_type;
-	$output['group_name'] = $estVal->group_name;
-	$output['vehicle_desc'] = $estVal->vehicle_desc;
-	$output['base_fare'] = $estVal->base_fare;
-	$output['stop_fee'] = $estVal->stop_fee;
-	$output['wait_fee'] = $estVal->wait_fee;
-	$output['vehicle_fee'] = $estVal->vehicle_fee;
-	$output['meet_greet_fee'] = $estVal->meet_greet_fee;
-	$output['convertible_seats_fee'] = $estVal->convertible_seats_fee;
-	$output['booster_seats_fee'] = $estVal->booster_seats_fee;
-	$output['subtotal_fare'] = $estVal->subtotal_fare;
-	$output['s_discount'] =  $estVal->s_discount;
-	$output['g_discount'] = $estVal->g_discount;
-	$output['c_discount'] = $estVal->c_discount;
-	$output['min_fare'] = $estVal->min_fare;
-	$output['integration_fee'] = $estVal->integration_fee;
-	$output['airport_fee'] = $estVal->airport_fee;
+	$output['resType'] = $estVal->resType;
+	$output['groupName'] = $estVal->groupName;
+	$output['vehicleDesc'] = $estVal->vehicleDesc;
+	$output['baseFare'] = $estVal->baseFare;
+	$output['stopFee'] = $estVal->stopFee;
+	$output['waitFee'] = $estVal->waitFee;
+	$output['vehicleFee'] = $estVal->vehicleFee;
+	$output['meetGreetFee'] = $estVal->meetGreetFee;
+	$output['convertibleSeatsFee'] = $estVal->convertibleSeatsFee;
+	$output['boosterSeatsFee'] = $estVal->boosterSeatsFee;
+	$output['subtotalFare'] = $estVal->subtotalFare;
+	$output['sDiscount'] =  $estVal->sDiscount;
+	$output['gDiscount'] = $estVal->gDiscount;
+	$output['cDiscount'] = $estVal->cDiscount;
+	$output['minFare'] = $estVal->minFare;
+	$output['integrationFee'] = $estVal->integrationFee;
+	$output['airportFee'] = $estVal->airportFee;
 	$output['tolls'] = $estVal->tolls;
 	$output['fromAddress'] = $e->fromAddress->getOneLineAddress();
 	$output['toAddress'] = $e->toAddress->getOneLineAddress();
