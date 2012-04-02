@@ -154,10 +154,10 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
           */
         ?>
       </div>
-    </div> 
+    </div>
 
-    <?php 
-    	//if($data['role'] === 'm' || $data['role'] === 'a'): // wrong	 
+    <?php
+    	//if($data['role'] === 'm' || $data['role'] === 'a'): // wrong
     	if($_SESSION['role']=='m' && $_SESSION['role'] !== 0):  // only role of M should have access to this - JL 3/26
     ?>
 		<div class="row group">
@@ -172,13 +172,13 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
 			  </select>
 			</div>
 	    </div>
-	
+
 	    <div class="row group">
 	 		<div class="labelish">
 				<label for="position"><?php echo translate('Dept. Code') ?></label>
 	    </div>
-	
-	
+
+
       <div class="inputs">
         <?
           if(empty($positions[0]))
@@ -203,7 +203,7 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
           }
         ?>
       </div>
-    <?php endif ?>  
+    <?php endif ?>
 
     <?php /*if(!$edit): ?>
       <div class="row group">
@@ -220,8 +220,8 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
     <?php endif; */
     // die(print_r($_SESSION)); ?>
 
-    <?php 
-	// 	if(in_array($_SESSION['role'], array('v','m','a')) && $_SESSION['role'] !== 0): -- Old code.  Removed JL 3/26 
+    <?php
+	// 	if(in_array($_SESSION['role'], array('v','m','a')) && $_SESSION['role'] !== 0): -- Old code.  Removed JL 3/26
     	if($_SESSION['role']=='m' && $_SESSION['role'] !== 0):  // only role of M should have access to this
     ?>
       <div class="row group">
@@ -264,7 +264,7 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
       </div>
     </div>
     <?php endif ?>
-    
+
     <?php if(!$new): ?>
       <div class="row group admin">
         <div class="labelish">
@@ -272,7 +272,7 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
         </div>
       </div>
     <?php endif; ?>
-    
+
     <?php /*
 		 <div class="row group admin">
 		 <div class="labelish">
@@ -436,32 +436,34 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
 
 	if (!empty($msg))
 	CmnFns::do_error_box($msg, '', false);
-?>
+	?>
 
     <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
       <tr>
-        <td bgcolor="#CCCCCC">
-        </td>
-
         <td colspan=4>
           <div id="main-content">
-            <h1 class="page-header">Log In</h1>
-
             <div class="article">
-
               <form name="login" method="post" id="res-form" action="<?= $_SERVER['PHP_SELF'] ?>">
-                <p STYLE=" position: relative">
-                  <label for="res-email">Email address</label>
-                  <input type="text" name="email" id="res-email" class="textbox" tabindex="1" />
-                  <input type="image" name="login" value="Log In" class="image" src="/images/button-login-long.gif" tabindex="3" />
-                </p>
-                <p>
-                  <label for="res-pass">Password</label>
-                  <input type="password" name="password" class="textbox" id="res-pass" tabindex="2" />
-                  <input type="checkbox" name="setCookie" value="true"> Remember me on this computer
-                  <input type="hidden" name="resume" value="<?= $resume ?>" />
-                  <input type="hidden" name="login" value="1" />
-                </p>
+	            <h1 class="page-header" align="left" style="margin-left:30%">Ready to travel?</h1>
+	            <div align="center" style="width:100%">
+		            <div align="left" style="margin-left: 20%; width: 60%; text-align:left">
+		                <p>
+		                  <input type="text" name="email" id="res-email" class="textbox" tabindex="1" />
+			              <label for="res-email">Email address</label>
+			            </p>
+			            <p>
+				          <input type="password" name="password" class="textbox" id="res-pass" tabindex="2" />
+		                  <label for="res-pass">Password</label>
+		                </p>
+			            <p>
+				            <input type="image" name="login" value="Log In" class="image" src="/images/button-login-long.gif" tabindex="3" />
+				            <input type="checkbox" name="setCookie" id = "savePass" value="true">
+			                <label for="savePass">Remember me</label>
+				            <input type="hidden" name="resume" value="<?= $resume ?>" />
+				            <input type="hidden" name="login" value="1" />
+			            </p>
+		            </div>
+	            </div>
               </form>
 
             </div>
