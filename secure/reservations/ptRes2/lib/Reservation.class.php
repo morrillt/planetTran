@@ -1,5 +1,6 @@
 <?php
 set_include_path("../:lib/pear/:/usr/local/php5");
+
 /**
 * Reservation class
 * Provides access to reservation data
@@ -317,8 +318,8 @@ class Reservation {
 		    $this->add_error('Please enter a date for all reservations.');
 	    }
 
-	    if (!isset($this->start) || $this->start == ''){
-		    $this->add_error('Please enter a pickup time for all reservations.');
+	    if (!($this->start >= 0 && $this->start <= 12)){
+		    $this->add_error('Please enter a pickup time for all reservations.' . $this->start);
 	    }
 
 	    $this->print_all_errors(true);
@@ -1563,35 +1564,27 @@ if(!history) {
 	  var data = response.split("|");
 
 	  var content = '';
-	  var esubtotal = 0;
+	  var eSubtotal = 0;
 	  //var base_price = parseFloat(data[3]);
 
-		var tripType = 'P';
-		var intermediate_stop = $("#intermediate_stop");
-		if($("#check_by_the_hour").is(":checked")) {
-			tripType = 'H';
-		} else if(intermediate_stop.is(":checked")) {
-			tripType = 'I';
-		}
-
-	  var res_type = data[0];
-	  var group_name = data[1];
-	  var vehicle_desc = data[2];
-	  var base_fare = parseFloat(data[3]);
-	  var base_price = base_fare;
-	  var stop_fee = parseFloat(data[4]);
-	  var wait_fee = parseFloat(data[5]);
-	  var vehicle_fee = parseFloat(data[6]);
-	  var meet_greet_fee = parseFloat(data[7]);
-	  var children_seats_fee = parseFloat(data[8]);
-	  var booster_seats_fee = parseFloat(data[9]);
-	  var subtotal_fare = parseFloat(data[10]);
-	  var special_discount = parseFloat(data[11]);
-	  var group_discount = parseFloat(data[12]);
-	  var coupon_discount = parseFloat(data[13]);
-	  var min_fare = parseFloat(data[14]);
-	  var integration_fee = parseFloat(data[15]);
-	  var airport_fee = parseFloat(data[16]);
+	  var resType = data[0];
+	  var groupName = data[1];
+	  var vehicleDesc = data[2];
+	  var baseFare = parseFloat(data[3]);
+	  var basePrice = baseFare;
+	  var stopFee = parseFloat(data[4]);
+	  var waitFee = parseFloat(data[5]);
+	  var vehicleFee = parseFloat(data[6]);
+	  var meetGreetFee = parseFloat(data[7]);
+	  var childrenSeatsFee = parseFloat(data[8]);
+	  var boosterSeatsFee = parseFloat(data[9]);
+	  var subtotalFare = parseFloat(data[10]);
+	  var sDiscount = parseFloat(data[11]);
+	  var gDiscount = parseFloat(data[12]);
+	  var cDiscount = parseFloat(data[13]);
+	  var minFare = parseFloat(data[14]);
+	  var integrationFee = parseFloat(data[15]);
+	  var airportFee = parseFloat(data[16]);
 	  var tolls = parseFloat(data[17]);
 	  var fromAddress = data[18];
 	  var toAddress = data[19];
@@ -1600,93 +1593,118 @@ if(!history) {
 	  var status = data[22];
 	  var errors = data[23];
 
-	  esubtotal =+ base_price;
+
+	  content += '<div class="line_item_group">'+
+		         '<span class="line_description">Trip Type:</span>';
+
+
+		var tripType = 'P';
+		var intermediateStop = $("#intermediate_stop");
+
+		if($("#check_by_the_hour").is(":checked")) {
+			tripType = 'H';
+			content += '<span class="price" id="total_price">By the hour</span>';
+		} else if (intermediateStop .is(":checked")) {
+			tripType = 'I';
+			content += '<span class=class="price" id="total_price">One way with<br>intermediate stop</span>';
+		} else {
+			content += '<span class="price" id="total_price">One way</span>';
+		}
+
+
+
+
+	  eSubtotal =+ basePrice;
 	  content = content + '<div class="line_item group">'+
 	    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
-	    '<span class="price" id="total_price">$'+base_price.toFixed(2)+'</span>'+
+	    '<span class="price" id="total_price">$'+basePrice.toFixed(2)+'</span>'+
 	  '</div>';
 
 	  var meet_greet = $("#meet_greet");
 	  if(meet_greet.is(":checked")) {
-	      if (!meet_greet_fee){
-		      esubtotal += 30;
+	      if (!meetGreetFee){
+		      eSubtotal += 30;
 	      } else {
-		      esubtotal += meet_greet_fee;
+		      eSubtotal += meetGreetFee;
 	      }
 
 	      content = content + '<div class="line_item group">'+
 		'<span class="line_description">Logan Airport meet and greet</span>'+
-		'<span class="price" id="total_price">$'+meet_greet_fee.toFixed(2)+'</span>'+
+		'<span class="price" id="total_price">$'+meetGreetFee.toFixed(2)+'</span>'+
 	      '</div>';
 	  }
 
-        var vehicle_price = 0;
+        var vehiclePrice = 0;
         var cts = $("[name=carTypeSelect]:checked");
 	  if(cts.val() != "" && cts.val() != "P") {
 	    var vehicle = vehicles[cts.val()];
 	    if(vehicle) {
 	      //vehicle_price = vehicle.price;
-			if(!vehicle_fee){
-				vehicle_price = vehicle.price;
+			if(!vehicleFee){
+				vehiclePrice = vehicle.price;
 			} else {
-				vehicle_price = vehicle_fee;
+				vehiclePrice = vehicleFee;
 			}
-	      esubtotal += vehicle_price;
+	      eSubtotal += vehiclePrice;
 
 	      content = content + '<div class="line_item group">'+
 		'<span class="line_description">Vehicle upgrade ('+vehicle.name+'):</span>'+
-		'<span class="price" id="total_price">$'+vehicle_price.toFixed(2)+'</span>'+
+		'<span class="price" id="total_price">$'+vehiclePrice.toFixed(2)+'</span>'+
 	      '</div>';
 	    }
 	  }
 
-	  var children_seats = $("#child_seats_outgoing");
-	  if(children_seats.val() != "0") {
-	      var childrens_seat_price = 0;
-		  if(!children_seats_fee){
-			   children_seats_price = 15*parseInt(children_seats.val());
+	  var childrenSeats = $("#child_seats_outgoing");
+	  if(childrenSeats.val() != "0") {
+	      var childrenSeatsPrice = 0;
+		  if(!childrenSeatsFee){
+			   childrenSeatsPrice = 15*parseInt(childrenSeats.val());
 		  } else {
-			  children_seats_price = children_seat_fee;
+			  childrenSeatsPrice = childrenSeatsFee;
 		  }
-	    esubtotal += children_seats_price;
+	    eSubtotal += childrenSeatsPrice;
 
 	    content = content + '<div class="line_item group">'+
-	      '<span class="line_description">Children seats ('+children_seats.val()+'):</span>'+
-	      '<span class="price" id="total_price">$'+children_seats_price.toFixed(2)+'</span>'+
+	      '<span class="line_description">Children seats ('+childrenSeats.val()+'):</span>'+
+	      '<span class="price" id="total_price">$'+childrenSeatsPrice.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 
 
-	  var booster_seats = $("#booster_seats_outgoing");
-	  if(booster_seats.val() != "0") {
-	    //var booster_seats_price = 15*parseInt(booster_seats.val());
-	    esubtotal += booster_seats_fee;
+	  var boosterSeats = $("#booster_seats_outgoing");
+	  if(boosterSeats.val() != "0") {
+	    var boosterSeatsPrice = 0;
+		if(!boosterSeatsFee){
+			boosterSeatsPrice = (15*parseInt(boosterSeats.val()));
+		} else {
+			boosterSeatsPrice = boosterSeatsFee;
+		}
+		eSubtotal += boosterSeatsPrice;
 
 	    content = content + '<div class="line_item group">'+
-	      '<span class="line_description">Booster seats ('+booster_seats.val()+'):</span>'+
-	      '<span class="price" id="total_price">$'+booster_seats_fee.toFixed(2)+'</span>'+
+	      '<span class="line_description">Booster seats ('+boosterSeats.val()+'):</span>'+
+	      '<span class="price" id="total_price">$'+boosterSeatsPrice.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 
-	  var intermediate_stop = $("#intermediate_stop");
-	  if(intermediate_stop.is(":checked")) {
-	      var intermediate_stop_price = 0;
-		  if(!stop_fee){
-			  intermediate_stop_price = 20
+	  if(intermediateStop .is(":checked")) {
+	      var intermediateStopPrice = 0;
+		  if(!stopFee){
+			  intermediateStopPrice = 20
 		  } else {
-			  intermediate_stop_price = stop_fee;
+			  intermediateStopPrice = stopFee;
 		  }
-	    esubtotal += stop_fee;
+	    eSubtotal += intermediateStopPrice;
 
 	    content = content + '<div class="line_item group">'+
 	      '<span class="line_description">One intermediate stop:</span>'+
-	      '<span class="price" id="total_price">$'+intermediate_stop_price.toFixed(2)+'</span>'+
+	      '<span class="price" id="total_price">$'+intermediateStopPrice.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 
 	  if($("#coupon_code").val() != "")
 	  {
-	    if(!isNaN(coupon_discount))
+	    if(!isNaN(cDiscount))
 	    {
 	      $("#coupon_code").parent().find('.msg').remove();
 	      $('<div class="msg" style="color:#0f0;">Provided coupon code is valid!</div>').insertBefore($("#coupon_code"));
@@ -1699,45 +1717,45 @@ if(!history) {
 
 	  content = content + '<div class="line_item group total">'+
 	    '<span class="line_description">Estimate subtotal:</span>'+
-	    '<span class="price" id="total_price">$'+esubtotal.toFixed(2)+'</span>'+
+	    '<span class="price" id="total_price">$'+eSubtotal.toFixed(2)+'</span>'+
 	  '</div>';
 
-	  if(coupon_discount)
+	  if(cDiscount)
 	  {
-		esubtotal -= coupon_discount;
+		eSubtotal -= cDiscount;
 	    content = content + '<div class="line_item group total">'+
 	      '<span class="line_description">Coupon Discount:</span>'+
-	      '<span class="price" id="total_price">-$'+coupon_discount.toFixed(2)+'</span>'+
+	      '<span class="price" id="total_price">-$'+cDiscount.toFixed(2)+'</span>'+
 	    '</div>';
 	  }
 
-	  if(group_discount)
+	  if(gDiscount)
 	  {
-		  esubtotal -= group_discount;
+		  eSubtotal -= gDiscount;
 		  content = content + '<div class="line_item group total">'+
 	      '<span class="line_description">Group Discount:</span>'+
-	  	  '<span class="price" id="total_price">-$'+group_discount.toFixed(2)+'</span>'+
+	  	  '<span class="price" id="total_price">-$'+gDiscount.toFixed(2)+'</span>'+
 	  	  '</div>';
 	  }
-	  if(special_discount)
+	  if(sDiscount)
 	  {
-		esubtotal -= special_discount;
+		eSubtotal -= sDiscount;
 	    content = content + '<div class="line_item group total">'+
 		  '<span class="line_description">Special Trip Discount:</span>'+
-		  '<span class="price" id="total_price">-$'+special_discount.toFixed(2)+'</span>'+
+		  '<span class="price" id="total_price">-$'+sDiscount.toFixed(2)+'</span>'+
 		  '</div>';
      	}
 
 
-	  var total_fare = fare;
-	  if(!total_fare) total_fare = esubtotal;
+	  var totalFare= fare;
+	  if(!totalFare) totalFare = eSubtotal;
 
 	  content = content + '<div class="line_item group total">'+
 	    '<span class="line_description">Total estimated fare:</span>'+
-	    '<span class="price" id="total_price">$'+total_fare.toFixed(2)+'</span>'+
+	    '<span class="price" id="total_price">$'+totalFare.toFixed(2)+'</span>'+
 	  '</div>';
-        setVehiclePrices(total_fare - vehicle_price);
-	  $("[name=estimate]").val("$"+total_fare.toFixed(2));
+        setVehiclePrices(totalFare - vehiclePrice);
+	  $("[name=estimate]").val("$"+totalFare.toFixed(2));
 	  $('#reservation_summary').html(content);
 
 	  if(typeof callback === "function") callback(response);
@@ -2302,31 +2320,9 @@ $(function(){
 	  {
 
 	    var data = response.split("|");
-		var res_type = data[0];
-		var group_name = data[1];
-		var vehicle_desc = data[2];
-		var base_fare = parseFloat(data[3]);
-		var base_price = base_fare;
-		var stop_fee = parseFloat(data[4]);
-		var wait_fee = parseFloat(data[5]);
-		var vehicle_fee = parseFloat(data[6]);
-		var meet_greet_fee = parseFloat(data[7]);
-		var children_seats_fee = parseFloat(data[8]);
-		var booster_seats_fee = parseFloat(data[9]);
-		var subtotal_fare = parseFloat(data[10]);
-		var special_discount = parseFloat(data[11]);
-		var group_discount = parseFloat(data[12]);
-		var coupon_discount = parseFloat(data[13]);
-		var min_fare = parseFloat(data[14]);
-		var integration_fee = parseFloat(data[15]);
-		var airport_fee = parseFloat(data[16]);
-		var tolls = parseFloat(data[17]);
-		var fromAddress = data[18];
-		var toAddress = data[19];
-		var stopAddress = data[20];
 		var fare = parseFloat(data[21]);
 		var status = data[22];
-		var errors = data[23];
+
 
 
 	    var price = fare;
