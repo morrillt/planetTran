@@ -185,7 +185,7 @@ function process_reservation($fn) {   // Why is this lower_under when the entire
 
 	if (isset($_POST['wait']) || $_POST['carTypeSelect'] == 'N') {
 		$specialItems .= 'A';
-		$authWait = $_POST['authWait'];
+		$authWait = (isset($_POST['wait_time']) ? $_POST['wait_time'] : $_POST['authWait'] );
 	} else
 		$authWait = null;
 

@@ -442,10 +442,10 @@ class Tools {
 	*/
 	function car_select_array() {
 		return array(	'P'=>	'Standard (Prius)',
-				'V'=>	'Prius V (+$15)',
-				'C'=>	'Camry (+$15)',
-				'L'=>	'Luxury (Lexus HS Sedan [+$30])',
-				'S'=>	'SUV (Highlander or Lexus [+$30])',
+				'V'=>	'Prius V ',
+				'C'=>	'Camry (+$10)',
+				'L'=>	'Luxury (Lexus HS Sedan [+$50])',
+				'S'=>	'SUV (Highlander or Lexus [+$50])',
 				//'N'=>	'9-Passenger van ($75/hr, 2 hr minimum)'
 			);
 	}

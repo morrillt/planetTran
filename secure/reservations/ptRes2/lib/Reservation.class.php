@@ -1412,18 +1412,19 @@ class Reservation {
         'acode_to' => $splitted[3],
         'fnum_to' => $splitted[4],
         'fdets_to' => $splitted[5],
-
+        'trip_type' => $this->trip_type,
         'date' => date('m/d/Y', $this->date),
         'start_hour' => floor($start / 60),
         'start_minutes' => floor($start % 60),
         'from_location' => $this->machid,
         'ampm' => ($this->start >= 720) ? 'pm' : 'am', // 779 = 12*60+59  <--- is 59 minutes too late.  -JL
-//        'wait' => $this->???,
+       'wait' => $this->authWait,
         'to_location' => $this->toLocation,
         'stop' => $this->stopLoc ? 1 : 0,
         'stopLoc' => $this->stopLoc,
         'memberid' => $this->memberid,
         'summary' => $this->summary,
+        'wait_time' => $this->authWait,
         // 'special' => $this->special,
         'scheduleid' => $this->scheduleid,
         'paymentProfileId' => $this->paymentProfileId,
@@ -1851,6 +1852,16 @@ $(function(){
     function removeClearClick(){
         $('#clear_to_address').click();
         $('#clear_to_address').attr('onclick','return false;').unbind('click');
+    }
+    if(""=="asDirectedLoc"){
+        enableToLocation();
+    }
+    if($('#hid_to_location_ID').val()=="asDirectedLoc"){
+        disableToLocation();
+    }
+    if($('#steps_main [name=trip_type]').val()=="H"){
+        $('#check_by_the_hour').click();
+
     }
     var chkByTheHour = $('#check_by_the_hour').is(':checked');
     if(chkByTheHour){
@@ -2456,14 +2467,15 @@ $(function(){
       include_once('reservations.include.qq.php');
 ?>
   <form name="reserve" id="steps_main" class="group" method="post" action="">
-    <input type="hidden" name="fromID" />
-    <input type="hidden" name="toID" />
-    <input type="hidden" name="stopID" />
+    <input type="hidden" name="fromID" value="<?=$values['from_location']?>" />
+    <input type="hidden" name="toID" value="<?=$values['to_location']?>" />
+    <input type="hidden" name="stopID" value="<?=$values['stop_location']?>" />
     <!--input type="hidden" name="memberid" /-->
-    <input type="hidden" name="meet_greet" />
+    <input type="hidden" name="meet_greet" value="<?=$values['meet_greet']?>" />
     <!--input type="hidden" name="groupid" /-->
-    <input type="hidden" name="vehicle_type" />
-    <input type="hidden" name="trip_type" />
+    <input type="hidden" name="vehicle_type" value="<?=$values['vehicle_type']?>" />
+    <input type="hidden" name="trip_type" value="<?=$values['trip_type']?>"/>
+    <input type="hidden" name="hid_to_location_ID" value="<?=$values['to_location']?>" />
     <!--input type="hidden" name="wait_time" /-->
 
   <input type="hidden" name="id" value="<?php echo !empty($values['id']) ? $values['id'] : uniqid() ?>" />
