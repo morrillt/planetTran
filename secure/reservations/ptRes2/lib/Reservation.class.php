@@ -958,9 +958,9 @@ class Reservation {
 					<div id="roundtrip_wrap" class="group spacious_top">
 					  <?php $_SESSION['booked'][$fromLocation['location'].':'.$toLocation['location']] = 1 ?>
 					  <?php if(!isset($_SESSION['booked'][$toLocation['location'].':'.$fromLocation['location']])): ?>
-					    <input type="button" onclick="window.location.href = window.location.href+'&amp;from=<?php echo $this->toLocation ?>&amp;to=<?php echo $this->machid ?>'" id="book_return"    name="" value="<?php echo translate('Book a return trip') ?>" /> <span id="or" class="by"><?php echo translate('OR') ?></span>
+					    <input type="button" onclick="window.location.href = window.location.href.replace('type=m','type=r')+'&amp;from=<?php echo $this->toLocation ?>&amp;to=<?php echo $this->machid ?>'" id="book_return"    name="" value="<?php echo translate('Book a return trip') ?>" /> <span id="or" class="by"><?php echo translate('OR') ?></span>
 					  <?php endif ?>
-					  <input type="button" onclick="window.location.href = window.location.href+'&amp;from=<?php echo $this->machid ?>&amp;to=<?php echo $this->toLocation ?>'" id="book_duplicate" name="" value="<?php echo translate('Book similar trip at another time') ?>" />
+					  <input type="button" onclick="window.location.href =  window.location.href.replace('type=m','type=r')+'&amp;from=<?php echo $this->machid ?>&amp;to=<?php echo $this->toLocation ?>'" id="book_duplicate" name="" value="<?php echo translate('Book similar trip at another time') ?>" />
 					</div>
 				</div>
 
@@ -2488,6 +2488,7 @@ $(function(){
       .change();
     */
   });
+
 </script>
 
 <h1 id="hdr_reservations"><span class="imagetext">Reservations</span></h1>
