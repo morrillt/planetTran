@@ -823,10 +823,6 @@ class Reservation {
 							</div>
 							<div class="inputs">
 								<?php echo $variable['address1'] ?>
-								<!--Logan Int'l Airport<br />
-								Delta Flight #123<br />
-								3 checked bags<br />
-								Time/other details-->
 							</div>
 
 						</div>
@@ -838,7 +834,6 @@ class Reservation {
 								</div>
 								<div class="inputs">
 									<?php echo $variable['address2'] ?>
-									<!-- 456 Beacon Street, Brighton MA 02445 -->
 								</div>
 							</div>
 						<?php endif ?>
@@ -848,7 +843,13 @@ class Reservation {
 								<label for="override_auto_billing"><?php echo translate('To') ?></label>
 							</div>
 							<div class="inputs">
-								<?php echo $variable['address3'] ?>
+								<?php
+                                    if ($this->trip_type == "H"){
+                                        echo "As directed";
+                                    } else {
+                                        echo $variable['address3'];
+                                    }
+                                ?>
 							</div>
 						</div>
 						<div class="row group">
@@ -862,7 +863,6 @@ class Reservation {
 								  $a = $t->car_select_array();
 								  echo $a[$this->vehicle_type.''];
 								?>
-								<!-- Toyota Highlander SUV -->
 							</div>
 						</div>
 						<div class="row group">
@@ -884,7 +884,6 @@ class Reservation {
 							if($convertible_seats > 0) { echo $this->convertible_seats.' '.translate('Convertible seats').' ($'.(10*$convertible_seats).')'; }
 							if($booster_seats > 0) { echo $booster_seats.' '.translate('Booster').' ($'.(10*$booster_seats).')'; }
 						      ?>
-						      <!-- 1 convertible seat ($15), 1 booster ($15) -->
 						    </div>
 						  </div>
 						<?php endif ?>
@@ -895,7 +894,6 @@ class Reservation {
 
 							<div class="inputs">
 								<?php echo $member['fname'].' '.$member['lname'] ?>
-								<!-- John Doe -->
 							</div>
 						</div>
 						<?php if($_POST['cphone']): ?>
@@ -1381,7 +1379,7 @@ class Reservation {
 			$paymentArray = $this->db->getPaymentOptions($this->memberid);
 			print_group_hack_summary($this->summary, $this->type, $billtype, $this->dispNotes, $paymentArray, $user, $this, true);
 		} else {
-			print_special_read_only($this->specialItems, $this->type);
+			//print_special_read_only($this->specialItems, $this->type);
 			print_hack_summary($this->summary, $this->type);
 		}
 		//if (!empty($this->parentid) && ($this->type == 'm' || $this->type == 'd'))
@@ -3057,8 +3055,20 @@ $(function(){
 		$fname = $user->get_fname();
 		$lname = $user->get_lname();
 		$useremail = $user->get_email();
-		$fr = $this->machid;
+        $fr = $this->machid;
 		$to = $this->toLocation;
+
+        switch($this->trip_type){
+            case "H":
+                $tripType = "Hourly trip";
+                break;
+            case "I":
+                $tripType = "One way with intermediate stop";
+                break;
+            default:
+                $tripType = "One way trip";
+        }
+
 
 		if ($this->paymentProfileId == "00")
 			$payinfo = "Direct Bill";
@@ -3119,6 +3129,8 @@ $(function(){
 
 		$emailFrLoc = $rs['name']." ".$rs['address1'].", ".$rs['city'].", ".$rs['state']." ".$rs['zip'];
 		$emailToLoc = $toLoc['name']." ".$toLoc['address1'].", ".$toLoc['city'].", ".$toLoc['state']." ".$toLoc['zip'];
+        if($this->trip_type == "H") $emailToLoc = "As directed";
+
 		$showid = strtoupper(substr($this->id, -6));
 
 		// Email addresses
@@ -3134,6 +3146,7 @@ $(function(){
 
 		$defs = array(
 				translate('Reservation #'),
+                'Fare Type:',
 				'Reserved For:',
 				translate('Date'),
 				'From:',
@@ -3242,6 +3255,7 @@ Thank you for using PlanetTran. You have $mod the following reservation:
 
 <table width="100%" cellspacing=0 cellpadding=3 style="border: 1px solid #CCC;">
 <tr><td width="25%">Reservation #</td><td width="75%">$showid</td></tr>
+<tr><td>Fare Type</td><td>$tripType</td></tr>
 <tr><td>Reserved For</td><td>$paxfname $paxlname</td></tr>
 <tr><td>Date</td><td>$date</td></tr>
 <tr><td>Pickup Time</td><td>$start</td></tr>
@@ -3284,11 +3298,12 @@ EOT;
 
 			$fields = array (	// array[x] = [0] => title, [1] => field value, [2] => length
 						array($defs[0], $this->id, ((strlen($this->id) < strlen($defs[0])) ? strlen($defs[0]) : strlen($this->id))),
-						array($defs[1], $date, ((strlen($date) < strlen($defs[1])) ? strlen($defs[1]) : strlen($date))),
-						array($defs[2], $rs['name'], ((strlen($rs['name']) < strlen($defs[2])) ? strlen($defs[2]) : strlen($rs['name']))),
-						array($defs[3], $toLoc['name'], ((strlen($toLoc['name']) < strlen($defs[3])) ? strlen($defs[3]) : strlen($toLoc['name']))),
-						array($defs[4], $start, ((strlen($start) < strlen($defs[4])) ? strlen($defs[4]) : strlen($start))),
-						array($defs[5], $this->flightDets, ((strlen($this->flightDets) < strlen($defs[5])) ? strlen($defs[5]) : strlen($this->flightDets)))
+                        array($defs[1], $tripType, ((strlen($tripType) < strlen($defs[1])) ? strlen($defs[1]) : strlen($tripType))),
+						array($defs[2], $date, ((strlen($date) < strlen($defs[2])) ? strlen($defs[2]) : strlen($date))),
+						array($defs[3], $rs['name'], ((strlen($rs['name']) < strlen($defs[3])) ? strlen($defs[3]) : strlen($rs['name']))),
+						array($defs[4], $toLoc['name'], ((strlen($toLoc['name']) < strlen($defs[4])) ? strlen($defs[4]) : strlen($toLoc['name']))),
+						array($defs[5], $start, ((strlen($start) < strlen($defs[5])) ? strlen($defs[5]) : strlen($start))),
+						array($defs[6], $this->flightDets, ((strlen($this->flightDets) < strlen($defs[6])) ? strlen($defs[6]) : strlen($this->flightDets)))
 						);
 			$total_width = 0;
 
