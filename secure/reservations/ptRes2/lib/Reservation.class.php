@@ -857,8 +857,8 @@ class Reservation {
 						    </div>
 						    <div class="inputs">
 						      <?php
-							if($convertible_seats > 0) { echo $this->convertible_seats.' '.translate('Convertible seats').' ($'.(15*$convertible_seats).')'; }
-							if($booster_seats > 0) { echo $booster_seats.' '.translate('Booster').' ($'.(15*$booster_seats).')'; }
+							if($convertible_seats > 0) { echo $this->convertible_seats.' '.translate('Convertible seats').' ($'.(10*$convertible_seats).')'; }
+							if($booster_seats > 0) { echo $booster_seats.' '.translate('Booster').' ($'.(10*$booster_seats).')'; }
 						      ?>
 						      <!-- 1 convertible seat ($15), 1 booster ($15) -->
 						    </div>
@@ -1658,7 +1658,7 @@ if(!history) {
 	  if(childrenSeats.val() != "0") {
 	      var childrenSeatsPrice = 0;
 		  if(!childrenSeatsFee){
-			   childrenSeatsPrice = 15*parseInt(childrenSeats.val());
+			   childrenSeatsPrice = 10*parseInt(childrenSeats.val());
 		  } else {
 			  childrenSeatsPrice = childrenSeatsFee;
 		  }
@@ -1675,7 +1675,7 @@ if(!history) {
 	  if(boosterSeats.val() != "0") {
 	    var boosterSeatsPrice = 0;
 		if(!boosterSeatsFee){
-			boosterSeatsPrice = (15*parseInt(boosterSeats.val()));
+			boosterSeatsPrice = (10*parseInt(boosterSeats.val()));
 		} else {
 			boosterSeatsPrice = boosterSeatsFee;
 		}
@@ -2131,13 +2131,13 @@ $(function(){
         var booster_seats = $("#booster_seats_outgoing");
         if(booster_seats.val() != "0") {
 
-            addons += 15*parseInt(booster_seats.val());
+            addons += 10*parseInt(booster_seats.val());
         }
 
         var children_seats = $("#child_seats_outgoing");
         if(children_seats.val() != "0") {
 
-            addons += 15*parseInt(children_seats.val());
+            addons += 10*parseInt(children_seats.val());
         }
 
         var vehicle_price = 0;
@@ -2827,15 +2827,15 @@ $(function(){
           <div class="inputs">
               <select name="convertible_seats" id="child_seats_outgoing">
                   <option value="0">no convertible seats $0</option>
-                  <option value="1" <?php if(1 == $values['convertible_seats']) echo 'selected="selected"' ?>>1 convertible seat $15</option>
-                  <option value="2" <?php if(2 == $values['convertible_seats']) echo 'selected="selected"' ?>>2 convertible seats $30</option>
-                  <option value="3" <?php if(3 == $values['convertible_seats']) echo 'selected="selected"' ?>>3 convertible seats $45</option>
+                  <option value="1" <?php if(1 == $values['convertible_seats']) echo 'selected="selected"' ?>>1 convertible seat $10</option>
+                  <option value="2" <?php if(2 == $values['convertible_seats']) echo 'selected="selected"' ?>>2 convertible seats $20</option>
+                  <option value="3" <?php if(3 == $values['convertible_seats']) echo 'selected="selected"' ?>>3 convertible seats $30</option>
               </select><br />
               <select name="booster_seats" id="booster_seats_outgoing">
                   <option value="0">no booster seats $0</option>
-                  <option value="1" <?php if(1 == $values['booster_seats']) echo 'selected="selected"' ?>>1 booster seat $15</option>
-                  <option value="2" <?php if(2 == $values['booster_seats']) echo 'selected="selected"' ?>>2 booster seats $30</option>
-                  <option value="3" <?php if(3 == $values['booster_seats']) echo 'selected="selected"' ?>>3 booster seats $45</option>
+                  <option value="1" <?php if(1 == $values['booster_seats']) echo 'selected="selected"' ?>>1 booster seat $10</option>
+                  <option value="2" <?php if(2 == $values['booster_seats']) echo 'selected="selected"' ?>>2 booster seats $20</option>
+                  <option value="3" <?php if(3 == $values['booster_seats']) echo 'selected="selected"' ?>>3 booster seats $30</option>
               </select>
           </div>
       </div>
