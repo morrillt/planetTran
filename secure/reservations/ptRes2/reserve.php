@@ -105,7 +105,7 @@ $t->printHTMLFooter();
 * Processes a reservation request (add/del/edit)
 * @param string $fn function to perform
 */
-function process_reservation($fn) {   // Why is this lower_under when the entire app is lowerCamel? Consistency please.  -JL
+function process_reservation($fn) {
 	$success = false;
 	global $Class;
 	$delimiter = 'DELIMITER';
