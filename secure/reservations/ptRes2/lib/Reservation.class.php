@@ -751,7 +751,7 @@ class Reservation {
 		  'address1'  => $address1,
 		  'address2'  => $address2,
 		  'address3'  => $address3,
-		  'wait_time' => $this->wait_time,
+		  'wait_time' => $this->authWait,
 		  'amenities' => $booster_seats.','.$convertible_seats.','.((int)$this->meet_greet),
 		  'memberId'  => $this->memberid,
 		  'groupId'   => $this->groupid,
@@ -823,10 +823,6 @@ class Reservation {
 							</div>
 							<div class="inputs">
 								<?php echo $variable['address1'] ?>
-								<!--Logan Int'l Airport<br />
-								Delta Flight #123<br />
-								3 checked bags<br />
-								Time/other details-->
 							</div>
 
 						</div>
@@ -838,7 +834,6 @@ class Reservation {
 								</div>
 								<div class="inputs">
 									<?php echo $variable['address2'] ?>
-									<!-- 456 Beacon Street, Brighton MA 02445 -->
 								</div>
 							</div>
 						<?php endif ?>
@@ -848,7 +843,13 @@ class Reservation {
 								<label for="override_auto_billing"><?php echo translate('To') ?></label>
 							</div>
 							<div class="inputs">
-								<?php echo $variable['address3'] ?>
+								<?php
+                                    if ($this->trip_type == "H"){
+                                        echo "As directed";
+                                    } else {
+                                        echo $variable['address3'];
+                                    }
+                                ?>
 							</div>
 						</div>
 						<div class="row group">
@@ -862,7 +863,6 @@ class Reservation {
 								  $a = $t->car_select_array();
 								  echo $a[$this->vehicle_type.''];
 								?>
-								<!-- Toyota Highlander SUV -->
 							</div>
 						</div>
 						<div class="row group">
@@ -884,7 +884,6 @@ class Reservation {
 							if($convertible_seats > 0) { echo $this->convertible_seats.' '.translate('Convertible seats').' ($'.(10*$convertible_seats).')'; }
 							if($booster_seats > 0) { echo $booster_seats.' '.translate('Booster').' ($'.(10*$booster_seats).')'; }
 						      ?>
-						      <!-- 1 convertible seat ($15), 1 booster ($15) -->
 						    </div>
 						  </div>
 						<?php endif ?>
@@ -895,7 +894,6 @@ class Reservation {
 
 							<div class="inputs">
 								<?php echo $member['fname'].' '.$member['lname'] ?>
-								<!-- John Doe -->
 							</div>
 						</div>
 						<?php if($_POST['cphone']): ?>
@@ -1884,7 +1882,12 @@ $(function(){
         disableToLocation();
     }
     if($('#steps_main [name=trip_type]').val()=="H"){
-        $('#check_by_the_hour').click();
+        $('#check_by_the_hour').attr("checked",true);
+        $('#authWait option').each(function(){
+            if($(this).val()==$('[name=hid_wait_time]').val()){
+                $(this).attr('selected',true);
+            }
+        });
 
     }
     var chkByTheHour = $('#check_by_the_hour').is(':checked');
@@ -2506,7 +2509,7 @@ $(function(){
     <input type="hidden" name="vehicle_type" value="<?=$values['vehicle_type']?>" />
     <input type="hidden" name="trip_type" value="<?=$values['trip_type']?>"/>
     <input type="hidden" name="hid_to_location_ID" value="<?=$values['to_location']?>" />
-    <!--input type="hidden" name="wait_time" /-->
+    <input type="hidden" name="hid_wait_time" value="<?=$values['wait_time']?>" />
 
   <input type="hidden" name="id" value="<?php echo !empty($values['id']) ? $values['id'] : uniqid() ?>" />
 
