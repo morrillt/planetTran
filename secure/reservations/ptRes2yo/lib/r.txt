@@ -1,5 +1,0 @@
-	function has_permission($perm) {
-		if ($_SESSION['permissions'] & $perm)
-			return true;
-		return false;
-	}

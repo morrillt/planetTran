@@ -308,8 +308,8 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
           <label for="favroite_drivers">Favorite Drivers</label>
         </div>
         <div class="inputs">
-          <select id="favourite_drivers">
-            <option value="">Select favourite driver</option>
+          <select id="favorite_drivers">
+            <option value="">Select favorite driver</option>
             <?php foreach(Account::getAllDrivers() as $driver): ?>
               <?php
 				if (!$driver['memberid'])
@@ -320,7 +320,7 @@ function print_register_form($edit, $data = array(), $msg = '', $new = 0, $favs 
           </select>
           <input type="hidden" id="driverAddUrl" value="<?php echo $securePrefix ?>/admin_update.php?fn=addFavDriver" />
           <input id="addFavDriver" type="button" value="Add" /><br />
-          <?php foreach(Account::getFavouriteDrivers() as $driver): ?>
+          <?php foreach(Account::getfavoriteDrivers() as $driver): ?>
             <div>
               <?php echo $driver['fname'] ?> <?php echo $driver['lname'] ?> <span class="options"><a href="/pop/remove_driver.php?memberid=<?php echo $driver['memberid'] ?>" class="popover-delete parentDiv" title="Remove Favorite Driver?">Remove</a></span>
             </div>
