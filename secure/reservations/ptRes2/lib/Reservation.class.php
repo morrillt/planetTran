@@ -319,7 +319,7 @@ class Reservation {
 	    }
 
 	    if (!($this->start >= 0 && $this->start <= 1439)){
-		    $this->add_error('Please enter a pickup time for all reservations.' . $this->start);
+		    $this->add_error('Please enter a pickup time for all reservations.');
 	    }
 
 	    $this->print_all_errors(true);
@@ -785,6 +785,30 @@ class Reservation {
 								<strong><?php echo $showid.'' ?></strong>
 							</div>
 						</div>
+
+						<div class="row group">
+							<div class="labelish">
+								<label for="override_auto_billing"><?php echo translate('Fare Type') ?></label>
+							</div>
+							<div class="inputs">
+								<?php
+									switch($this->trip_type){
+										case 'P':
+											echo "One Way";
+											break;
+										case 'H':
+											echo 'Hourly Fare';
+											break;
+										case 'I':
+											echo 'Intermediate Stop';
+											break;
+										default:
+											echo 'One Way';
+									}
+								?>
+							</div>
+						</div>
+
 						<div class="row group">
 							<div class="labelish">
 								<label for="override_auto_billing"><?php echo translate('When') ?></label>
@@ -1596,18 +1620,18 @@ if(!history) {
 
 
 	  content += '<div class="line_item_group">'+
-		         '<span class="line_description">Trip Type:</span>';
+		         '<span class="line_description">Fare Type:</span>';
 
 
-		var tripType = 'P';
+		//var tripType = 'P';
 		var intermediateStop = $("#intermediate_stop");
 
 		if($("#check_by_the_hour").is(":checked")) {
-			tripType = 'H';
+			//tripType = 'H';
 			content += '<span class="price" id="total_price">By the hour</span>';
 		} else if (intermediateStop .is(":checked")) {
-			tripType = 'I';
-			content += '<span class=class="price" id="total_price">One way with<br>intermediate stop</span>';
+			//tripType = 'I';
+			content += '<span class=class="price" id="total_price">Intermediate stop</span>';
 		} else {
 			content += '<span class="price" id="total_price">One way</span>';
 		}
@@ -2343,18 +2367,24 @@ $(function(){
 
 	      var Cx = $('#steps_main');
 	      var addresses = getAddresses();
+          var displayToNick = addresses.to_nick;
+          var displayToAddress = (addresses.to_address == undefined ? "" : addresses.to_address);
+          var displayToCity = (addresses.to_city == undefined ? "" : addresses.to_city);
+          var displayToState = (addresses.to_state == undefined ? "" : addresses.to_city);
+          var displayToZip = (addresses.to_zip == undefined ? "" : addresses.to_city);
+          var displayToString = (displayToAddress == "" ? displayToNick : displayToNick + ' - ' + displayToAddress + ", " + displayToCity + ", " + displayToState + " " +displayToZip);
+
 
 	      $($('.order_details li:nth-child(2)', Cx)).text('Pickup Location: '+addresses.from_nick+' - '+addresses.from_address+", "+addresses.from_city+", "+addresses.from_state+" "+addresses.from_zip);
 	      if(addresses.stop_addr && $("#intermediate_stop").is(":checked"))
 	      {
-		$($('.order_details li:nth-child(3)', Cx))
+		    $($('.order_details li:nth-child(3)', Cx))
 		    .show()
-		    .text('Intermediate stop: '+addresses.stop_nick+' - '+addresses.stop_addr+", "+addresses.stop_city+", "+addresses.stop_state+" "+addresses.stop_zip)
-		;
+		    .text('Intermediate stop: '+addresses.stop_nick+' - '+addresses.stop_addr+", "+addresses.stop_city+", "+addresses.stop_state+" "+addresses.stop_zip);
 	      } else {
-		$($('.order_details li:nth-child(3)', Cx)).hide();
+		    $($('.order_details li:nth-child(3)', Cx)).hide();
 	      }
-	      $($('.order_details li:nth-child(4)', Cx)).text('Drop-off Location: '+addresses.to_nick+' - '+addresses.to_address+", "+addresses.to_city+", "+addresses.to_state+" "+addresses.to_zip);
+	        $($('.order_details li:nth-child(4)', Cx)).text('Drop-off Location: '+displayToString);
 
 	      try {
 	       history.pushState({ isMine:true }, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);

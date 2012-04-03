@@ -523,7 +523,7 @@ include dirname(__FILE__).'/../../../../config/paths.php';
       <? // <td><?php echo date('m/d/Y', $rs['date']) ?>
 	  <td><?php echo CmnFns::formatDate($rs['date']) ?></td>
       <td><?php echo CmnFns::formatTime($rs['startTime'])?></td>
-      <td>$<?php echo $rs['total_fare'] ?></td>
+      <td>$<?php echo money_format("%(.2n",$res['total_fare'])?></td>
       <td><?php echo $rs['fromLocationName'] ?></td>
       <td><?php echo $rs['toLocationName'] ?></td>
       <td><a href="newReceipt.php?resid=<?php echo $rs['resid'] ?>">PDF</a> |
