@@ -2426,7 +2426,7 @@ $(function(){
 	      alert("We were unable to automatically generate a quote for your locations. Email us at customerservice@planettran.com, or call 888-756-8876 (press option 2). Thanks for your patience and cooperation. ");
 	      return;
 	    }
-	    $("#quote_contents").show().find('.price').html(fare+"");
+	    $("#quote_contents").show().find('.price').html(fare.toFixed(2)+"");
 	  }
 	});
       });
