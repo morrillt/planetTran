@@ -318,7 +318,7 @@ class Reservation {
 		    $this->add_error('Please enter a date for all reservations.');
 	    }
 
-	    if (!($this->start >= 0 && $this->start <= 12)){
+	    if (!($this->start >= 0 && $this->start <= 1439)){
 		    $this->add_error('Please enter a pickup time for all reservations.' . $this->start);
 	    }
 
