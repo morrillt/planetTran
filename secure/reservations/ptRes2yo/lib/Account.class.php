@@ -181,12 +181,12 @@ class Account
     return $result;
   }
 
-  public static function getFavouriteDrivers($memberid = null)
+  public static function getfavoriteDrivers($memberid = null)
   {
     self::getUserId($memberid);
 
     $userDB = new UserDB();
-    $result = $userDB->get_user_favourite_drivers($memberid);
+    $result = $userDB->get_user_favorite_drivers($memberid);
 
     return $result;
   }

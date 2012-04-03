@@ -39,7 +39,7 @@ class UserDB extends DBEngine {
 		return $this->cleanRow($result);
 	}
 
-	function get_user_favourite_drivers($userid){
+	function get_user_favorite_drivers($userid){
     /* @var $x DB_mysql */
 
 		$query = "SELECT DISTINCT * FROM login

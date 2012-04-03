@@ -194,7 +194,7 @@ require_once("dompdf_config.inc.php");
 
 $html =
   '&lt;html&gt;&lt;body&gt;'.
-  '&lt;p&gt;Put your html here, or generate it with your favourite '.
+  '&lt;p&gt;Put your html here, or generate it with your favorite '.
   'templating system.&lt;/p&gt;'.
   '&lt;/body&gt;&lt;/html&gt;';
 

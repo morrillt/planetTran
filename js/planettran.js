@@ -261,7 +261,7 @@ $(document).ready(function() {
 //	});
 
   $("#addFavDriver").click(function(){
-    $select = $("#favourite_drivers");
+    $select = $("#favorite_drivers");
     var memberid = $select.val();
     if(memberid == "") return;
     $.ajax({
@@ -272,7 +272,7 @@ $(document).ready(function() {
       success: function(data){
         data = $.trim(data);
         if(data == "success"){
-          alert("Favourite driver added successfully!");
+          alert("Favorite driver added successfully!");
           document.location = document.location; // refresh
         } else {
           alert("Unexpected error #1!");
