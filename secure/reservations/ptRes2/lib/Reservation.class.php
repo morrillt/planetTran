@@ -751,7 +751,7 @@ class Reservation {
 		  'address1'  => $address1,
 		  'address2'  => $address2,
 		  'address3'  => $address3,
-		  'wait_time' => $this->wait_time,
+		  'wait_time' => $this->authWait,
 		  'amenities' => $booster_seats.','.$convertible_seats.','.((int)$this->meet_greet),
 		  'memberId'  => $this->memberid,
 		  'groupId'   => $this->groupid,
@@ -1884,7 +1884,12 @@ $(function(){
         disableToLocation();
     }
     if($('#steps_main [name=trip_type]').val()=="H"){
-        $('#check_by_the_hour').click();
+        $('#check_by_the_hour').attr("checked",true);
+        $('#authWait option').each(function(){
+            if($(this).val()==$('[name=hid_wait_time]').val()){
+                $(this).attr('selected',true);
+            }
+        });
 
     }
     var chkByTheHour = $('#check_by_the_hour').is(':checked');
@@ -2506,7 +2511,7 @@ $(function(){
     <input type="hidden" name="vehicle_type" value="<?=$values['vehicle_type']?>" />
     <input type="hidden" name="trip_type" value="<?=$values['trip_type']?>"/>
     <input type="hidden" name="hid_to_location_ID" value="<?=$values['to_location']?>" />
-    <!--input type="hidden" name="wait_time" /-->
+    <input type="hidden" name="hid_wait_time" value="<?=$values['wait_time']?>" />
 
   <input type="hidden" name="id" value="<?php echo !empty($values['id']) ? $values['id'] : uniqid() ?>" />
 
