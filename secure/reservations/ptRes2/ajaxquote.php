@@ -1,11 +1,14 @@
 <?php
  // ini_set('error_reporting', E_ERROR);
  // ini_set('display_errors', 1);
-
+// spl_autoload_extensions(".php");
+// spl_autoload_register();
+use classes\BusinessLogic\Estimates as Est;
 session_start();
 
 include_once('lib/db/AdminDB.class.php');
-include_once('../../../BusinessLogic/Estimates/Estimate.php'); // todo:  I DONT KNOW WHAT THE PATH IS NOW.  <--- Change this
+include_once('../../../PTAutoLoader.php');
+PTAutoLoader::BusinessLogicLoader('Estimates/Estimate');
 
 global $d;
 
@@ -21,8 +24,8 @@ function loadMachId($arr, $srch){
 function get_estimate($col){
     global $d;
     $d = new AdminDB();
-    $e = new Estimate();
-
+    $e = new Est\Estimate();
+    $e->perlScript = "estimateA.pl";
     $fromId = loadMachId($col, array('fromID','from_location'));
     $toId = loadMachId($col, array('toID','to_location'));
     $stopId = loadMachId($col, array('stopID','stop_location'));
@@ -139,20 +142,20 @@ function setEstimateRegion(&$e){
     }
 
 }
-function loadResourceById(EstimateAddress &$e, $machId){
+function loadResourceById(Est\EstimateAddress &$e, $machId){
     global $d;
     if(is_null($machId)){
-        $e  = new EstimateAddress();
+        $e  = new Est\EstimateAddress();
     } else if($machId && $machId=="asDirectedLoc"){
         $e->machid = "asDirectedLoc";
     } else if($machId){
         $e->machid = $machId;
         $res = $d->get_resource_data($machId);
-        EstimateConverter::getAddressFromResource(&$e, $res);
+        Est\EstimateConverter::getAddressFromResource(&$e, $res);
     }
 }
 
-function loadCollectionIn(Estimate &$e, $col){
+function loadCollectionIn(Est\Estimate &$e, $col){
     $e->groupid = $groupId = isset($col['groupid']) ? $col['groupid'] : 0;
 
     $e->fromAddress->street = $col['from_address'];
