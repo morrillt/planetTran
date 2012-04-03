@@ -1,1 +1,0 @@
-			<? $link->doLink('register.php?billtype=' . $GLOBALS['billtype'] . '&biz=' . $GLOBALS['biz'] . '&groupid='.$GLOBALS['groupid'], translate('Click here to register'), '', '', translate('Register for phpScheduleIt')) ?>
