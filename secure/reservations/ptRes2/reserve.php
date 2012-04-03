@@ -105,7 +105,7 @@ $t->printHTMLFooter();
 * Processes a reservation request (add/del/edit)
 * @param string $fn function to perform
 */
-function process_reservation($fn) {
+function process_reservation($fn) {   // Why is this lower_under when the entire app is lowerCamel? Consistency please.  -JL
 	$success = false;
 	global $Class;
 	$delimiter = 'DELIMITER';
@@ -269,7 +269,7 @@ function process_reservation($fn) {
 	$regionID = get_service_region($_POST['fromLoc']);
 	$vehicle_type = ($_POST['carTypeSelect'] == '') ? 'P' : $_POST['carTypeSelect'];
 
-	if(isset($authWait) || $_POST['toLoc'] == 'asDirectedLoc')
+	if(isset($authWait) || $_POST['toID'] == 'asDirectedLoc')
 		$trip_type = 'H';
 	elseif(isset($stopLoc))
 		$trip_type = 'I';
@@ -300,24 +300,27 @@ function process_reservation($fn) {
     $fromLoc = add_resource($fromLocation, true);
   }
 
-  if($_POST['to_type']==1 && $_POST['to_location']){
-    $toLoc = $_POST['to_location'];
-  } elseif($_POST['to_type']==2 && $_POST['apts_to']) {
-    $toLoc = $_POST['apts_to'];
-  } else {
 
-    $toLocation = array();
-    $toLocation['type'] = $_POST['to_type'];
-    $toLocation['scheduleid'] = $scheduleid;
+    if($_POST['toID'] == 'asDirectedLoc'){
+        $toLoc = 'asDirectedLoc';
+    } elseif ($_POST['to_type']==1 && $_POST['to_location']){
+        $toLoc = $_POST['to_location'];
+    } elseif($_POST['to_type']==2 && $_POST['apts_to']) {
+        $toLoc = $_POST['apts_to'];
+    } else {
 
-    $toLocation['name'] = $_POST['to_name'];
-    $toLocation['address'] = $_POST['to_address'];
-    $toLocation['city'] = $_POST['to_city'];
-    $toLocation['state'] = $_POST['to_state'];
-    $toLocation['zip'] = $_POST['to_zip'];
+        $toLocation = array();
+        $toLocation['type'] = $_POST['to_type'];
+        $toLocation['scheduleid'] = $scheduleid;
 
-    $toLoc = add_resource($toLocation, true);
-  }
+        $toLocation['name'] = $_POST['to_name'];
+        $toLocation['address'] = $_POST['to_address'];
+        $toLocation['city'] = $_POST['to_city'];
+        $toLocation['state'] = $_POST['to_state'];
+        $toLocation['zip'] = $_POST['to_zip'];
+
+        $toLoc = add_resource($toLocation, true);
+    }
 
 
 
