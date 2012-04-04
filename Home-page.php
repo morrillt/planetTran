@@ -1,4 +1,4 @@
-<?php 
+<?php
 require dirname(__FILE__).'/config/paths.php';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -23,9 +23,9 @@ function MM_effectHighlight(targetElement, duration, startColor, endColor, resto
 <div id="container">
 
     <div id="header">
-    
+
     	<div id="logo"><a href="index.php" alt="PlanetTran homepage">Home</a></div>
-    	
+
         <div id="navigation" style="font-family:TitilliumText22LRegular;">
         	<ul>
 		  <li><a href="<?php echo $sitePrefix ?>/">HOME</a></li>
@@ -36,16 +36,16 @@ function MM_effectHighlight(targetElement, duration, startColor, endColor, resto
 		  <li><a href="<?php echo $sitePrefix ?>/Boston-Limo-Services.php">CONTACT</a></li>
             </ul>
         </div><!--END OF container #navigation-->
-    
+
     </div><!--END OF container #header-->
-        
+
     <div id="content">
-    	
+
         <div id="title">
         	<h1>Your Ride is Here</h1>
             <p>Planet Tran brings you SmartTransport: reliable, convenient and eco-friendly chauffeur-driven transportation in greater Boston and the San Francisco Bay area.</p>
         </div><!--END OF #title-->
-        
+
         <div id="left_top_menu">
         	<div id="reserve_button"><a href="<?php echo $securePrefix ?>/reserve.php?type=r&amp;tab=2">RESERVE NOW</a></div>
         	<div id="account_links">
@@ -55,8 +55,8 @@ function MM_effectHighlight(targetElement, duration, startColor, endColor, resto
                 </ul>
            </div><!--END OF container #account_links-->
         </div><!--END OF container #left_top_menu-->
-        
-        
+
+
 		<div id="bottom_menu">
         	<div class="left">Call us to reserve now!<br />
 			<span>1.888.756.8876</span><br />
@@ -64,9 +64,9 @@ function MM_effectHighlight(targetElement, duration, startColor, endColor, resto
             <div style="margin-top:25px; line-height: 120%;"><img src="home/images/mobile_icon.png" alt="Book a ride from your mobile device!"/>Book a ride from<br />
             your mobile device!<br />
             <a href="http://m.planettran.com">GET THE APP</a></div>
-            
+
             </div>
-            
+
             <div class="middle">
             	<!--div id="email_form"><form method="post" id="email_list" action="http://oi.vresp.com?fid=7a06db36ae" target="vr_optin_popup" onsubmit="window.open( 'http://www.verticalresponse.com', 'vr_optin_popup', 'scrollbars=yes,width=600,height=450' ); return true;">
 		  <input name="email_address" type="text" class="email" id="email" onclick="MM_effectHighlight(this, 400, '#ffffff', '#c5dc67', '', false)" value="join our mailing list" maxlength="60" /><input type="image" class="formimage" src="home/images/email_button.png" style="margin-left:0; height:auto" />
@@ -75,12 +75,12 @@ function MM_effectHighlight(targetElement, duration, startColor, endColor, resto
               <div id="social_media_buttons"><span id="sprytrigger1"><a href="http://facebook.com/planettran"><img src="home/images/facebookbutton.png" alt="Find PlanetTran on Facebook"  /></a></span>
                 <a href="http://twitter.com/planettran" id="sprytrigger2"><img src="home/images/twitterbutton.png" alt="Follow PlanetTran on Twitter" /></a></div>
       </div>
-            
+
             <div class="right"><p>"My driver was early and so was my flight and we left immediately, avoiding rush hour! I left my iphone in the car and she discovered it and brought it back to my hotel where she had dropped me off. She was just great!"</p><p class="signature">—Diane G, PlanetTran Customer</p></div>
-        
+
         </div><!--END OF container #bottom_menu-->
 
-    
+
     </div><!--END OF container #content-->
 
 
