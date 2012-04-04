@@ -5,9 +5,10 @@
       <h3>Environmental Impact</h3>
       <p>By using PlanetTran, you have reduced greenhouse gases by:</p>
       <div id="gas_reduction">
-	<span>-<?php
-	  ini_set('display_errors', 1);
-	  error_reporting(E_ALL);
+	<span>-
+     <?php
+	 // ini_set('display_errors', 1);
+	 //error_reporting(E_ALL);
 
 	  include_once(dirname(__FILE__).'/../secure/reservations/ptRes2/impact_includes.php');
 
@@ -38,8 +39,8 @@
   <div id="sb_connect" class="sidebar_box group">
     <h3>Connect With Us</h3>
     <ul id="connect">
-      <li id="connect_twitter"><a href="http://twitter.com/planettran">Twitter</a></li>
-      <li id="connect_facebook"><a href="http://www.facebook.com/planettran">Facebook</a></li>
+      <li id="connect_twitter"><a href="" onclick="window.open('http://twitter.com/planettran');">Twitter</a></li>
+      <li id="connect_facebook"><a href="#" onclick="window.open('http://www.facebook.com/planettran');">Facebook</a></li>
       <!--li id="connect_rss"><a href="#">RSS</a></li-->
       <li id="connect_email"><a href="<?php echo $siteprefix ?>/Boston-Limo-Services.php">Email</a></li>
     </ul>
