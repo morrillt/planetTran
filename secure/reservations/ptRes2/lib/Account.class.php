@@ -141,12 +141,12 @@ class Account
     $domain = mysql_fetch_assoc(mysql_query('select * from login where id=\''.$_SESSION['sessionID'].'\';'));
     $domain = mysql_fetch_assoc(mysql_query('select * from billing_groups where groupid=\''.$domain['groupid'].'\';'));
     $domain = $domain['domain'];
-    
+
     if(!$domain) return array();
     */
     $results = array();
     $q = mysql_query('select * from billing_groups order by name asc');// WHERE domain=\''.addslashes($domain).'\' order by group_name');
-    
+
     while($r=mysql_fetch_assoc($q)) {
       $results[$r['groupid']] = $r['group_name'];
     }
@@ -178,7 +178,7 @@ class Account
 
     return $drivers;
   }
-  
+
   public static function getSavedLocations($memberid = null)
   {
     self::getUserId($memberid);
@@ -244,7 +244,7 @@ class Account
 
     foreach(self::getCreditCards($memberid) as $paymentId => $description)
     {
-      $output .= sprintf('%1$s<span class="options"><a href="AuthGateway.php?js=div&memberid=%2$s&mode=edit&paymentProfileId=%3$s" class="popover-edit" title="Edit Credit Card">Edit</a> | <a href="AuthGateway.php?js=div&memberid=%2$s&mode=delete&paymentProfileId=%3$s" class="popover-delete" title="Delete Credit Card?">Delete</a></span><br />',
+      $output .= sprintf('%1$s<span class="options"><a href="AuthGateway.php?js=div&memberid=%2$s&mode=edit&hidesubmit=true&paymentProfileId=%3$s" class="popover-edit" title="Edit Credit Card">Edit</a> | <a href="AuthGateway.php?js=div&hidesubmit=true&memberid=%2$s&mode=delete&paymentProfileId=%3$s" class="popover-delete" title="Delete Credit Card?">Delete</a></span><br />',
         $description,
         $memberid,
         $paymentId

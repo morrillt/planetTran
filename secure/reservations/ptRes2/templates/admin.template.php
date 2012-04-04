@@ -446,7 +446,7 @@ function print_resource_edit($rs = null){
         </div>
         <div class="row">
           <label for="street_address">Street Address</label>
-          <input name="address1" type="text" id="street_addres" value="<?php echo $rs['address1'] ?>" />
+          <input name="address1" type="text" id="street_address" value="<?php echo $rs['address1'] ?>" />
         </div>
         <div class="row">
           <label for="city">City</label>
@@ -683,14 +683,14 @@ function print_newschedule_edit($rs, $scheds, $type, &$pager, $login, $bill, $gr
 	$mode = '';
 	$ccprint = '';
 	$showgroup = '';
-	$memberid = $rs['scheduleTitle'];	
+	$memberid = $rs['scheduleTitle'];
 	//CmnFns::diagnose($rs);
 
 	include_once($conf['app']['include_path'].'reservations/ptRes2/lib/Tools.class.php');
 	$t = new Tools();
 
 	$billtype = $bill['type'];
-	$groupid = isset($rs['groupid']) ? $rs['groupid'] : ($login['groupid'] ? $login['groupid'] : 0); 
+	$groupid = isset($rs['groupid']) ? $rs['groupid'] : ($login['groupid'] ? $login['groupid'] : 0);
 	if ($_SESSION['role']=='m') {
 		$showgroup = '<tr><td class="formNames">Billing Group</td>
 				<td class="cellColor">';
@@ -772,12 +772,12 @@ function print_newschedule_edit($rs, $scheds, $type, &$pager, $login, $bill, $gr
         <tr>
           <td class="formNames">E-mail Address (optional)</td>
           <td class="cellColor"><input <?=$read_only?> type="text" name="emailaddress" class="textbox" value="<?= isset($rs['email']) ? $rs['email'] : '' ?>" />
-	  <input type="hidden" name="noemail" value="on"> 
+	  <input type="hidden" name="noemail" value="on">
           </td>
         </tr>
 	<?
 	if (Auth::isAdmin() && $rs['role'] != 'm') {
-		
+
 		?>
 	        <tr>
        		   <td class="formNames">Set new password</td>
@@ -852,9 +852,9 @@ function print_newschedule_edit($rs, $scheds, $type, &$pager, $login, $bill, $gr
 		require_once dirname(__FILE__).'/../lib/db/AdminDB.class.php';
 		$db = new AdminDB();
 		$schedInfo = $db->get_schedule_data($rs['scheduleid']);
-		$targetMemberId = $schedInfo['scheduleTitle']; 
+		$targetMemberId = $schedInfo['scheduleTitle'];
 		?>
-		<a class="popover-add spacious_top" title="Add Payment Info" href="AuthGateway.php?memberid=<?php echo $targetMemberId; //$rs['scheduleid']; ?>&mode=add">Add Payment Info</a><br/>
+		<a class="popover-add spacious_top" title="Add Payment Info" href="AuthGateway.php?memberid=<?php echo $targetMemberId; //$rs['scheduleid']; ?>&mode=add&hidesubmit=true">Add Payment Info</a><br/>
 		<?
 		if (!isset($paymentArray[''])) {
 			?>
@@ -1397,7 +1397,7 @@ function addExistingForm() {
 	<form name="schedSearch" method="post" action="<?=$_SERVER['PHP_SELF']?>">
 	Enter the email address of the existing passenger:<br>
 	<br>
-	<input type="text" name="schedEmail"> 
+	<input type="text" name="schedEmail">
 	<input type="submit" value="Search">
 	<input type="hidden" name="addExisting" value="1">
 	<input type="hidden" name="search" value="1">
