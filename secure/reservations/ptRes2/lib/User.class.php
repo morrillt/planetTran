@@ -42,15 +42,15 @@ class User {
 	* Sets the userid variable
 	* @param string $userid users id
 	*/
-	function User($userid = null) {		
+	function User($userid = null) {
 		$this->userid = $userid;
 		$this->db = new UserDB();
-		
+
 		if (!empty($this->userid)) {		// Load values
 			$this->load_by_id();
 		}
 	}
-	
+
 	/**
 	* Returns all data associated with this user's profile
 	*  using their ID as the identifier
@@ -59,14 +59,14 @@ class User {
 	*/
 	function load_by_id() {
 		$u = $this->db->get_user_data($this->userid);
-		
+
 		if (!$u) {
 			$this->err_msg = $this->db->get_err();
 			return;
 		}
 		else
 			$this->is_valid = true;
-			
+
 		$this->fname	= $u['fname'];
 		$this->lname	= $u['lname'];
 		$this->email	= $u['email'];
@@ -90,7 +90,7 @@ class User {
 	function get_permissions() {
 		return $this->permissions;
 	}
-	
+
 	/**
 	* Returns all permissions for this user
 	* @param none
@@ -100,7 +100,7 @@ class User {
 		global $conf;
 		return ($conf['app']['use_perms'] ? $this->db->get_user_perms($this->userid) : array());
 	}
-	
+
 	/**
 	* Checks if the user has permission to use a resource
 	* @param string $machid id of resource to check
@@ -110,18 +110,18 @@ class User {
 		global $conf;
 		return ($conf['app']['use_perms'] ? isset($this->perms[$machid]) : true);
 	}
-	
+
 	/**
 	* Gets the email contact setup for this user
 	* @param none
 	* @return array of email settings
 	*/
-	function get_emails() {	
+	function get_emails() {
 		if (!$emails = $this->db->get_emails($this->userid))
 			$this->err_msg = $this->db->get_err();
 		return $emails;
 	}
-	
+
 	/**
 	* Returns whether the user wants the type of email contact or not
 	* @param string $type email contact type.
@@ -130,13 +130,13 @@ class User {
 	*/
 	function wants_email($type) {
 		$return = false;
-		$value = $this->emails['e_html']; 
+		$value = $this->emails[$type];
 		if ($value == 'y' || $value == '1') {
 			$return = true;
 		}
 		return $return;
 	}
-	
+
 	/**
 	* Whether the user wants html or plain text emails
 	* @param none
@@ -144,13 +144,13 @@ class User {
 	*/
 	function wants_html() {
 		$return = false;
-		$value = $this->emails['e_html']; 
+		$value = $this->emails['e_html'];
 		if ($value == 'y' || $value == '1') {
 			$return = true;
 		}
 		return $return;
 	}
-	
+
 	/**
 	* Sets the users email preferences
 	* @param string $e_add value to set e_add field to
@@ -161,7 +161,7 @@ class User {
 	function set_emails($e_add, $e_mod, $e_del, $e_html) {
 		$this->db->set_emails($e_add, $e_mod, $e_del, $e_html, $this->userid);
 	}
-	
+
 	/**
 	* Return all user data in an array
 	* @param none
@@ -187,7 +187,7 @@ class User {
 				'recieve_texts'	=> $this->recieve_texts
 			);
 	}
-	
+
 	/**
 	* Returns whether this user is valid or not
 	* @param none
@@ -196,7 +196,7 @@ class User {
 	function is_valid() {
 		return $this->is_valid;
 	}
-	
+
 	/**
 	* Returns the error message generated
 	* @param none
@@ -205,7 +205,7 @@ class User {
 	function get_error() {
 		return $this->err_msg;
 	}
-	
+
 	/**
 	* Return this user's id
 	* @param none
@@ -214,7 +214,7 @@ class User {
 	function get_id() {
 		return $this->userid;
 	}
-	
+
 	/**
 	* Return the users first name
 	* @param none
@@ -223,7 +223,7 @@ class User {
 	function get_fname() {
 		return $this->fname;
 	}
-	
+
 	/**
 	* Return the users last name
 	* @param none
@@ -238,7 +238,7 @@ class User {
 	function get_groupid() {
 		return $this->groupid;
 	}
-	
+
 	/**
 	* Return the user's full name
 	* @param none
@@ -247,7 +247,7 @@ class User {
 	function get_name() {
 		return $this->fname . ' ' . $this->lname;
 	}
-	
+
 	/**
 	* Returns the email address
 	* @param none
@@ -256,7 +256,7 @@ class User {
 	function get_email() {
 		return $this->email;
 	}
-	
+
 	/**
 	* Returns user's phone
 	* @param none
@@ -265,7 +265,7 @@ class User {
 	function get_phone() {
 		return $this->phone;
 	}
-	
+
 	/**
 	* Returns the users institution
 	* @param none
@@ -274,7 +274,7 @@ class User {
 	function get_inst() {
 		return $this->inst;
 	}
-	
+
 	/**
 	* Returns the user's position
 	* @param none
