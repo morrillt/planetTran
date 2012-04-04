@@ -1504,7 +1504,71 @@ class Reservation {
 }
 </style>
 <script>
+    var vehicles;
+    var toAddClearOnClick;
+    function initSettings(){
+        if(!history) {
+            history = {
+                pushState: function() {}
+            }
+        }
+        vehicles = {
+            <?php
+            $tools = new Tools();
+            foreach($tools->car_select_details() as $k=>$v): ?>
+                <?php echo $k ?>: {name: '<?php echo addslashes($v['name']) ?>',
+                    price: <?php echo addslashes($v['price']) ?> ,
+             price_hr: <?php echo addslashes($v['price_hr']) ?>},
+              <?php endforeach ?>
+            X: {}
+        };
+    }
+    function initFunctions(){
+        if(typeof String.prototype.trim !== 'function') {
+            String.prototype.trim = function() {
+                return this.replace(/^\s+|\s+$/g, '');
+            }
+        }
+        (function($){
 
+            $.fn.serializeObject = function() {
+                if ( !this.length ) { return false; }
+
+                var $el = this,
+                    data = {},
+                    lookup = data; //current reference of data
+
+                $el.find(':input[type!="checkbox"][type!="radio"], input:checked').each(function() {
+                    // data[a][b] becomes [ data, a, b ]
+                    var named = this.name.replace(/\[([^\]]+)?\]/g, ',$1').split(','),
+                        cap = named.length - 1,
+                        i = 0;
+
+                    // Ensure that only elements with valid `name` properties will be serialized
+                    if ( named[ 0 ] ) {
+                        for ( ; i < cap; i++ ) {
+                            // move down the tree - create objects or array if necessary
+                            lookup = lookup[ named[i] ] = lookup[ named[i] ] ||
+                                ( named[i+1] == "" ? [] : {} );
+                        }
+
+                        // at the end, psuh or assign the value
+                        if ( lookup.length != undefined ) {
+                            lookup.push( $(this).val() );
+                        }else {
+                            lookup[ named[ cap ] ] = $(this).val();
+                        }
+
+                        // assign the reference back to root
+                        lookup = data;
+
+                    }
+                });
+
+                return data;
+            };
+        })(jQuery);
+    }
     function doClear(relativeTo)
     {
       relativeTo = $(relativeTo);
@@ -1524,33 +1588,6 @@ class Reservation {
           .end();
       return false;
     }
-
-
-if(typeof String.prototype.trim !== 'function') {
-  String.prototype.trim = function() {
-    return this.replace(/^\s+|\s+$/g, '');
-  }
-}
-
-if(!history) {
-  history = {
-    pushState: function() {}
-  }
-}
-
-
-    var vehicles = {
-      <?php
-	$tools = new Tools();
-	foreach($tools->car_select_details() as $k=>$v): ?>
-	<?php echo $k ?>: {name: '<?php echo addslashes($v['name']) ?>',
-                           price: <?php echo addslashes($v['price']) ?> },
-      <?php endforeach ?>
-      X: {}
-    };
-
-
-
     function refresh_estimate(callback)
     {
 
@@ -1621,14 +1658,14 @@ if(!history) {
 		         '<span class="line_description">Fare Type:</span>';
 
 
-		//var tripType = 'P';
+		var tripType = 'P';
 		var intermediateStop = $("#intermediate_stop");
 
 		if($("#check_by_the_hour").is(":checked")) {
-			//tripType = 'H';
+			tripType = 'H';
 			content += '<span class="price" id="total_price">By the hour</span>';
 		} else if (intermediateStop .is(":checked")) {
-			//tripType = 'I';
+			tripType = 'I';
 			content += '<span class=class="price" id="total_price">Intermediate stop</span>';
 		} else {
 			content += '<span class="price" id="total_price">One way</span>';
@@ -1659,7 +1696,7 @@ if(!history) {
 
         var vehiclePrice = 0;
         var cts = $("[name=carTypeSelect]:checked");
-	  if(cts.val() != "" && cts.val() != "P") {
+	  if(tripType!='H' && cts.val() != "" && cts.val() != "P") {
 	    var vehicle = vehicles[cts.val()];
 	    if(vehicle) {
 	      //vehicle_price = vehicle.price;
@@ -1787,67 +1824,149 @@ if(!history) {
 
       });
 
-    };
+    }
+    function initialize(){
+        toAddClearOnClick = $('#clear_to_address').attr('onclick');
+    }
+    function initTabOnClick(){
+        $("#tab1,#tab2")
+            .click(function(e) {
+                var idx = $("#tab1,#tab2").not(this).index();
+                $ (
+                    $("#quote_tabs_content > div")[idx]
+                )
+                    .find('a')
+                    .filter(function(){
+                        return $(this).text().indexOf("clear") != -1;
+                    })
+                    .click();
+            });
+    }
+    function initAsDirectedHourly(){
 
+        if($('#hid_to_location_ID').val()=="asDirectedLoc" ||
+                $('#check_by_the_hour').is(':checked') ||
+                $('#steps_main [name=trip_type]').val()=="H" ||
+                getParameterByName("to")=="asDirectedLoc") {
 
-(function($){
+            disableToLocation();
 
-$.fn.serializeObject = function() {
-    if ( !this.length ) { return false; }
-
-    var $el = this,
-        data = {},
-        lookup = data; //current reference of data
-
-    $el.find(':input[type!="checkbox"][type!="radio"], input:checked').each(function() {
-        // data[a][b] becomes [ data, a, b ]
-        var named = this.name.replace(/\[([^\]]+)?\]/g, ',$1').split(','),
-            cap = named.length - 1,
-            i = 0;
-
-        // Ensure that only elements with valid `name` properties will be serialized
-        if ( named[ 0 ] ) {
-            for ( ; i < cap; i++ ) {
-                // move down the tree - create objects or array if necessary
-                lookup = lookup[ named[i] ] = lookup[ named[i] ] ||
-                    ( named[i+1] == "" ? [] : {} );
+            $('#check_by_the_hour').attr("checked",true);
+            $('#authWait option').each(function(){
+                if($(this).val()==$('[name=hid_wait_time]').val()){
+                    $(this).attr('selected',true);
+                }
+            });
+        }
+    }
+    function initCheckByTheHourOnChange(){
+        $('#check_by_the_hour')
+            .change(function() {
+                if(this.checked){
+                    disableToLocation();
+                } else {
+                    enableToLocation();
+                }
+            });
+        var showHideAuthWait = function() {
+            if($(this).is(':checked')){
+                $("#authWait").show();
+            } else {
+                $("#authWait").hide();
             }
-
-            // at the end, psuh or assign the value
-            if ( lookup.length != undefined ) {
-                lookup.push( $(this).val() );
-            }else {
-                lookup[ named[ cap ] ] = $(this).val();
+        };
+        $('#check_by_the_hour')
+            .change(showHideAuthWait)
+            .each  (showHideAuthWait)
+        ;
+    }
+    function initReservationSubmitOnClick(){
+        $('#submit_reservation').click(function(){
+            if(getCurrentStep()==4 && $('#payment_method').val()!=''){
+                return true;
             }
+            if($('#payment_method').val()==""){
+                alert('please select a payment method.');
+            }
+            return false;
+        });
+    }
+    function getAddOnsNoVehicle(){
+        addons = 0;
+        var intermediate_stop = $("#intermediate_stop");
+        if(intermediate_stop.is(":checked")) {
 
-            // assign the reference back to root
-            lookup = data;
+            addons += 20;
+        }
+        var booster_seats = $("#booster_seats_outgoing");
+        if(booster_seats.val() != "0") {
+
+            addons += 10*parseInt(booster_seats.val());
+        }
+
+        var children_seats = $("#child_seats_outgoing");
+        if(children_seats.val() != "0") {
+
+            addons += 10*parseInt(children_seats.val());
+        }
+
+        var meet_greet = $("#meet_greet");
+        if(meet_greet.is(":checked")) {
+            addons += 30;
+        }
+        return addons;
+    }
+    function isSelectVehicle(v_type){
+        var cts = $("[name=carTypeSelect]:checked");
+        if(cts.val() != ""){
+            return (cts.val()==v_type);
+        }
+        return false;
+    }
+    //used by function getEstimateByVehcileHourly(v_type)
+    function getVehiclePriceHourly(v_type){
+        var vehicle_price = 0;
+
+        var vehicle = vehicles[v_type];
+        if(vehicle) {
+            vehicle_price = vehicle.price_hr * parseFloat($('#authWait option:selected').val()/60);
 
         }
-    });
+        return vehicle_price ;
+    }
+    function getVehiclePriceBy(v_type){
+        var vehicle_price = 0;
+        var vehicle = vehicles[v_type];
+        if(vehicle) {
+            vehicle_price = vehicle.price;
+        }
+        return vehicle_price;
+    }
+    function getVehiclePrice(){
+        var vehicle_price = 0;
 
-    return data;
-};
-})(jQuery);
-
-$(function(){
-    $("#tab1,#tab2")
-      .click(function(e) {
-        var idx = $("#tab1,#tab2").not(this).index();
-        $ (
-          $("#quote_tabs_content > div")[idx]
-        )
-	  .find('a')
-	  .filter(function(){
-	    return $(this).text().indexOf("clear") != -1;
-	  })
-	  .click();
-      });
-
-    var toAddClearOnClick = $('#clear_to_address').attr('onclick');
+        var cts = $("[name=carTypeSelect]:checked");
+        if(cts.val() != "" && cts.val() != "P") {
+            var vehicle = vehicles[cts.val()];
+            if(vehicle) {
+                vehicle_price = vehicle.price;
+            }
+        }
+        return vehicle_price;
+    }
+    function getEstimateByVehcileHourly(v_type){
+        var addons = getAddOnsNoVehicle();
+        var vehicle_price =getVehiclePriceHourly(v_type);
+        return addons +  vehicle_price;
+    }
+    function getBasePrice(total){
+        var addons = getAddOnsNoVehicle();
+        addons += getVehiclePrice();
+        return total - addons;
+    }
     function disableToLocation(){
         removeClearClick();
-        $('#to_address').click()
+        $('#to_address').click();
         $('#saved_locations_to').append($('<option id="opt_as_direct" selected="selected"> </option>').val('asDirectedLoc').html('As Directed'));
         $('#saved_locations_to').attr("disabled", true);
         $("div.to_location_option :input").attr("disabled", true);
@@ -1875,58 +1994,6 @@ $(function(){
         $('#clear_to_address').click();
         $('#clear_to_address').attr('onclick','return false;').unbind('click');
     }
-    if(""=="asDirectedLoc"){
-        enableToLocation();
-    }
-    if($('#hid_to_location_ID').val()=="asDirectedLoc"){
-        disableToLocation();
-    }
-    if($('#steps_main [name=trip_type]').val()=="H"){
-        $('#check_by_the_hour').attr("checked",true);
-        $('#authWait option').each(function(){
-            if($(this).val()==$('[name=hid_wait_time]').val()){
-                $(this).attr('selected',true);
-            }
-        });
-
-    }
-    var chkByTheHour = $('#check_by_the_hour').is(':checked');
-    if(chkByTheHour){
-        disableToLocation();
-    }
-
-    $('#check_by_the_hour')
-      .change(function() {
-        if(this.checked){
-            disableToLocation();
-        } else {
-            enableToLocation();
-        }
-      });
-
-
-    var showHideAuthWait = function() {
-        if($(this).is(':checked')){
-	      $("#authWait").show();
-        } else {
-	      $("#authWait").hide();
-        }
-    };
-    $('#check_by_the_hour')
-      .change(showHideAuthWait)
-      .each  (showHideAuthWait)
-    ;
-
-
-    $('#submit_reservation').click(function(){
-        if(getCurrentStep()==4 && $('#payment_method').val()!=''){
-            return true;
-        }
-        if($('#payment_method').val()==""){
-            alert('please select a payment method.');
-        }
-        return false;
-    });
     function getCurrentStep(){
         idx1 = $(".step1").index();
         idx2 = $(".step2").index();
@@ -1945,18 +2012,35 @@ $(function(){
         }
         return p;
     }
-});
+    function getParameterByName(name)
+    {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&#]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.search);
+        if(results == null)
+            return "";
+        else
+            return decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
     function setVehiclePrices(bprice){
         $(function(){
             var vpSuffix = '_vehicle_price';
             var vuSuffix = '_vehicle_upgrade';
-            $('#base_estiamte_for_vehicles').text(bprice);
-            prius_price = bprice +parseFloat($('#P'+vuSuffix).text());
-            prius_v_price = bprice + parseFloat($('#W'+vuSuffix).text());
-            camry_v_price = bprice + parseFloat($('#Y'+vuSuffix).text());
-            lexus_price = bprice + parseFloat($('#L'+ vuSuffix).text());
-            highlander_price = bprice + parseFloat($('#S' + vuSuffix).text());
-
+            if($('#check_by_the_hour').is(':checked')){
+                prius_price = getEstimateByVehcileHourly('P');
+                prius_v_price = getEstimateByVehcileHourly('V');
+                camry_v_price = getEstimateByVehcileHourly('C');
+                lexus_price = getEstimateByVehcileHourly('L');
+                highlander_price = getEstimateByVehcileHourly('S');
+            } else {
+                $('#base_estiamte_for_vehicles').text(bprice);
+                prius_price = bprice +parseFloat($('#P'+vuSuffix).text());
+                prius_v_price = bprice + parseFloat($('#W'+vuSuffix).text());
+                camry_v_price = bprice + parseFloat($('#Y'+vuSuffix).text());
+                lexus_price = bprice + parseFloat($('#L'+ vuSuffix).text());
+                highlander_price = bprice + parseFloat($('#S' + vuSuffix).text());
+            }
             $('#P' + vpSuffix).text('$'+prius_price.toFixed(2));
             $('#W' + vpSuffix).text('$'+prius_v_price.toFixed(2));
             $('#Y' + vpSuffix).text('$'+camry_v_price.toFixed(2));
@@ -1964,236 +2048,210 @@ $(function(){
             $('#S' + vpSuffix).text('$'+highlander_price.toFixed(2));
         });
     }
-
     function getAddresses(context)
     {
-	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport,aptFrom,aptTo;
-	var fromLocation, toLocation, stopLocation;
+        var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport,aptFrom,aptTo;
+        var fromLocation, toLocation, stopLocation;
 
-	aptFrom = $("#from_airport");
-	customFrom = $("#saved_locations_from");
-	if(aptFrom.is(":checked")) {
-	  customFromO = $('#steps_main [name=apts_from]').find("option:selected");
-	  fromLocation = customFromO.attr("value");
-	  fromAddr  = customFromO.attr("data-addr");
-	  fromCity  = customFromO.attr("data-city");
-	  fromState = customFromO.attr("data-state");
-	  fromZip   = customFromO.attr("data-zip");
-	  fromNick  = customFromO.text();
-	} else if(customFrom.val() == "") {
-	  fromAddr  = $("#from_street_address").val();
-	  fromCity  = $("#from_city").val();
-	  fromState = $("#from_state").val();
-	  fromZip   = $("#from_zipcode").val();
-	  fromNick  = $("#from_name").val();
-	} else {
-	  customFromO = customFrom.find("option:selected");
-	  fromLocation = customFromO.attr("value");
-	  fromAddr  = customFromO.attr("data-addr");
-	  fromCity  = customFromO.attr("data-city");
-	  fromState = customFromO.attr("data-state");
-	  fromZip   = customFromO.attr("data-zip");
-	  fromNick  = customFromO.text();
-	}
+        aptFrom = $("#from_airport");
+        customFrom = $("#saved_locations_from");
+        if(aptFrom.is(":checked")) {
+            customFromO = $('#steps_main [name=apts_from]').find("option:selected");
+            fromLocation = customFromO.attr("value");
+            fromAddr  = customFromO.attr("data-addr");
+            fromCity  = customFromO.attr("data-city");
+            fromState = customFromO.attr("data-state");
+            fromZip   = customFromO.attr("data-zip");
+            fromNick  = customFromO.text();
+        } else if(customFrom.val() == "") {
+            fromAddr  = $("#from_street_address").val();
+            fromCity  = $("#from_city").val();
+            fromState = $("#from_state").val();
+            fromZip   = $("#from_zipcode").val();
+            fromNick  = $("#from_name").val();
+        } else {
+            customFromO = customFrom.find("option:selected");
+            fromLocation = customFromO.attr("value");
+            fromAddr  = customFromO.attr("data-addr");
+            fromCity  = customFromO.attr("data-city");
+            fromState = customFromO.attr("data-state");
+            fromZip   = customFromO.attr("data-zip");
+            fromNick  = customFromO.text();
+        }
 
-	aptTo = $("#to_airport");
-	customTo = $("#saved_locations_to");
-     isHourlyTrip = $('#check_by_the_hour').is(':checked');
-    if(isHourlyTrip){
-        customToO = customTo.find("option:selected");
-        toLocation = customToO.attr("value");
-        toAddr    = customToO.attr("data-addr");
-        toCity    = customToO.attr("data-city");
-        toState   = customToO.attr("data-state");
-        toZip     = customToO.attr("data-zip");
-        toNick    = customToO.text();
-    } else if(aptTo.is(":checked")) {
-        customToO = $('#steps_main [name=apts_to]').find("option:selected");
-        toLocation = customToO.attr("value");
-        toAddr  = customToO.attr("data-addr");
-        toCity  = customToO.attr("data-city");
-        toState = customToO.attr("data-state");
-        toZip   = customToO.attr("data-zip");
-        toNick    = customToO.text();
-    } else if(customTo.val() == "") {
-        toAddr  = $("#to_street_addres").val();
-        toCity  = $("#to_city").val();
-        toState = $("#to_state").val();
-        toZip   = $("#to_zipcode").val();
-        toNick  = $("#to_name").val();
-    } else {
-    customToO = customTo.find("option:selected");
-        toLocation = customToO.attr("value");
-        toAddr    = customToO.attr("data-addr");
-        toCity    = customToO.attr("data-city");
-        toState   = customToO.attr("data-state");
-        toZip     = customToO.attr("data-zip");
-        toNick    = customToO.text();
-    }
+        aptTo = $("#to_airport");
+        customTo = $("#saved_locations_to");
+        isHourlyTrip = $('#check_by_the_hour').is(':checked');
+        if(isHourlyTrip){
+            customToO = customTo.find("option:selected");
+            toLocation = customToO.attr("value");
+            toAddr    = customToO.attr("data-addr");
+            toCity    = customToO.attr("data-city");
+            toState   = customToO.attr("data-state");
+            toZip     = customToO.attr("data-zip");
+            toNick    = customToO.text();
+        } else if(aptTo.is(":checked")) {
+            customToO = $('#steps_main [name=apts_to]').find("option:selected");
+            toLocation = customToO.attr("value");
+            toAddr  = customToO.attr("data-addr");
+            toCity  = customToO.attr("data-city");
+            toState = customToO.attr("data-state");
+            toZip   = customToO.attr("data-zip");
+            toNick    = customToO.text();
+        } else if(customTo.val() == "") {
+            toAddr  = $("#to_street_addres").val();
+            toCity  = $("#to_city").val();
+            toState = $("#to_state").val();
+            toZip   = $("#to_zipcode").val();
+            toNick  = $("#to_name").val();
+        } else {
+            customToO = customTo.find("option:selected");
+            toLocation = customToO.attr("value");
+            toAddr    = customToO.attr("data-addr");
+            toCity    = customToO.attr("data-city");
+            toState   = customToO.attr("data-state");
+            toZip     = customToO.attr("data-zip");
+            toNick    = customToO.text();
+        }
 
-    customStop = $("#saved_locations_stop");
-    stopLocation='';
-    if(customStop.val() == "") {
-        stopAddr  = $("#stop_street_address").val();
-        stopCity  = $("#stop_city").val();
-        stopState = $("#stop_state").val();
-        stopZip   = $("#stop_zipcode").val();
-        stopNick  = $("#stop_name").val();
-    } else {
-        customStopO = customStop.find("option:selected");
-        stopLocation = customStopO.attr("value");
-        stopAddr    = customStopO.attr("data-addr");
-        stopCity    = customStopO.attr("data-city");
-        stopState   = customStopO.attr("data-state");
-        stopZip     = customStopO.attr("data-zip");
-        stopNick    = customStopO.text();
-    }
+        customStop = $("#saved_locations_stop");
+        stopLocation='';
+        if(customStop.val() == "") {
+            stopAddr  = $("#stop_street_address").val();
+            stopCity  = $("#stop_city").val();
+            stopState = $("#stop_state").val();
+            stopZip   = $("#stop_zipcode").val();
+            stopNick  = $("#stop_name").val();
+        } else {
+            customStopO = customStop.find("option:selected");
+            stopLocation = customStopO.attr("value");
+            stopAddr    = customStopO.attr("data-addr");
+            stopCity    = customStopO.attr("data-city");
+            stopState   = customStopO.attr("data-state");
+            stopZip     = customStopO.attr("data-zip");
+            stopNick    = customStopO.text();
+        }
         // $('[name=fromID]').val(fromLocation);
 
         // $('[name=tpID]').val(toLocation);
 
         // $('[name=stopID]').val(stopLocation) ;
 
-	return {
-	  'from_address':  fromAddr,
-	  'from_city':     fromCity,
-	  'from_zip':      fromZip,
-	  'from_state':    fromState,
-	  'from_nick':     fromNick,
+        return {
+            'from_address':  fromAddr,
+            'from_city':     fromCity,
+            'from_zip':      fromZip,
+            'from_state':    fromState,
+            'from_nick':     fromNick,
 
-	  'to_address':    toAddr,
-	  'to_city':       toCity,
-	  'to_state':      toState,
-	  'to_zip':        toZip,
-	  'to_nick':       toNick,
+            'to_address':    toAddr,
+            'to_city':       toCity,
+            'to_state':      toState,
+            'to_zip':        toZip,
+            'to_nick':       toNick,
 
-	  'stop_addr':     stopAddr,
-	  'stop_city':     stopCity,
-	  'stop_state':    stopState,
-	  'stop_zip':      stopZip,
-	  'stop_nick':     stopNick,
+            'stop_addr':     stopAddr,
+            'stop_city':     stopCity,
+            'stop_state':    stopState,
+            'stop_zip':      stopZip,
+            'stop_nick':     stopNick,
 
-	  'to_location':   toLocation,
-	  'from_location': fromLocation,
-	  'stop_location': stopLocation
+            'to_location':   toLocation,
+            'from_location': fromLocation,
+            'stop_location': stopLocation
 
-	};
-    };
-
+        };
+    }
     function getCQAddresses()
     {
-	$("#get_a_quote_button").attr("disabled", 1);
+        $("#get_a_quote_button").attr("disabled", 1);
 
-	var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport,aptFrom,aptTo;
-	var fromLocation, toLocation, stopLocation;
+        var fromAddr,fromCity,fromZip,fromState,toAddr,toCity,toState,toZip,stopAddr,stopState,stopCity,stopZip,stopNick,toNick,fromNick,airport,aptFrom,aptTo;
+        var fromLocation, toLocation, stopLocation;
 
-	aptFrom = $("#quote_from_airport");
-	customFrom = $("#quote_saved_locations_from");
-	if(aptFrom.is(":checked")) {
-	  customFromO = $('#quote_tabs_content [name=quote_apts_from]').find("option:selected");
-	  fromLocation = customFromO.attr("value");
-	  fromAddr  = customFromO.attr("data-addr");
-	  fromCity  = customFromO.attr("data-city");
-	  fromState = customFromO.attr("data-state");
-	  fromZip   = customFromO.attr("data-zip");
-	  fromNick  = customFromO.text();
-	} else if(customFrom.val() == "") {
-	  fromAddr  = $("#quote_from_street_address").val();
-	  fromCity  = $("#quote_from_city").val();
-	  fromState = $("#quote_from_state").val();
-	  fromZip   = $("#quote_from_zipcode").val();
-	  fromNick  = $("#quote_from_name").val();
-	} else {
-	  customFromO = customFrom.find("option:selected");
-	  fromLocation = customFromO.attr("value");
-	  fromAddr  = customFromO.attr("data-addr");
-	  fromCity  = customFromO.attr("data-city");
-	  fromState = customFromO.attr("data-state");
-	  fromZip   = customFromO.attr("data-zip");
-	  fromNick  = customFromO.text();
-	}
-
-	aptTo = $("#quote_to_airport");
-	customTo = $("#quote_saved_locations_to");
-	if(aptTo.is(":checked")) {
-	    customToO = $('#quote_tabs_content [name=quote_apts_to]').find("option:selected");
-	    toLocation = customToO.attr("value");
-	    toAddr  = customToO.attr("data-addr");
-	    toCity  = customToO.attr("data-city");
-	    toState = customToO.attr("data-state");
-	    toZip   = customToO.attr("data-zip");
-	    toNick    = customToO.text();
-	} else if(customTo.val() == "") {
-	    toAddr  = $("#quote_to_street_addres").val();
-	    toCity  = $("#quote_to_city").val();
-	    toState = $("#quote_to_state").val();
-	    toZip   = $("#quote_to_zipcode").val();
-	    toNick  = $("#quote_to_name").val();
-	} else {
-	    customToO = customTo.find("option:selected");
-	    toLocation = customToO.attr("value");
-	    toAddr    = customToO.attr("data-addr");
-	    toCity    = customToO.attr("data-city");
-	    toState   = customToO.attr("data-state");
-	    toZip     = customToO.attr("data-zip");
-	    toNick    = customToO.text();
-	}
-
-
-	var retval = {
-	  'from_address':  fromAddr,
-	  'from_city':     fromCity,
-	  'from_zip':      fromZip,
-	  'from_state':    fromState,
-	  'from_nick':     fromNick,
-
-	  'to_address':    toAddr,
-	  'to_city':       toCity,
-	  'to_state':      toState,
-	  'to_zip':        toZip,
-	  'to_nick':       toNick,
-
-	  'to_location':   toLocation,
-	  'from_location': fromLocation
-	};
-	return retval;
-    };
-
-    function getBasePrice(total){
-        var addons = 0;
-        var intermediate_stop = $("#intermediate_stop");
-        if(intermediate_stop.is(":checked")) {
-
-            addons += 20;
-        }
-        var booster_seats = $("#booster_seats_outgoing");
-        if(booster_seats.val() != "0") {
-
-            addons += 10*parseInt(booster_seats.val());
+        aptFrom = $("#quote_from_airport");
+        customFrom = $("#quote_saved_locations_from");
+        if(aptFrom.is(":checked")) {
+            customFromO = $('#quote_tabs_content [name=quote_apts_from]').find("option:selected");
+            fromLocation = customFromO.attr("value");
+            fromAddr  = customFromO.attr("data-addr");
+            fromCity  = customFromO.attr("data-city");
+            fromState = customFromO.attr("data-state");
+            fromZip   = customFromO.attr("data-zip");
+            fromNick  = customFromO.text();
+        } else if(customFrom.val() == "") {
+            fromAddr  = $("#quote_from_street_address").val();
+            fromCity  = $("#quote_from_city").val();
+            fromState = $("#quote_from_state").val();
+            fromZip   = $("#quote_from_zipcode").val();
+            fromNick  = $("#quote_from_name").val();
+        } else {
+            customFromO = customFrom.find("option:selected");
+            fromLocation = customFromO.attr("value");
+            fromAddr  = customFromO.attr("data-addr");
+            fromCity  = customFromO.attr("data-city");
+            fromState = customFromO.attr("data-state");
+            fromZip   = customFromO.attr("data-zip");
+            fromNick  = customFromO.text();
         }
 
-        var children_seats = $("#child_seats_outgoing");
-        if(children_seats.val() != "0") {
-
-            addons += 10*parseInt(children_seats.val());
+        aptTo = $("#quote_to_airport");
+        customTo = $("#quote_saved_locations_to");
+        if(aptTo.is(":checked")) {
+            customToO = $('#quote_tabs_content [name=quote_apts_to]').find("option:selected");
+            toLocation = customToO.attr("value");
+            toAddr  = customToO.attr("data-addr");
+            toCity  = customToO.attr("data-city");
+            toState = customToO.attr("data-state");
+            toZip   = customToO.attr("data-zip");
+            toNick    = customToO.text();
+        } else if(customTo.val() == "") {
+            toAddr  = $("#quote_to_street_addres").val();
+            toCity  = $("#quote_to_city").val();
+            toState = $("#quote_to_state").val();
+            toZip   = $("#quote_to_zipcode").val();
+            toNick  = $("#quote_to_name").val();
+        } else {
+            customToO = customTo.find("option:selected");
+            toLocation = customToO.attr("value");
+            toAddr    = customToO.attr("data-addr");
+            toCity    = customToO.attr("data-city");
+            toState   = customToO.attr("data-state");
+            toZip     = customToO.attr("data-zip");
+            toNick    = customToO.text();
         }
 
-        var vehicle_price = 0;
-        var cts = $("[name=carTypeSelect]:checked");
-        if(cts.val() != "" && cts.val() != "P") {
-            var vehicle = vehicles[cts.val()];
-            if(vehicle) {
-                vehicle_price = vehicle.price;
-                addons += vehicle_price;
-            }
-        }
-        var meet_greet = $("#meet_greet");
-        if(meet_greet.is(":checked")) {
-            addons += 30;
-        }
 
-        return total - addons;
+        var retval = {
+            'from_address':  fromAddr,
+            'from_city':     fromCity,
+            'from_zip':      fromZip,
+            'from_state':    fromState,
+            'from_nick':     fromNick,
+
+            'to_address':    toAddr,
+            'to_city':       toCity,
+            'to_state':      toState,
+            'to_zip':        toZip,
+            'to_nick':       toNick,
+
+            'to_location':   toLocation,
+            'from_location': fromLocation
+        };
+        return retval;
     }
+
+    initFunctions();
+    initSettings();
+    $(function(){
+        initialize();
+        initTabOnClick();
+        initAsDirectedHourly();
+        initCheckByTheHourOnChange();
+        initReservationSubmitOnClick();
+    });
+
+
   $(function() {
 
     var opFields = $("#opFields");
