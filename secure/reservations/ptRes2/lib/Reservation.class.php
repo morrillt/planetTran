@@ -958,7 +958,7 @@ class Reservation {
 					  <?php if(!isset($_SESSION['booked'][$toLocation['location'].':'.$fromLocation['location']])): ?>
 					    <input type="button" onclick="window.location.href = window.location.href.replace('type=m','type=r')+'&amp;from=<?php echo $this->toLocation ?>&amp;to=<?php echo $this->machid ?>'" id="book_return"    name="" value="<?php echo translate('Book a return trip') ?>" /> <span id="or" class="by"><?php echo translate('OR') ?></span>
 					  <?php endif ?>
-					  <input type="button" onclick="window.location.href =  window.location.href.replace('type=m','type=r')+'&amp;from=<?php echo $this->machid ?>&amp;to=<?php echo $this->toLocation ?>'" id="book_duplicate" name="" value="<?php echo translate('Book similar trip at another time') ?>" />
+					  <input type="button" onclick="window.location.href = window.location.href.replace('type=m','type=r')+'&amp;from=<?php echo $this->machid ?>&amp;to=<?php echo $this->toLocation ?>'" id="book_duplicate" name="" value="<?php echo translate('Book similar trip at another time') ?>" />
 					</div>
 				</div>
 
@@ -1621,23 +1621,22 @@ if(!history) {
 		         '<span class="line_description">Fare Type:</span>';
 
 
-		//var tripType = 'P';
+		var tripType = 'P';
 		var intermediateStop = $("#intermediate_stop");
 
 		if($("#check_by_the_hour").is(":checked")) {
-			//tripType = 'H';
+			tripType = 'H';
 			content += '<span class="price" id="total_price">By the hour</span>';
 		} else if (intermediateStop .is(":checked")) {
-			//tripType = 'I';
-			content += '<span class=class="price" id="total_price">Intermediate stop</span>';
+			tripType = 'I';
+			content += '<span class=class="price" id="total_price">Intermediate</span>';
 		} else {
 			content += '<span class="price" id="total_price">One way</span>';
 		}
 
 
-
-
 	  eSubtotal =+ basePrice;
+
 	  content = content + '<div class="line_item group">'+
 	    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
 	    '<span class="price" id="total_price">$'+basePrice.toFixed(2)+'</span>'+
@@ -1645,15 +1644,17 @@ if(!history) {
 
 	  var meet_greet = $("#meet_greet");
 	  if(meet_greet.is(":checked")) {
-	      if (!meetGreetFee){
-		      eSubtotal += 30;
+          var meetGreetPrice
+	      if (meetGreetFee != 0){
+		      meetGreetPrice += 30;
 	      } else {
-		      eSubtotal += meetGreetFee;
+              meetGreetPrice = meetGreetFee;
 	      }
+          eSubtotal += meetGreetPrice
 
 	      content = content + '<div class="line_item group">'+
 		'<span class="line_description">Logan Airport meet and greet</span>'+
-		'<span class="price" id="total_price">$'+meetGreetFee.toFixed(2)+'</span>'+
+		'<span class="price" id="total_price">$'+meetGreetPrice.toFixed(2)+'</span>'+
 	      '</div>';
 	  }
 
@@ -2967,9 +2968,9 @@ $(function(){
               </select>
               <!-- <a href="/pop/creditcards.php" class="popover-add" title="Add/modify credit cards">Add/Modify cards</a>-->
               <div id="payment_links_wrap">
-                  <a href="../AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=add&hidesubmit=false" class="popover-add" title="Add Credit Card">Add credit card</a>
+                  <a href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=add&hidesubmit=true" class="popover-add" title="Add Credit Card">Add credit card</a>
                   <?php foreach(Account::getCreditCards() as $paymentId => $description): ?>
-                  <a style="display: none;" href="../AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=edit&hidesubmit=false&paymentProfileId=<?php echo $paymentId ?>" class="popover-edit" title="Edit Credit Card">Modify credit card</a>
+                  <a style="display: none;" href="AuthGateway.php?js=select&memberid=<?php echo $_SESSION['currentID'] ?>&mode=edit&hidesubmit=true&paymentProfileId=<?php echo $paymentId ?>" class="popover-edit" title="Edit Credit Card">Modify credit card</a>
                   <?php endforeach; ?>
               </div>
           </div>
