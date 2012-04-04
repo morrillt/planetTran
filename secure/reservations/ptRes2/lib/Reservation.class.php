@@ -763,14 +763,24 @@ class Reservation {
 		);
 		// $estimate = exec('/home/planet/scripts/estimate.pl "'.escapeshellarg(http_build_query($variable)).'"');
 		?>
-
+                <form name="reservation_complete" id="reservation_complete" method="get" action="">
+                <input type="hidden" name="fromID" value="<?=$variable['from_location']?>" />
+                <input type="hidden" name="toID" value="<?=$variable['to_location']?>" />
+                <input type="hidden" name="stopID" value="<?=$variable['stop_location']?>" />
+                <!--input type="hidden" name="memberid" /-->
+                <input type="hidden" name="meet_greet" value="<?=$variable['meet_greet']?>" />
+                <!--input type="hidden" name="groupid" /-->
+                <input type="hidden" name="vehicle_type" value="<?=$variable['vehicle_type']?>" />
+                <input type="hidden" name="trip_type" value="<?=$variable['trip_type']?>"/>
+                <input type="hidden" name="hid_to_location_ID" value="<?=$variable['to_location']?>" />
+                <input type="hidden" name="hid_wait_time" value="<?=$variable['wait_time']?>" />
 				<div class="content_box_inner">
 
 					<h1 id="hdr_reservation_confirmation"><span class="imagetext"><?php echo translate('Reservation Confirmation') ?></span></h1>
 
 
 					<div class="hr">
-						<h2><?php echo translate('Thanks for placing your reservation!') ?></h2>
+						<h2><?php echo translate('Thanks for placing your reservation! placing your reservation!') ?></h2>
 						<p><?php echo translate('Here is a summary of your trip (which will also be emailed to you shortly):') ?></p>
 						<!-- Remove parenthesis above if Email Settings are turned off for this Passenger, or if SM/Admin -->
 					</div>
@@ -956,11 +966,43 @@ class Reservation {
 					<div id="roundtrip_wrap" class="group spacious_top">
 					  <?php $_SESSION['booked'][$fromLocation['location'].':'.$toLocation['location']] = 1 ?>
 					  <?php if(!isset($_SESSION['booked'][$toLocation['location'].':'.$fromLocation['location']])): ?>
-					    <input type="button" onclick="window.location.href = window.location.href.replace('type=m','type=r')+'&amp;from=<?php echo $this->toLocation ?>&amp;to=<?php echo $this->machid ?>'" id="book_return"    name="" value="<?php echo translate('Book a return trip') ?>" /> <span id="or" class="by"><?php echo translate('OR') ?></span>
+					    <input type="button" onclick="window.location.href = getBookReturnTripQueryString()" id="book_return"    name="" value="<?php echo translate('Book a return trip') ?>" /> <span id="or" class="by"><?php echo translate('OR') ?></span>
 					  <?php endif ?>
-					  <input type="button" onclick="window.location.href =  window.location.href.replace('type=m','type=r')+'&amp;from=<?php echo $this->machid ?>&amp;to=<?php echo $this->toLocation ?>'" id="book_duplicate" name="" value="<?php echo translate('Book similar trip at another time') ?>" />
+					  <input type="button" onclick="window.location.href = getBookDuplicateTripQueryString()" id="book_duplicate" name="" value="<?php echo translate('Book similar trip at another time') ?>" />
 					</div>
 				</div>
+
+                </form>
+                    <script type="text/javascript">
+                        if($("#reservation_complete [name=trip_type]").val()=='H') {
+                            $('#roundtrip_wrap #book_return').hide();
+                            $('#roundtrip_wrap #or').hide();
+                        }
+
+                        function getBookDuplicateTripQueryString(){
+                            return window.location.href
+                                .replace('type=m','type=r')
+                                .replace('resid='+getParameterByName('resid'), '').replace('&&','&')
+                                +'&from=<?php echo $this->machid ?>&to=<?php echo $this->toLocation ?>';
+                        }
+                        function getBookReturnTripQueryString(){
+                            return window.location.href
+                                .replace('type=m','type=r')
+                                .replace('resid='+getParameterByName('resid'), '').replace('&&','&')
+                                +'&from=<?php echo $this->toLocation ?>&to=<?php echo $this->machid ?>';
+                        }
+                        function getParameterByName(name)
+                        {
+                            name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+                            var regexS = "[\\?&]" + name + "=([^&#]*)";
+                            var regex = new RegExp(regexS);
+                            var results = regex.exec(window.location.search);
+                            if(results == null)
+                                return "";
+                            else
+                                return decodeURIComponent(results[1].replace(/\+/g, " "));
+                        }
+                    </script>
 
 	  <?php
 	  die();
@@ -1497,13 +1539,13 @@ class Reservation {
     }
 
 ?>
-<style>
+<style type="text/css" >
 .from_airport_option,
 .to_airport_option {
   display: none;
 }
 </style>
-<script>
+<script type="text/javascript">
     var vehicles;
     var toAddClearOnClick;
     function initSettings(){
@@ -1569,264 +1611,310 @@ class Reservation {
             };
         })(jQuery);
     }
-    function doClear(relativeTo)
-    {
-      relativeTo = $(relativeTo);
-      $('select', relativeTo.parent().parent())
-	.not('[name*=stop]')
-        .find('option')
-            .removeAttr('selected')
-            .end()
-        .find('option:first-child')
-            .attr('selected',true)
-            .end()
-        .change();
-
-      $('input[type=text]', relativeTo.parent().parent())
-	  .not('[name*=stop]')
-          .val('')
-          .end();
-      return false;
-    }
-    function refresh_estimate(callback)
-    {
-
-
-	var intermediate_stop = $("#intermediate_stop");
-
-        var fareType = 0;
-        var tripType = 'P';
-        if($("#check_by_the_hour").is(":checked")) {
-          fareType = "Book by the hour";
-          tripType = 'H';
-        } else if(intermediate_stop.is(":checked")) {
-          fareType = "Intermediate Stop";
-          tripType = 'I';
-        } else {
-          fareType = "One way";
-        }
-        $("#fareType").text(fareType);
-
-        var ad = getAddresses();
-      $("#steps_main [name=toID]")  .val(ad.to_location);
-      $("#steps_main [name=fromID]").val(ad.from_location);
-      $("#steps_main [name=stopID]").val(ad.stop_location);
-      $("#steps_main [name=meet_greet]").val($("[name=greet]").is(":checked") ? "1" : "0");
-      $("#steps_main [name=trip_type]").val(tripType);
-      $("#steps_main [name=vehicle_type]").val($("[name=carTypeSelect]:checked").attr("data-vehicleTypeMapping"));
-
-      $.ajax({
-	url:  'ajaxquote.php',
-	type: 'POST',
-	data: $.extend($("#steps_main").serializeObject(), getAddresses()),
-	success: function(response)
-	{
-	  var data = response.split("|");
-
-	  var content = '';
-	  var eSubtotal = 0;
-	  //var base_price = parseFloat(data[3]);
-
-	  var resType = data[0];
-	  var groupName = data[1];
-	  var vehicleDesc = data[2];
-	  var baseFare = parseFloat(data[3]);
-	  var basePrice = baseFare;
-	  var stopFee = parseFloat(data[4]);
-	  var waitFee = parseFloat(data[5]);
-	  var vehicleFee = parseFloat(data[6]);
-	  var meetGreetFee = parseFloat(data[7]);
-	  var childrenSeatsFee = parseFloat(data[8]);
-	  var boosterSeatsFee = parseFloat(data[9]);
-	  var subtotalFare = parseFloat(data[10]);
-	  var sDiscount = parseFloat(data[11]);
-	  var gDiscount = parseFloat(data[12]);
-	  var cDiscount = parseFloat(data[13]);
-	  var minFare = parseFloat(data[14]);
-	  var integrationFee = parseFloat(data[15]);
-	  var airportFee = parseFloat(data[16]);
-	  var tolls = parseFloat(data[17]);
-	  var fromAddress = data[18];
-	  var toAddress = data[19];
-      var stopAddress = data[20];
-	  var fare = parseFloat(data[21]);
-	  var status = data[22];
-	  var errors = data[23];
-
-
-	  content += '<div class="line_item_group">'+
-		         '<span class="line_description">Fare Type:</span>';
-
-
-		var tripType = 'P';
-		var intermediateStop = $("#intermediate_stop");
-
-		if($("#check_by_the_hour").is(":checked")) {
-			tripType = 'H';
-			content += '<span class="price" id="total_price">By the hour</span>';
-		} else if (intermediateStop .is(":checked")) {
-			tripType = 'I';
-			content += '<span class=class="price" id="total_price">Intermediate stop</span>';
-		} else {
-			content += '<span class="price" id="total_price">One way</span>';
-		}
-
-
-
-
-	  eSubtotal =+ basePrice;
-	  content = content + '<div class="line_item group">'+
-	    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
-	    '<span class="price" id="total_price">$'+basePrice.toFixed(2)+'</span>'+
-	  '</div>';
-
-	  var meet_greet = $("#meet_greet");
-	  if(meet_greet.is(":checked")) {
-	      if (!meetGreetFee){
-		      eSubtotal += 30;
-	      } else {
-		      eSubtotal += meetGreetFee;
-	      }
-
-	      content = content + '<div class="line_item group">'+
-		'<span class="line_description">Logan Airport meet and greet</span>'+
-		'<span class="price" id="total_price">$'+meetGreetFee.toFixed(2)+'</span>'+
-	      '</div>';
-	  }
-
-        var vehiclePrice = 0;
-        var cts = $("[name=carTypeSelect]:checked");
-	  if(tripType!='H' && cts.val() != "" && cts.val() != "P") {
-	    var vehicle = vehicles[cts.val()];
-	    if(vehicle) {
-	      //vehicle_price = vehicle.price;
-			if(!vehicleFee){
-				vehiclePrice = vehicle.price;
-			} else {
-				vehiclePrice = vehicleFee;
-			}
-	      eSubtotal += vehiclePrice;
-
-	      content = content + '<div class="line_item group">'+
-		'<span class="line_description">Vehicle upgrade ('+vehicle.name+'):</span>'+
-		'<span class="price" id="total_price">$'+vehiclePrice.toFixed(2)+'</span>'+
-	      '</div>';
-	    }
-	  }
-
-	  var childrenSeats = $("#child_seats_outgoing");
-	  if(childrenSeats.val() != "0") {
-	      var childrenSeatsPrice = 0;
-		  if(!childrenSeatsFee){
-			   childrenSeatsPrice = 10*parseInt(childrenSeats.val());
-		  } else {
-			  childrenSeatsPrice = childrenSeatsFee;
-		  }
-	    eSubtotal += childrenSeatsPrice;
-
-	    content = content + '<div class="line_item group">'+
-	      '<span class="line_description">Children seats ('+childrenSeats.val()+'):</span>'+
-	      '<span class="price" id="total_price">$'+childrenSeatsPrice.toFixed(2)+'</span>'+
-	    '</div>';
-	  }
-
-
-	  var boosterSeats = $("#booster_seats_outgoing");
-	  if(boosterSeats.val() != "0") {
-	    var boosterSeatsPrice = 0;
-		if(!boosterSeatsFee){
-			boosterSeatsPrice = (10*parseInt(boosterSeats.val()));
-		} else {
-			boosterSeatsPrice = boosterSeatsFee;
-		}
-		eSubtotal += boosterSeatsPrice;
-
-	    content = content + '<div class="line_item group">'+
-	      '<span class="line_description">Booster seats ('+boosterSeats.val()+'):</span>'+
-	      '<span class="price" id="total_price">$'+boosterSeatsPrice.toFixed(2)+'</span>'+
-	    '</div>';
-	  }
-
-	  if(intermediateStop .is(":checked")) {
-	      var intermediateStopPrice = 0;
-		  if(!stopFee){
-			  intermediateStopPrice = 20
-		  } else {
-			  intermediateStopPrice = stopFee;
-		  }
-	    eSubtotal += intermediateStopPrice;
-
-	    content = content + '<div class="line_item group">'+
-	      '<span class="line_description">One intermediate stop:</span>'+
-	      '<span class="price" id="total_price">$'+intermediateStopPrice.toFixed(2)+'</span>'+
-	    '</div>';
-	  }
-
-	  if($("#coupon_code").val() != "")
-	  {
-	    if(!isNaN(cDiscount))
-	    {
-	      $("#coupon_code").parent().find('.msg').remove();
-	      $('<div class="msg" style="color:#0f0;">Provided coupon code is valid!</div>').insertBefore($("#coupon_code"));
-	    } else {
-	      $("#coupon_code").parent().find('.msg').remove();
-	      $('<div class="msg" style="color:#f00;">Provided coupon code is wrong!</div>').insertBefore($("#coupon_code"));
-	      alert('Provided coupon code is wrong!');
-	    }
-	  }
-
-	  content = content + '<div class="line_item group total">'+
-	    '<span class="line_description">Estimate subtotal:</span>'+
-	    '<span class="price" id="total_price">$'+eSubtotal.toFixed(2)+'</span>'+
-	  '</div>';
-
-	  if(cDiscount)
-	  {
-		eSubtotal -= cDiscount;
-	    content = content + '<div class="line_item group total">'+
-	      '<span class="line_description">Coupon Discount:</span>'+
-	      '<span class="price" id="total_price">-$'+cDiscount.toFixed(2)+'</span>'+
-	    '</div>';
-	  }
-
-	  if(gDiscount)
-	  {
-		  eSubtotal -= gDiscount;
-		  content = content + '<div class="line_item group total">'+
-	      '<span class="line_description">Group Discount:</span>'+
-	  	  '<span class="price" id="total_price">-$'+gDiscount.toFixed(2)+'</span>'+
-	  	  '</div>';
-	  }
-	  if(sDiscount)
-	  {
-		eSubtotal -= sDiscount;
-	    content = content + '<div class="line_item group total">'+
-		  '<span class="line_description">Special Trip Discount:</span>'+
-		  '<span class="price" id="total_price">-$'+sDiscount.toFixed(2)+'</span>'+
-		  '</div>';
-     	}
-
-
-	  var totalFare= fare;
-	  if(!totalFare) totalFare = eSubtotal;
-
-	  content = content + '<div class="line_item group total">'+
-	    '<span class="line_description">Total estimated fare:</span>'+
-	    '<span class="price" id="total_price">$'+totalFare.toFixed(2)+'</span>'+
-	  '</div>';
-        setVehiclePrices(totalFare - vehiclePrice);
-	  $("[name=estimate]").val("$"+totalFare.toFixed(2));
-	  $('#reservation_summary').html(content);
-
-	  if(typeof callback === "function") callback(response);
-
-	}
-
-      });
-
-    }
     function initialize(){
         toAddClearOnClick = $('#clear_to_address').attr('onclick');
+        //see hidden form values
+        loadDefaultFormValue('#steps_main [name=fromID]','fromID');
+        loadDefaultFormValue('#steps_main [name=toID]','toID');
+        loadDefaultFormValue('#steps_main [name=stopID]','stopID');
+        loadDefaultFormValue('#steps_main [name=memberid]','memberid');
+        loadDefaultFormValue('#steps_main [name=meet_greet]','meet_greet');
+        loadDefaultFormValue('#steps_main [name=groupid]','groupid');
+        loadDefaultFormValue('#steps_main [name=vehicle_type]','vehicle_type');
+        loadDefaultFormValue('#steps_main [name=trip_type]','trip_type');
+        loadDefaultFormValue('#steps_main [name=hid_to_location_ID]','hid_to_location_ID');
+        loadDefaultFormValue('#steps_main [name=hid_wait_time]','hid_wait_time');
+
+
+        var opFields = $("#opFields");
+        $('#from_address').change(function() { $('[name=from_location]').change(); });
+        $('#from_airport').change(function() { $('[name=apts_from]').change(); });
+        $('#to_address').change(function()   { $('[name=to_location]').change(); });
+        $('#to_airport').change(function()   { $('[name=apts_to]').change(); });
+
+        // this code is responsible for clearing the
+        // address when toggle between airport and address
+        $('#from_address,'+
+            '#from_airport,'+
+            '#to_address,'+
+            '#to_airport').change(function() {
+                $(this)
+                    .parents()
+                    .filter('fieldset')
+                    .find('a')
+                    .filter(function() { return $(this).text().toLowerCase().indexOf('clear') != -1 })
+                    .click()
+                    .end()
+                ;
+            });
+
+
+        $("#passenger_name")
+            .append($('<option value="kk">Other</option>'))
+            .change(function() {
+                if($(this).val() == "kk") {
+                    opFields.show();
+                } else {
+                    opFields.hide();
+                }
+            })
+            .change();
+
+        $("#child_seats_outgoing, #booster_seats_outgoing")
+            .change(function(e) {
+                var cs = $("#child_seats_outgoing");
+                var bs = $("#booster_seats_outgoing");
+                var sum = parseInt(cs.val()) + parseInt(bs.val());
+
+                if(sum > 3) {
+                    alert("You cannot choose more than 3 children/booster seats.");
+                    $(this).find("option[value=0]").attr('selected','1');
+                    return false;
+                }
+
+
+            });
+
+        $("[name=apts_from],[name=from_location]")
+            .change(function() {
+                var meet = $('#meet_greet');
+                if($('option:selected', this).text().indexOf("Boston Logan") == -1) {
+                    meet.removeAttr("checked").parent().hide();
+                } else {
+                    meet.parent().show();
+                }
+            })
+            .change()
+        ;
+
+        /*
+        $("[name=from_location],[name=to_location]")
+      .change(function() {
+        if($(this).val().indexOf("airport-") != -1) {
+          $(this).next().find('[name=to_type][value=2]').attr("checked", 1).change();
+        } else {
+          $(this).next().find('[name=to_type][value=1]').attr("checked", 1).change();
+        }
+      })
+      .change()
+        ;
+        */
+
+        $("[name=apts_from],[name=apts_to],[name=stopLoc],[name=from_location],[name=to_location],[name=quote_from_location],[name=quote_to_location]")
+            .change(function() {
+                var pi = $($(this).parents().filter('.intermediate_stop,.half_column')[0]);
+
+                var name_val = $('option:selected', this).text().trim();
+                if(name_val == "Saved locations" || name_val == "Select an airport") name_val = "";
+                $(pi.find("[name*=from_name],[name*=to_name],[name=stop_name]")[0]).val(name_val);
+                $(pi.find("[name*=from_address],[name*=to_address],[name=stop_address]")[0]).val($('option:selected', this).attr("data-addr"));
+                $(pi.find("[name*=from_zip],[name*=to_zip],[name=stop_zip]")[0]).val($('option:selected', this).attr("data-zip"));
+                $(pi.find("[name*=from_city],[name*=to_city],[name=stop_city]")[0]).val($('option:selected', this).attr("data-city"));
+                $(pi.find("[name*=from_state],[name*=to_state],[name=stop_state]")[0]).val($('option:selected', this).attr("data-state"));
+            });
+
+        $("#quote_tabs").tabs("#quote_tabs_content > div");
+        var api2 = $("#quote_tabs").data("tabs");
+        <?php if(!isset($_GET['tab']) || $_GET['tab'] == 2): ?>
+            api2.next();
+            <?php endif ?>
+
+        $("#order_steps").tabs("#steps_main > div");
+        var api = $("#order_steps").data("tabs");
+
+
+        var stepNb = 0;
+        <?php if($this->has_warnings()): ?>
+            refresh_estimate();
+            api.next(); api.next(); api.next();
+            <?php endif ?>
+
+        $("input.next").not('[id=get_a_quote_button]').click(function() {
+            var nb = parseInt($($(this).parents().filter('[class*=step]')[0]).attr("class").replace("step", ""))+1;
+            if(nb == 2)
+            {
+
+                //FINDME
+                var repeatAddressError = false;
+                if(!$("#intermediate_stop").is(":checked")) {
+                    if($("#from_zipcode").val().toLowerCase().replace(/[^0-9]/g, "") == $("#to_zipcode").val().toLowerCase().replace(/[^0-9]/g, "")) {
+                        // matched zipcode
+                        if($("#from_street_address").val().toLowerCase() == $("#to_street_addres").val().toLowerCase()) {
+                            // matched address
+                            repeatAddressError = true;
+                        }
+                    }
+                }
+                if (repeatAddressError) {
+                    // Error alert
+                    alert("You cannot have the same starting and ending location without an intermediate stop");
+                    return;
+                }
+                //ENDFINDME
+
+                if($("#reservation_date").val() == '') {
+                    alert('You have to choose a reservation date!');
+                    return;
+                }
+
+                var ad = getAddresses();
+
+                $("[name=toID]").val(ad.toLocation);
+                $("[name=fromID]").val(ad.fromLocation);
+                $("[name=stopID]").val(ad.stopLocation);
+
+                if(!ad.from_address || !ad.from_city || !ad.from_zip || !ad.from_state){
+                    alert('You have to type in a full from address!');
+                    return;
+                }
+                if(ad.to_nick != "As Directed" && (!ad.to_address || !ad.to_state || !ad.to_zip || !ad.to_state) ) {
+                    alert('You have to type in a full to address');
+                    return;
+                }
+
+                if($('#intermediate_stop').is(":checked") && (!ad.stop_addr || !ad.stop_state || !ad.stop_zip || !ad.stop_state)) {
+                    alert('You have to type in full intermediate inaddresses!');
+                    return;
+                }
+
+                if(( $('#from_airport').is(":checked") && (!$('[name=fnum_from]').val() || !$('[name=acode_from]  option:selected').attr("value") ))
+                    || ($('#to_airport').is(":checked") && (!$('[name=fnum_to]').val() || !$('[name=acode_to]  option:selected').attr("value") ))) {
+                    alert('You have to type in flight number and airline!');
+                    return;
+                }
+
+
+                refresh_estimate(function(response)
+                {
+
+                    var data = response.split("|");
+                    var fare = parseFloat(data[21]);
+                    var status = data[22];
+
+
+
+                    var price = fare;
+                    if(!price || price == NaN || price == "NaN" || status == "FAILED") {
+                        alert("We were unable to automatically generate a quote for your locations. Email us at customerservice@planettran.com, or call 888-756-8876 (press option 2). Thanks for your patience and cooperation. ");
+                    } else {
+
+                        var Cx = $('#steps_main');
+                        var addresses = getAddresses();
+                        var displayToNick = addresses.to_nick;
+                        var displayToAddress = (addresses.to_address == undefined ? "" : addresses.to_address);
+                        var displayToCity = (addresses.to_city == undefined ? "" : addresses.to_city);
+                        var displayToState = (addresses.to_state == undefined ? "" : addresses.to_city);
+                        var displayToZip = (addresses.to_zip == undefined ? "" : addresses.to_city);
+                        var displayToString = (displayToAddress == "" ? displayToNick : displayToNick + ' - ' + displayToAddress + ", " + displayToCity + ", " + displayToState + " " +displayToZip);
+
+
+                        $($('.order_details li:nth-child(2)', Cx)).text('Pickup Location: '+addresses.from_nick+' - '+addresses.from_address+", "+addresses.from_city+", "+addresses.from_state+" "+addresses.from_zip);
+                        if(addresses.stop_addr && $("#intermediate_stop").is(":checked"))
+                        {
+                            $($('.order_details li:nth-child(3)', Cx))
+                                .show()
+                                .text('Intermediate stop: '+addresses.stop_nick+' - '+addresses.stop_addr+", "+addresses.stop_city+", "+addresses.stop_state+" "+addresses.stop_zip);
+                        } else {
+                            $($('.order_details li:nth-child(3)', Cx)).hide();
+                        }
+                        $($('.order_details li:nth-child(4)', Cx)).text('Drop-off Location: '+displayToString);
+
+                        try {
+                            history.pushState({ isMine:true }, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);
+                        } catch(e) {}
+                        api.next();
+                    }
+                    return;
+                });
+
+
+            } else {
+                try {
+                    history.pushState({ isMine:true }, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);
+                } catch(e) {}
+                refresh_estimate();
+                api.next();
+            }
+        });
+
+        $("input.prev").not('[id=get_a_quote_button]').click(function(){
+            var nb = parseInt($($(this).parents().filter('[class*=step]')[0]).attr("class").replace("step", ""))-1;
+            try {
+                history.pushState({isMine:true}, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);
+            } catch(e) {}
+
+            api.prev();
+        });
+
+        $("#coupon_code").blur(refresh_estimate);
+
+        $(window).bind("popstate", function(data) {
+            var l = data.delegateTarget.location.href;
+            if(l.indexOf('step=') == -1) return;
+            var step = parseInt(l.split('step=')[1]) - 1;
+            // if(api.
+            // api.click(step);
+            // console.log(data.delegateTarget.location.href);
+            // console.log(data.currentTarget.location.href);
+            // if (data.state.isMine)
+            //     $.getScript(location.href);
+        });
+
+        $('label[for=from_zipcode] a,label[for=to_zipcode] a,label[for=stop_zipcode] a')
+            .click(function(e) {
+                e.preventDefault();
+
+                var f = $($(this).parents().filter('[id*=locations_],.intermediate_stop')[0]);
+
+                var address = f.find('input[name*=address]');
+                var city = f.find('input[name*=city]');
+                var state =  f.find('input[name*=state]');
+                var zip = f.find('input[name*=zip]');
+
+                // console.log(address);
+                // console.log(city);
+                // console.log(state);
+                // console.log(zip);
+                zip_lookup(address, city, state, zip);
+            });
+
+        $('#get_a_quote_button')
+            .click(function() {
+                var ad = getCQAddresses();
+                $("#quote_tabs_content > div:first-child > form [name=toID]")  .val(ad.to_location);
+                $("#quote_tabs_content > div:first-child > form [name=fromID]").val(ad.from_location);
+
+                $.ajax({
+                    url: 'ajaxquote.php',
+                    data: $.extend($("#quote_tabs_content > div:first-child > form").serializeObject(), getCQAddresses()),
+                    type: 'POST',
+                    success: function(response)
+                    {
+                        $("#get_a_quote_button").removeAttr("disabled");
+
+                        var data = response.split("|");
+                        var quickVal = parseFloat(data[21]);
+                        var status = data[22];
+                        var fare = parseFloat(data[21]);
+                        if(!quickVal || quickVal == NaN || quickVal == "NaN" || status == "FAILED" ) {
+                            alert("We were unable to automatically generate a quote for your locations. Email us at customerservice@planettran.com, or call 888-756-8876 (press option 2). Thanks for your patience and cooperation. ");
+                            return;
+                        }
+                        $("#quote_contents").show().find('.price').html(fare.toFixed(2)+"");
+                    }
+                });
+            });
+        /*
+        $('[name=from_location],[name=to_location]')
+          .change(function() {
+        if($(this).val() == '') {
+          $(this).next().show();
+        } else {
+          $(this).next().hide();
+        }
+          })
+          .change();
+        */
     }
     function initTabOnClick(){
         $("#tab1,#tab2")
@@ -1850,6 +1938,7 @@ class Reservation {
                 getParameterByName("to")=="asDirectedLoc") {
 
             disableToLocation();
+
 
             $('#check_by_the_hour').attr("checked",true);
             $('#authWait option').each(function(){
@@ -1973,7 +2062,7 @@ class Reservation {
         $('#dropoff').find('a').hide();
         $('#to_airport').attr("disabled", true);
         $('#to_address').attr("disabled", true);
-
+        $('#intermediate_stop_container').show();
     }
     function enableToLocation(){
         addClearClick();
@@ -1984,7 +2073,7 @@ class Reservation {
         $('#dropoff').find('a').show();
         $('#to_airport').attr("disabled", false);
         $('#to_address').attr("disabled", false);
-
+        $('#intermediate_stop_container').hide();
     }
     function addClearClick(){
         $('#clear_to_address').attr('onclick',toAddClearOnClick).bind('click');
@@ -2240,7 +2329,267 @@ class Reservation {
         };
         return retval;
     }
+    function doClear(relativeTo)
+    {
+        relativeTo = $(relativeTo);
+        $('select', relativeTo.parent().parent())
+            .not('[name*=stop]')
+            .find('option')
+            .removeAttr('selected')
+            .end()
+            .find('option:first-child')
+            .attr('selected',true)
+            .end()
+            .change();
 
+        $('input[type=text]', relativeTo.parent().parent())
+            .not('[name*=stop]')
+            .val('')
+            .end();
+        return false;
+    }
+    function refresh_estimate(callback)
+    {
+
+
+        var intermediate_stop = $("#intermediate_stop");
+
+        var fareType = 0;
+        var tripType = 'P';
+        if($("#check_by_the_hour").is(":checked")) {
+            fareType = "Book by the hour";
+            tripType = 'H';
+        } else if(intermediate_stop.is(":checked")) {
+            fareType = "Intermediate Stop";
+            tripType = 'I';
+        } else {
+            fareType = "One way";
+        }
+        $("#fareType").text(fareType);
+
+        var ad = getAddresses();
+        $("#steps_main [name=toID]")  .val(ad.to_location);
+        $("#steps_main [name=fromID]").val(ad.from_location);
+        $("#steps_main [name=stopID]").val(ad.stop_location);
+        $("#steps_main [name=meet_greet]").val($("[name=greet]").is(":checked") ? "1" : "0");
+        $("#steps_main [name=trip_type]").val(tripType);
+        $("#steps_main [name=vehicle_type]").val($("[name=carTypeSelect]:checked").attr("data-vehicleTypeMapping"));
+
+        $.ajax({
+            url:  'ajaxquote.php',
+            type: 'POST',
+            data: $.extend($("#steps_main").serializeObject(), getAddresses()),
+            success: function(response)
+            {
+                var data = response.split("|");
+
+                var content = '';
+                var eSubtotal = 0;
+                //var base_price = parseFloat(data[3]);
+
+                var resType = data[0];
+                var groupName = data[1];
+                var vehicleDesc = data[2];
+                var baseFare = parseFloat(data[3]);
+                var basePrice = baseFare;
+                var stopFee = parseFloat(data[4]);
+                var waitFee = parseFloat(data[5]);
+                var vehicleFee = parseFloat(data[6]);
+                var meetGreetFee = parseFloat(data[7]);
+                var childrenSeatsFee = parseFloat(data[8]);
+                var boosterSeatsFee = parseFloat(data[9]);
+                var subtotalFare = parseFloat(data[10]);
+                var sDiscount = parseFloat(data[11]);
+                var gDiscount = parseFloat(data[12]);
+                var cDiscount = parseFloat(data[13]);
+                var minFare = parseFloat(data[14]);
+                var integrationFee = parseFloat(data[15]);
+                var airportFee = parseFloat(data[16]);
+                var tolls = parseFloat(data[17]);
+                var fromAddress = data[18];
+                var toAddress = data[19];
+                var stopAddress = data[20];
+                var fare = parseFloat(data[21]);
+                var status = data[22];
+                var errors = data[23];
+
+
+                content += '<div class="line_item_group">'+
+                    '<span class="line_description">Fare Type:</span>';
+
+
+                var tripType = 'P';
+                var intermediateStop = $("#intermediate_stop");
+
+                if($("#check_by_the_hour").is(":checked")) {
+                    tripType = 'H';
+                    content += '<span class="price" id="total_price">By the hour</span>';
+                } else if (intermediateStop .is(":checked")) {
+                    tripType = 'I';
+                    content += '<span class=class="price" id="total_price">Intermediate stop</span>';
+                } else {
+                    content += '<span class="price" id="total_price">One way</span>';
+                }
+
+
+
+
+                eSubtotal =+ basePrice;
+                content = content + '<div class="line_item group">'+
+                    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
+                    '<span class="price" id="total_price">$'+basePrice.toFixed(2)+'</span>'+
+                    '</div>';
+
+                var meet_greet = $("#meet_greet");
+                if(meet_greet.is(":checked")) {
+                    if (!meetGreetFee){
+                        eSubtotal += 30;
+                    } else {
+                        eSubtotal += meetGreetFee;
+                    }
+
+                    content = content + '<div class="line_item group">'+
+                        '<span class="line_description">Logan Airport meet and greet</span>'+
+                        '<span class="price" id="total_price">$'+meetGreetFee.toFixed(2)+'</span>'+
+                        '</div>';
+                }
+
+                var vehiclePrice = 0;
+                var cts = $("[name=carTypeSelect]:checked");
+                if(tripType!='H' && cts.val() != "" && cts.val() != "P") {
+                    var vehicle = vehicles[cts.val()];
+                    if(vehicle) {
+                        //vehicle_price = vehicle.price;
+                        if(!vehicleFee){
+                            vehiclePrice = vehicle.price;
+                        } else {
+                            vehiclePrice = vehicleFee;
+                        }
+                        eSubtotal += vehiclePrice;
+
+                        content = content + '<div class="line_item group">'+
+                            '<span class="line_description">Vehicle upgrade ('+vehicle.name+'):</span>'+
+                            '<span class="price" id="total_price">$'+vehiclePrice.toFixed(2)+'</span>'+
+                            '</div>';
+                    }
+                }
+
+                var childrenSeats = $("#child_seats_outgoing");
+                if(childrenSeats.val() != "0") {
+                    var childrenSeatsPrice = 0;
+                    if(!childrenSeatsFee){
+                        childrenSeatsPrice = 10*parseInt(childrenSeats.val());
+                    } else {
+                        childrenSeatsPrice = childrenSeatsFee;
+                    }
+                    eSubtotal += childrenSeatsPrice;
+
+                    content = content + '<div class="line_item group">'+
+                        '<span class="line_description">Children seats ('+childrenSeats.val()+'):</span>'+
+                        '<span class="price" id="total_price">$'+childrenSeatsPrice.toFixed(2)+'</span>'+
+                        '</div>';
+                }
+
+
+                var boosterSeats = $("#booster_seats_outgoing");
+                if(boosterSeats.val() != "0") {
+                    var boosterSeatsPrice = 0;
+                    if(!boosterSeatsFee){
+                        boosterSeatsPrice = (10*parseInt(boosterSeats.val()));
+                    } else {
+                        boosterSeatsPrice = boosterSeatsFee;
+                    }
+                    eSubtotal += boosterSeatsPrice;
+
+                    content = content + '<div class="line_item group">'+
+                        '<span class="line_description">Booster seats ('+boosterSeats.val()+'):</span>'+
+                        '<span class="price" id="total_price">$'+boosterSeatsPrice.toFixed(2)+'</span>'+
+                        '</div>';
+                }
+
+                if(intermediateStop .is(":checked")) {
+                    var intermediateStopPrice = 0;
+                    if(!stopFee){
+                        intermediateStopPrice = 20
+                    } else {
+                        intermediateStopPrice = stopFee;
+                    }
+                    eSubtotal += intermediateStopPrice;
+
+                    content = content + '<div class="line_item group">'+
+                        '<span class="line_description">One intermediate stop:</span>'+
+                        '<span class="price" id="total_price">$'+intermediateStopPrice.toFixed(2)+'</span>'+
+                        '</div>';
+                }
+
+                if($("#coupon_code").val() != "")
+                {
+                    if(!isNaN(cDiscount))
+                    {
+                        $("#coupon_code").parent().find('.msg').remove();
+                        $('<div class="msg" style="color:#0f0;">Provided coupon code is valid!</div>').insertBefore($("#coupon_code"));
+                    } else {
+                        $("#coupon_code").parent().find('.msg').remove();
+                        $('<div class="msg" style="color:#f00;">Provided coupon code is wrong!</div>').insertBefore($("#coupon_code"));
+                        alert('Provided coupon code is wrong!');
+                    }
+                }
+
+                content = content + '<div class="line_item group total">'+
+                    '<span class="line_description">Estimate subtotal:</span>'+
+                    '<span class="price" id="total_price">$'+eSubtotal.toFixed(2)+'</span>'+
+                    '</div>';
+
+                if(cDiscount)
+                {
+                    eSubtotal -= cDiscount;
+                    content = content + '<div class="line_item group total">'+
+                        '<span class="line_description">Coupon Discount:</span>'+
+                        '<span class="price" id="total_price">-$'+cDiscount.toFixed(2)+'</span>'+
+                        '</div>';
+                }
+
+                if(gDiscount)
+                {
+                    eSubtotal -= gDiscount;
+                    content = content + '<div class="line_item group total">'+
+                        '<span class="line_description">Group Discount:</span>'+
+                        '<span class="price" id="total_price">-$'+gDiscount.toFixed(2)+'</span>'+
+                        '</div>';
+                }
+                if(sDiscount)
+                {
+                    eSubtotal -= sDiscount;
+                    content = content + '<div class="line_item group total">'+
+                        '<span class="line_description">Special Trip Discount:</span>'+
+                        '<span class="price" id="total_price">-$'+sDiscount.toFixed(2)+'</span>'+
+                        '</div>';
+                }
+
+
+                var totalFare= fare;
+                if(!totalFare) totalFare = eSubtotal;
+
+                content = content + '<div class="line_item group total">'+
+                    '<span class="line_description">Total estimated fare:</span>'+
+                    '<span class="price" id="total_price">$'+totalFare.toFixed(2)+'</span>'+
+                    '</div>';
+                setVehiclePrices(totalFare - vehiclePrice);
+                $("[name=estimate]").val("$"+totalFare.toFixed(2));
+                $('#reservation_summary').html(content);
+
+                if(typeof callback === "function") callback(response);
+
+            }
+
+        });
+
+    }
+    function loadDefaultFormValue(id, pname){
+        if( $(id).val() != '') {
+            $(id).val(getParameterByName(pname));
+        }
+    }
     initFunctions();
     initSettings();
     $(function(){
@@ -2250,301 +2599,7 @@ class Reservation {
         initCheckByTheHourOnChange();
         initReservationSubmitOnClick();
     });
-
-
-  $(function() {
-
-    var opFields = $("#opFields");
-    $('#from_address').change(function() { $('[name=from_location]').change(); });
-    $('#from_airport').change(function() { $('[name=apts_from]').change(); });
-    $('#to_address').change(function()   { $('[name=to_location]').change(); });
-    $('#to_airport').change(function()   { $('[name=apts_to]').change(); });
-
-      // this code is responsible for clearing the
-      // address when toggle between airport and address
-  $('#from_address,'+
-      '#from_airport,'+
-      '#to_address,'+
-      '#to_airport').change(function() {
-      $(this)
-        .parents()
-        .filter('fieldset')
-        .find('a')
-	  .filter(function() { return $(this).text().toLowerCase().indexOf('clear') != -1 })
-	  .click()
-            .end()
-     ;
-    });
-
-
-    $("#passenger_name")
-      .append($('<option value="kk">Other</option>'))
-      .change(function() {
-	if($(this).val() == "kk") {
-	  opFields.show();
-	} else {
-	  opFields.hide();
-	}
-      })
-      .change();
-
-    $("#child_seats_outgoing, #booster_seats_outgoing")
-      .change(function(e) {
-	var cs = $("#child_seats_outgoing");
-	var bs = $("#booster_seats_outgoing");
-	var sum = parseInt(cs.val()) + parseInt(bs.val());
-
-	if(sum > 3) {
-	  alert("You cannot choose more than 3 children/booster seats.");
-	  $(this).find("option[value=0]").attr('selected','1');
-	  return false;
-	}
-
-
-      });
-
-      $("[name=apts_from],[name=from_location]")
-	.change(function() {
-	  var meet = $('#meet_greet');
-	  if($('option:selected', this).text().indexOf("Boston Logan") == -1) {
-	    meet.removeAttr("checked").parent().hide();
-	  } else {
-	    meet.parent().show();
-	  }
-	})
-	.change()
-      ;
-
-      /*
-      $("[name=from_location],[name=to_location]")
-	.change(function() {
-	  if($(this).val().indexOf("airport-") != -1) {
-	    $(this).next().find('[name=to_type][value=2]').attr("checked", 1).change();
-	  } else {
-	    $(this).next().find('[name=to_type][value=1]').attr("checked", 1).change();
-	  }
-	})
-	.change()
-      ;
-      */
-
-      $("[name=apts_from],[name=apts_to],[name=stopLoc],[name=from_location],[name=to_location],[name=quote_from_location],[name=quote_to_location]")
-	.change(function() {
-	  var pi = $($(this).parents().filter('.intermediate_stop,.half_column')[0]);
-
-	  var name_val = $('option:selected', this).text().trim();
-	  if(name_val == "Saved locations" || name_val == "Select an airport") name_val = "";
-	  $(pi.find("[name*=from_name],[name*=to_name],[name=stop_name]")[0]).val(name_val);
-	  $(pi.find("[name*=from_address],[name*=to_address],[name=stop_address]")[0]).val($('option:selected', this).attr("data-addr"));
-	  $(pi.find("[name*=from_zip],[name*=to_zip],[name=stop_zip]")[0]).val($('option:selected', this).attr("data-zip"));
-	  $(pi.find("[name*=from_city],[name*=to_city],[name=stop_city]")[0]).val($('option:selected', this).attr("data-city"));
-	  $(pi.find("[name*=from_state],[name*=to_state],[name=stop_state]")[0]).val($('option:selected', this).attr("data-state"));
-	});
-
-    $("#quote_tabs").tabs("#quote_tabs_content > div");
-    var api2 = $("#quote_tabs").data("tabs");
-    <?php if(!isset($_GET['tab']) || $_GET['tab'] == 2): ?>
-      api2.next();
-    <?php endif ?>
-
-    $("#order_steps").tabs("#steps_main > div");
-    var api = $("#order_steps").data("tabs");
-
-
-    var stepNb = 0;
-    <?php if($this->has_warnings()): ?>
-      refresh_estimate();
-      api.next(); api.next(); api.next();
-    <?php endif ?>
-
-    $("input.next").not('[id=get_a_quote_button]').click(function() {
-      var nb = parseInt($($(this).parents().filter('[class*=step]')[0]).attr("class").replace("step", ""))+1;
-      if(nb == 2)
-      {
-
-    //FINDME
-    var repeatAddressError = false;
-    if(!$("#intermediate_stop").is(":checked")) {
-	    if($("#from_zipcode").val().toLowerCase().replace(/[^0-9]/g, "") == $("#to_zipcode").val().toLowerCase().replace(/[^0-9]/g, "")) {
-		    // matched zipcode
-	    	if($("#from_street_address").val().toLowerCase() == $("#to_street_addres").val().toLowerCase()) {
-		    	// matched address
-			    repeatAddressError = true;
-		    }
-	    }
-    }
-    if (repeatAddressError) {
-        // Error alert
-        alert("You cannot have the same starting and ending location without an intermediate stop");
-        return;
-    }
-    //ENDFINDME
-
-	if($("#reservation_date").val() == '') {
-	  alert('You have to choose a reservation date!');
-	  return;
-	}
-
-	var ad = getAddresses();
-
-        $("[name=toID]").val(ad.toLocation);
-        $("[name=fromID]").val(ad.fromLocation);
-        $("[name=stopID]").val(ad.stopLocation);
-
-	if(!ad.from_address || !ad.from_city || !ad.from_zip || !ad.from_state){
-        alert('You have to type in a full from address!');
-        return;
-    }
-    if(ad.to_nick != "As Directed" && (!ad.to_address || !ad.to_state || !ad.to_zip || !ad.to_state) ) {
-	  alert('You have to type in a full to address');
-	  return;
-	}
-
-	if($('#intermediate_stop').is(":checked") && (!ad.stop_addr || !ad.stop_state || !ad.stop_zip || !ad.stop_state)) {
-	  alert('You have to type in full intermediate inaddresses!');
-	  return;
-	}
-
-	if(( $('#from_airport').is(":checked") && (!$('[name=fnum_from]').val() || !$('[name=acode_from]  option:selected').attr("value") ))
-	 || ($('#to_airport').is(":checked") && (!$('[name=fnum_to]').val() || !$('[name=acode_to]  option:selected').attr("value") ))) {
-	  alert('You have to type in flight number and airline!');
-	  return;
-	}
-
-
-	refresh_estimate(function(response)
-	  {
-
-	    var data = response.split("|");
-		var fare = parseFloat(data[21]);
-		var status = data[22];
-
-
-
-	    var price = fare;
-	    if(!price || price == NaN || price == "NaN" || status == "FAILED") {
-	      alert("We were unable to automatically generate a quote for your locations. Email us at customerservice@planettran.com, or call 888-756-8876 (press option 2). Thanks for your patience and cooperation. ");
-	    } else {
-
-	      var Cx = $('#steps_main');
-	      var addresses = getAddresses();
-          var displayToNick = addresses.to_nick;
-          var displayToAddress = (addresses.to_address == undefined ? "" : addresses.to_address);
-          var displayToCity = (addresses.to_city == undefined ? "" : addresses.to_city);
-          var displayToState = (addresses.to_state == undefined ? "" : addresses.to_city);
-          var displayToZip = (addresses.to_zip == undefined ? "" : addresses.to_city);
-          var displayToString = (displayToAddress == "" ? displayToNick : displayToNick + ' - ' + displayToAddress + ", " + displayToCity + ", " + displayToState + " " +displayToZip);
-
-
-	      $($('.order_details li:nth-child(2)', Cx)).text('Pickup Location: '+addresses.from_nick+' - '+addresses.from_address+", "+addresses.from_city+", "+addresses.from_state+" "+addresses.from_zip);
-	      if(addresses.stop_addr && $("#intermediate_stop").is(":checked"))
-	      {
-		    $($('.order_details li:nth-child(3)', Cx))
-		    .show()
-		    .text('Intermediate stop: '+addresses.stop_nick+' - '+addresses.stop_addr+", "+addresses.stop_city+", "+addresses.stop_state+" "+addresses.stop_zip);
-	      } else {
-		    $($('.order_details li:nth-child(3)', Cx)).hide();
-	      }
-	        $($('.order_details li:nth-child(4)', Cx)).text('Drop-off Location: '+displayToString);
-
-	      try {
-	       history.pushState({ isMine:true }, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);
-	      } catch(e) {}
-	      api.next();
-	    }
-	    return;
-	});
-
-
-      } else {
-	try {
-	  history.pushState({ isMine:true }, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);
-	} catch(e) {}
-	refresh_estimate();
-	api.next();
-      }
-    });
-
-    $("input.prev").not('[id=get_a_quote_button]').click(function(){
-      var nb = parseInt($($(this).parents().filter('[class*=step]')[0]).attr("class").replace("step", ""))-1;
-      try {
-	history.pushState({isMine:true}, "step"+nb, "reserve.php?type=<?php echo $_GET['type'] ?>&resid=<?php echo $_GET['resid'] ?>&step="+nb);
-      } catch(e) {}
-
-      api.prev();
-    });
-
-    $("#coupon_code").blur(refresh_estimate);
-
-    $(window).bind("popstate", function(data) {
-	var l = data.delegateTarget.location.href;
-	if(l.indexOf('step=') == -1) return;
-	var step = parseInt(l.split('step=')[1]) - 1;
-	// if(api.
-	// api.click(step);
-	// console.log(data.delegateTarget.location.href);
-	// console.log(data.currentTarget.location.href);
-        // if (data.state.isMine)
-        //     $.getScript(location.href);
-     });
-
-    $('label[for=from_zipcode] a,label[for=to_zipcode] a,label[for=stop_zipcode] a')
-      .click(function(e) {
-	e.preventDefault();
-
-	var f = $($(this).parents().filter('[id*=locations_],.intermediate_stop')[0]);
-
-	var address = f.find('input[name*=address]');
-	var city = f.find('input[name*=city]');
-	var state =  f.find('input[name*=state]');
-	var zip = f.find('input[name*=zip]');
-
-	// console.log(address);
-	// console.log(city);
-	// console.log(state);
-	// console.log(zip);
-	zip_lookup(address, city, state, zip);
-      });
-
-    $('#get_a_quote_button')
-      .click(function() {
-	var ad = getCQAddresses();
-	$("#quote_tabs_content > div:first-child > form [name=toID]")  .val(ad.to_location);
-	$("#quote_tabs_content > div:first-child > form [name=fromID]").val(ad.from_location);
-
-	$.ajax({
-	  url: 'ajaxquote.php',
-	  data: $.extend($("#quote_tabs_content > div:first-child > form").serializeObject(), getCQAddresses()),
-	  type: 'POST',
-	  success: function(response)
-	  {
-	    $("#get_a_quote_button").removeAttr("disabled");
-
-	    var data = response.split("|");
-	    var quickVal = parseFloat(data[21]);
-	    var status = data[22];
-	    var fare = parseFloat(data[21]);
-	    if(!quickVal || quickVal == NaN || quickVal == "NaN" || status == "FAILED" ) {
-	      alert("We were unable to automatically generate a quote for your locations. Email us at customerservice@planettran.com, or call 888-756-8876 (press option 2). Thanks for your patience and cooperation. ");
-	      return;
-	    }
-	    $("#quote_contents").show().find('.price').html(fare.toFixed(2)+"");
-	  }
-	});
-      });
-    /*
-    $('[name=from_location],[name=to_location]')
-      .change(function() {
-	if($(this).val() == '') {
-	  $(this).next().show();
-	} else {
-	  $(this).next().hide();
-	}
-      })
-      .change();
-    */
-  });
-
+//go
 </script>
 
 <h1 id="hdr_reservations"><span class="imagetext">Reservations</span></h1>
@@ -2715,7 +2770,7 @@ class Reservation {
           <label for="meet_greet">Logan airport meet and greet $30 <span class="tip">(?)</span></label>
           <div class="tooltip">Massport requires drivers to stay with their vehicles; select the meet and greet to be met at Baggage Claim and escorted to the car.</div>
       </div>
-      <div class="row group">
+      <div id="intermediate_stop_container" class="row group">
           <!-- Unchecked by default.  Checking this will launch the same popover per the "edit" link below -->
           <input name="stop" value="1" type="checkbox" id="intermediate_stop" <?php if($values['stop']) echo 'checked="checked"' ?> />
           <label for="intermediate_stop">Add an intermediate stop <span class="tip">(?)</span></label>
