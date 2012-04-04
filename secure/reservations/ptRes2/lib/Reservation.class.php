@@ -1666,18 +1666,13 @@ class Reservation {
 			content += '<span class="price" id="total_price">By the hour</span>';
 		} else if (intermediateStop .is(":checked")) {
 			tripType = 'I';
-<<<<<<< HEAD
-			content += '<span class=class="price" id="total_price">Intermediate</span>';
-=======
 			content += '<span class=class="price" id="total_price">Intermediate stop</span>';
->>>>>>> origin/master
 		} else {
 			content += '<span class="price" id="total_price">One way</span>';
 		}
 
 
 	  eSubtotal =+ basePrice;
-
 	  content = content + '<div class="line_item group">'+
 	    '<span class="line_description">Estimated fare for Prius Sedan (including applicable tolls):</span>'+
 	    '<span class="price" id="total_price">$'+basePrice.toFixed(2)+'</span>'+
