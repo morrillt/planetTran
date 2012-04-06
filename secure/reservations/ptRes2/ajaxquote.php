@@ -5,9 +5,9 @@
 // spl_autoload_register();
 use classes\BusinessLogic\Estimates as Est;
 session_start();
-
+$paths = get_include_path();
 include_once('lib/db/AdminDB.class.php');
-include_once('../../../PTAutoLoader.php');
+include_once('/home/planet/config/PTAutoLoader.php');
 PTAutoLoader::BusinessLogicLoader('Estimates/Estimate');
 
 global $d;
@@ -34,9 +34,17 @@ function get_estimate($col){
     $to = null;
     $stop = null;
 
-    loadResourceById(&$e->fromAddress,$fromId);
-    loadResourceById(&$e->toAddress,$toId);
-    loadResourceById(&$e->stopAddress,$stopId);
+    if ($fromId) {
+        loadResourceById(&$e->fromAddress,$fromId);
+    }
+    if ($toId) {
+        loadResourceById(&$e->toAddress,$toId);
+    }
+
+    if ($stopId) {
+        loadResourceById(&$e->stopAddress,$stopId);
+    }
+
     loadCollectionIn(&$e, $col);
     setEstimateRegion(&$e);
 
@@ -118,6 +126,9 @@ function get_estimate($col){
 }
 
 function setEstimateRegion(&$e){
+    $e->stopAddress->setRegion();
+    $e->fromAddress->setRegion();
+    $e->toAddress->setRegion();
     if($e->stopAddress->isValid()){
         if($e->fromAddress->region == $e->toAddress->region && $e->fromAddress->region  == $e->stopAddress->region )
         {
